@@ -118,8 +118,7 @@
   [a b]
   {:pre [(observable? a)
          (observable? b)]}
-  (letfn [(merge [& args] args)]
-    (.zip a b merge)))
+  (.zip a b vector))
 
 (defn concat
   "Concatenates all of the specified observable
@@ -145,14 +144,14 @@
 (defn filter
   "Filters the elements of an observable sequence
   based on a predicate."
-  [ob f]
+  [f ob]
   {:pre [(observable? ob) (fn? f)]}
   (.filter ob f))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
-  [ob f]
+  [f ob]
   {:pre [(observable? ob) (fn? f)]}
   (.map ob f))
 
@@ -168,7 +167,7 @@
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [ob n]
+  [n ob]
   {:pre [(observable? ob) (number? f)]}
   (.take ob f))
 
