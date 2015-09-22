@@ -97,11 +97,6 @@
          (catch js/Error e
            (.onError ob e))))))))
 
-
-
-
-
-
 (defn choice
   "Create an observable that surfaces any of the given
   sequences, whichever reacted first."
@@ -155,11 +150,20 @@
   {:pre [(observable? ob) (fn? f)]}
   (.map ob f))
 
+(defn flat-map
+  "Projects each element of an observable sequence to
+  an observable sequence and merges the resulting
+  observable sequences or Promises or array/iterable
+  into one observable sequence."
+  [f ob]
+  {:pre [(observable? ob) (fn? f)]}
+  (.flatMap ob f))
+
 (defn skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [ob n]
+  [n ob]
   {:pre [(observable? ob) (number? f)]}
   (.skip ob f))
 
@@ -174,7 +178,7 @@
 (defn take-while
   "Returns elements from an observable sequence as long as a
   specified predicate returns true."
-  [ob p]
+  [p ob]
   {:pre [(observable? ob) (number? p)]}
   (.takeWhile ob f))
 
@@ -200,4 +204,13 @@
   "Subscribes an observer to the observable sequence."
   [obs nf ef cf]
   (.subscribe obs nf ef cf))
+
+(defn reduce
+  "Applies an accumulator function over an observable
+  sequence, returning the result of the aggregation as a
+  single element in the result sequence."
+  ([f ob]
+   (.reduce ob fn))
+  ([f seed ob]
+   (.reduce ob fn seed)))
 

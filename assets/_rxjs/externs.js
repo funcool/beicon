@@ -17,8 +17,10 @@ Rx.Observable.prototype.take = function() {};
 Rx.Observable.prototype.takeWhile = function() {};
 Rx.Observable.prototype.concat = function() {};
 Rx.Observable.prototype.map = function() {};
+Rx.Observable.prototype.flatMap = function() {};
 Rx.Observable.prototype.zip = function() {};
 Rx.Observable.prototype.filter = function() {};
+Rx.Observable.prototype.reduce = function() {};
 
 Rx.Observer = function() {};
 Rx.Observer.prototype.onNext = function() {};
