@@ -1,5 +1,5 @@
 (ns beicon.core
-  (:require [beicon.external.rxjs]
+  (:require [beicon.extern.rxjs]
             [cats.protocols :as p]
             [cats.context :as ctx])
   (:refer-clojure :exclude [true? map filter reduce merge repeat repeatedly zip
@@ -9,11 +9,15 @@
                             concat
                             partition]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Observables Constructors
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn repeat
   "Generates an observable sequence that repeats the
   given element."
   ([v]
-   (repeats v -1))
+   (repeat v -1))
   ([v n]
    {:pre [(number? v)]}
    (js/Rx.Observable.repeat v n)))
@@ -46,33 +50,19 @@
   (-error? [_] false)
 
   IObservableEndValue
-  (-end? [_] false)e
+  (-end? [_] false))
 
-(extend-protocol IObservableErrorValue
-  js/Error
-  (-error? [_] true)
-
-  cljs.core.ExceptionInfo
-  (-error? [_] true))
-
-(deftype EndValue [v]
+(extend-type nil
+  IObservableEndValue
   (-end? [_] true))
 
-(defn next
-  [v]
-  (NextValue. v))
+(extend-type js/Error
+  IObservableErrorValue
+  (-error? [_] true))
 
-(defn next?
-  [v]
-  (instance? NextValue v))
-
-(defn end
-  [v]
-  (EndValue. v))
-
-(defn end?
-  [v]
-  (instance? EndValue v))
+(extend-type cljs.core.ExceptionInfo
+  IObservableErrorValue
+  (-error? [_] true))
 
 (defn create
   "Creates an observable sequence from a specified
@@ -83,19 +73,86 @@
    (fn [ob]
      (letfn [(callback [v]
                (cond
-                 (next? v)
+                 (-next? v)
                  (.onNext ob)
-                 (end? v)
-                 (if (instance? EndValue v)
-                   (.onComplete ob (.-v v))
-                   (.onComplete ob v))
 
-                 (error? v)
+                 (-end? v)
+                 (.onCompleted ob)
+
+                 (-error? v)
                  (.onError ob v)))]
        (try
          (sf callback)
          (catch js/Error e
-           (.onError ob e))))))))
+           (.onError ob e)))))))
+
+(defn observable?
+  "Return true if `ob` is a instance
+  of Rx.Observable."
+  [ob]
+  (instance? js/Rx.Observable ob))
+
+;; (defn from-poll
+;;   "Creates an observable sequence polling given
+;;   function with given interval."
+;;   [ms f]
+;;   (create (fn [sick]
+
+;;             (let [sem (js/setInterval
+;;                        (fn []
+;;                          (let [v (f)]
+;;                            (when (or (-end? v) (-error? v))
+;;                              (js/clearInterval sem))
+;;                            (sick v))))]
+;;                    (.onNext ob)
+
+;;                    (-end? v)
+;;                  (if (instance? EndValue v)
+;;                    (.onComplete ob (.-v v))
+;;                    (.onComplete ob v))
+
+;;                  (-error? v)
+;;                  (.onError ob v))))))
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Observable Subscription
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn on-value
+  "Subscribes a function to invoke for each element
+  in the observable sequence."
+  [ob f]
+  {:pre [(observable? ob) (fn? f)]}
+  (.subscribeOnNext ob f))
+
+(defn on-error
+  "Subscribes a function to invoke upon exceptional termination
+  of the observable sequence."
+  [ob f]
+  {:pre [(observable? ob) (fn? f)]}
+  (.subscribeOnError ob f))
+
+(defn on-end
+  "Subscribes a function to invoke upon graceful termination
+  of the observable sequence."
+  [ob f]
+  {:pre [(observable? ob) (fn? f)]}
+  (.subscribeOnCompleted ob f))
+
+(defn subscribe
+  "Subscribes an observer to the observable sequence."
+  [ob nf ef cf]
+  {:pre [(observable? ob)]}
+  (.subscribe ob nf ef cf))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Observable Transformations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn choice
   "Create an observable that surfaces any of the given
@@ -105,7 +162,7 @@
           (observable? b)]}
    (.amb a b))
   ([a b & more]
-   (reduce choice (choice a b) more)))
+   (cljs.core/reduce choice (choice a b) more)))
 
 (defn zip
   "Merges the specified observable sequences or Promises
@@ -124,7 +181,7 @@
           (observable? b)]}
    (.concat a b))
   ([a b & more]
-   (reduce concat (concat a b) more)))
+   (cljs.core/reduce concat (concat a b) more)))
 
 (defn merge
   "Merges all the observable sequences and Promises
@@ -134,7 +191,7 @@
           (observable? b)]}
    (.merge a b))
   ([a b & more]
-   (reduce merge (merge a b) more)))
+   (cljs.core/reduce merge (merge a b) more)))
 
 (defn filter
   "Filters the elements of an observable sequence
@@ -164,53 +221,60 @@
   observable sequence and then returns the remaining
   elements."
   [n ob]
-  {:pre [(observable? ob) (number? f)]}
-  (.skip ob f))
+  {:pre [(observable? ob) (number? n)]}
+  (.skip ob n))
 
 (defn take
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
   [n ob]
-  {:pre [(observable? ob) (number? f)]}
-  (.take ob f))
+  {:pre [(observable? ob) (number? n)]}
+  (.take ob n))
 
 (defn take-while
   "Returns elements from an observable sequence as long as a
   specified predicate returns true."
-  [p ob]
-  {:pre [(observable? ob) (number? p)]}
+  [f ob]
+  {:pre [(observable? ob) (fn? f)]}
   (.takeWhile ob f))
-
-(defn on-value
-  "Subscribes a function to invoke for each element
-  in the observable sequence."
-  [obs f]
-  (.subscribeOnNext obs f))
-
-(defn on-error
-  "Subscribes a function to invoke upon exceptional termination
-  of the observable sequence."
-  [obs f]
-  (.subscribeOnError obs f))
-
-(defn on-end
-  "Subscribes a function to invoke upon graceful termination
-  of the observable sequence."
-  [obs f]
-  (.subscribeOnCompleted obs f))
-
-(defn subscribe
-  "Subscribes an observer to the observable sequence."
-  [obs nf ef cf]
-  (.subscribe obs nf ef cf))
 
 (defn reduce
   "Applies an accumulator function over an observable
   sequence, returning the result of the aggregation as a
   single element in the result sequence."
   ([f ob]
-   (.reduce ob fn))
+   {:pre [(observable? ob) (fn? f)]}
+   (.reduce ob f))
   ([f seed ob]
-   (.reduce ob fn seed)))
+   {:pre [(observable? ob) (fn? f)]}
+   (.reduce ob f seed)))
+
+(defn tap
+  "Invokes an action for each element in the
+  observable sequence."
+  [f ob]
+  {:pre [(observable? ob) (fn? f)]}
+  (.tap ob f))
+
+(defn throttle
+  "Returns an Observable that emits only the first item
+  emitted by the source Observable during sequential
+  time windows of a specified duration."
+  [ms ob]
+  {:pre [(observable? ob) (number? ms)]}
+  (.throttle ob ms))
+
+(defn ignore
+  "Ignores all elements in an observable sequence leaving
+  only the termination messages."
+  [ob]
+  {:pre [(observable? ob)]}
+  (.ignoreElements ob))
+
+(defn pausable
+  [pauser ob]
+  {:pre [(observable? ob) (observable? pauser)]}
+  (.pausable ob pauser))
+
 
