@@ -21,6 +21,10 @@ Rx.Observable.prototype.flatMap = function() {};
 Rx.Observable.prototype.zip = function() {};
 Rx.Observable.prototype.filter = function() {};
 Rx.Observable.prototype.reduce = function() {};
+Rx.Observable.prototype.tap = function() {};
+Rx.Observable.prototype.throttle = function() {};
+Rx.Observable.prototype.ignoreElements = function() {};
+Rx.Observable.prototype.interval = function() {};
 
 Rx.Observer = function() {};
 Rx.Observer.prototype.onNext = function() {};
