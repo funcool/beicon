@@ -5,7 +5,7 @@
 (let [start (System/nanoTime)]
   (b/build
    (b/inputs "test" "src")
-   {:main 'cats.runner
+   {:main 'beicon.tests-runner
     :output-to "out/tests.js"
     :output-dir "out"
     :target :nodejs
