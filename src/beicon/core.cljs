@@ -361,6 +361,31 @@
    (on-value ob #(swap! a f %))
    a))
 
+(defn- sink-step
+  [sink]
+  (fn
+    ([r]
+     (sink nil)
+     r)
+    ([_ input]
+     (sink input)
+     input)))
+
+(defn transform
+  [xform stream]
+  (let [ns (create (fn [sink]
+                     (let [xsink (xform (sink-step sink))
+                           step (fn [input]
+                                  (let [v (xsink nil input)]
+                                    (when (reduced? v)
+                                      (xsink @v))))
+                           unsub (on-value stream step)]
+                       (on-end stream #(do (xsink nil)
+                                           (sink nil)))
+                       (fn []
+                         (.dispose unsub)))))]
+    ns))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cats Integration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

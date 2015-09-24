@@ -360,22 +360,22 @@
       (s/on-end st #(do (t/is (= @a [1 2 3]))
                         (done))))))
 
-;; (t/deftest transform-with-stateless-transducers
-;;   (t/async done
-;;     (let [s (s/from-coll [1 2 3 4 5 6])
-;;           ts (s/transform (comp
-;;                            (map inc)
-;;                            (filter odd?))
-;;                           s)]
-;;       (drain! ts #(t/is (= % [3 5 7])))
-;;       (s/on-end ts done))))
+(t/deftest transform-with-stateless-transducers
+  (t/async done
+    (let [s (s/from-coll [1 2 3 4 5 6])
+          ts (s/transform (comp
+                           (map inc)
+                           (filter odd?))
+                          s)]
+      (drain! ts #(t/is (= % [3 5 7])))
+      (s/on-end ts done))))
 
-;; (t/deftest transform-with-stateful-transducers
-;;   (t/async done
-;;     (let [s (s/from-coll [1 2 3 4 5 6])
-;;           ts (s/transform (comp
-;;                            (partition-all 2)
-;;                            (take 2))
-;;                           s)]
-;;       (drain! ts #(t/is (= % [[1 2] [3 4]])))
-;;       (s/on-end ts done))))
+(t/deftest transform-with-stateful-transducers
+  (t/async done
+    (let [s (s/from-coll [1 2 3 4 5 6])
+          ts (s/transform (comp
+                           (partition-all 2)
+                           (take 2))
+                          s)]
+      (drain! ts #(t/is (= % [[1 2] [3 4]])))
+      (s/on-end ts done))))
