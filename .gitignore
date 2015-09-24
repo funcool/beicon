@@ -12,3 +12,4 @@ pom.xml.asc
 /out
 /repl
 /node_modules
+/nashorn_code_cache
