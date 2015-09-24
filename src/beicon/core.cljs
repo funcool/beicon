@@ -13,6 +13,57 @@
 ;; Observables Constructors
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defprotocol IObservableValue
+  (-end? [_] "Returns true if is end value.")
+  (-error? [_] "Returns true if is end value.")
+  (-next? [_] "Returns true if is end value."))
+
+(extend-type default
+  IObservableValue
+  (-next? [_] true)
+  (-error? [_] false)
+  (-end? [_] false))
+
+(extend-type nil
+  IObservableValue
+  (-next? [_] false)
+  (-error? [_] false)
+  (-end? [_] true))
+
+(extend-type js/Error
+  IObservableValue
+  (-next? [_] false)
+  (-error? [_] true)
+  (-end? [_] false))
+
+(extend-type cljs.core.ExceptionInfo
+  IObservableValue
+  (-next? [_] false)
+  (-error? [_] true)
+  (-end? [_] false))
+
+(defn create
+  "Creates an observable sequence from a specified
+  subscribe method implementation."
+  [sf]
+  {:pre [(fn? sf)]}
+  (js/Rx.Observable.create
+   (fn [ob]
+     (letfn [(callback [v]
+               (cond
+                 (-next? v)
+                 (.onNext ob v)
+
+                 (-end? v)
+                 (.onCompleted ob)
+
+                 (-error? v)
+                 (.onError ob v)))]
+       (try
+         (sf callback)
+         (catch js/Error e
+           (.onError ob e)))))))
+
 (defn repeat
   "Generates an observable sequence that repeats the
   given element."
@@ -29,62 +80,39 @@
     (js/Rx.Observable.fromArray array)))
 
 (defn from-callback
-  [f]
+  [f & args]
   {:pre [(fn? f)]}
-  (js/Rx.Observable.fromCallback f))
+  (create (fn [sink]
+            (apply f sink args)
+            (sink nil))))
 
-(defprotocol IObservableEndValue
-  (-end? [_] "Returns true if is end value."))
+(defn from-poll
+  "Creates an observable sequence polling given
+  function with given interval."
+  [ms f]
+  (create (fn [sick]
+            (let [semholder (volatile! nil)
+                  sem (js/setInterval
+                       (fn []
+                         (let [v (f)]
+                           (when (or (-end? v) (-error? v))
+                             (js/clearInterval @semholder))
+                           (sick v)))
+                       ms)]
+              (vreset! semholder sem)))))
 
-(defprotocol IObservableErrorValue
-  (-error? [_] "Returns true if is end value."))
+(defn once
+  "Returns an observable sequence that contains
+  a single element."
+  [v]
+  (js/Rx.Observable.just v))
 
-(defprotocol IObservableNextValue
-  (-next? [_] "Returns true if is end value."))
-
-(extend-type default
-  IObservableNextValue
-  (-next? [_] true)
-
-  IObservableErrorValue
-  (-error? [_] false)
-
-  IObservableEndValue
-  (-end? [_] false))
-
-(extend-type nil
-  IObservableEndValue
-  (-end? [_] true))
-
-(extend-type js/Error
-  IObservableErrorValue
-  (-error? [_] true))
-
-(extend-type cljs.core.ExceptionInfo
-  IObservableErrorValue
-  (-error? [_] true))
-
-(defn create
-  "Creates an observable sequence from a specified
-  subscribe method implementation."
-  [sf]
-  {:pre [(fn? sf)]}
-  (js/Rx.Observable.create
-   (fn [ob]
-     (letfn [(callback [v]
-               (cond
-                 (-next? v)
-                 (.onNext ob)
-
-                 (-end? v)
-                 (.onCompleted ob)
-
-                 (-error? v)
-                 (.onError ob v)))]
-       (try
-         (sf callback)
-         (catch js/Error e
-           (.onError ob e)))))))
+(defn never
+  "Returns an observable sequence that is already
+  in end state."
+  []
+  (create (fn [sink]
+            (sink nil))))
 
 (defn observable?
   "Return true if `ob` is a instance
