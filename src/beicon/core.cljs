@@ -227,14 +227,14 @@
   "Filters the elements of an observable sequence
   based on a predicate."
   [f ob]
-  {:pre [(observable? ob) (fn? f)]}
-  (.filter ob f))
+  {:pre [(observable? ob)]}
+  (.filter ob (fn [x] (f x))))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
   [f ob]
-  {:pre [(observable? ob) (fn? f)]}
+  {:pre [(observable? ob)]}
   (.map ob f))
 
 (defn flat-map
@@ -243,7 +243,7 @@
   observable sequences or Promises or array/iterable
   into one observable sequence."
   [f ob]
-  {:pre [(observable? ob) (fn? f)]}
+  {:pre [(observable? ob)]}
   (.flatMap ob f))
 
 (defn skip
@@ -253,6 +253,21 @@
   [n ob]
   {:pre [(observable? ob) (number? n)]}
   (.skip ob n))
+
+(defn skip-while
+  "Bypasses elements in an observable sequence as long
+  as a specified condition is true and then returns the
+  remaining elements."
+  [f ob]
+  {:pre [(observable? ob) (fn? f)]}
+  (.skipWhile ob f))
+
+(defn skip-until
+  "Returns the values from the source observable sequence
+  only after the other observable sequence produces a value."
+  [pob ob]
+  {:pre [(observable? ob) (observable? pob)]}
+  (.skipUntil ob pob))
 
 (defn take
   "Bypasses a specified number of elements in an
@@ -307,4 +322,30 @@
   {:pre [(observable? ob) (observable? pauser)]}
   (.pausable ob pauser))
 
+(defn dedupe
+  "Returns an observable sequence that contains only
+  distinct contiguous elements."
+  ([ob]
+   (.distinctUntilChanged ob))
+  ([f ob]
+   (.distinctUntilChanged ob f)))
 
+(defn dedupe'
+  "Returns an observable sequence that contains only d
+  istinct elements.
+  Usage of this operator should be considered carefully
+  due to the maintenance of an internal lookup structure
+  which can grow large."
+  ([ob]
+   (.distinct ob))
+  ([f ob]
+   (.distinct ob f)))
+
+(defn buffer
+  "Projects each element of an observable sequence into zero
+  or more buffers which are produced based on element count
+  information."
+  ([n ob]
+   (.bufferWithCount ob n))
+  ([n skip ob]
+   (.bufferWithCount ob n skip)))
