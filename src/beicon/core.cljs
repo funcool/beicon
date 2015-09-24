@@ -116,32 +116,38 @@
   [ob]
   (instance? js/Rx.Observable ob))
 
-;; (defn from-poll
-;;   "Creates an observable sequence polling given
-;;   function with given interval."
-;;   [ms f]
-;;   (create (fn [sick]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Bus
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;             (let [sem (js/setInterval
-;;                        (fn []
-;;                          (let [v (f)]
-;;                            (when (or (-end? v) (-error? v))
-;;                              (js/clearInterval sem))
-;;                            (sick v))))]
-;;                    (.onNext ob)
+(defn bus
+  "Bus is an observable sequence that allows you to push
+  values into the stream."
+  []
+  (js/Rx.Subject.))
 
-;;                    (-end? v)
-;;                  (if (instance? EndValue v)
-;;                    (.onComplete ob (.-v v))
-;;                    (.onComplete ob v))
+(defn bus?
+  "Return true if `b` is a Subject instance."
+  [b]
+  (instance? js/Rx.Subject b))
 
-;;                  (-error? v)
-;;                  (.onError ob v))))))
+(defn push!
+  "Pushes the given value to the bus stream."
+  [b v]
+  {:pre [(bus? b)]}
+  (.onNext b v))
 
+(defn error!
+  "Pushes the given error to the bus stream."
+  [b e]
+  {:pre [(bus? b)]}
+  (.onError b e))
 
-
-
-
+(defn end!
+  "Ends the given bus stream."
+  [b]
+  {:pre [(bus? b)]}
+  (.onCompleted b))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observable Subscription
