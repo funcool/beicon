@@ -1,40 +1,39 @@
-var Rx = {}
-
-Rx.Notification = function() {};
-
-Rx.Observable = function() {};
-Rx.Observable.create = function() {};
-Rx.Observable.fromArray = function() {};
-Rx.Observable.fromCallback = function() {};
-Rx.Observable.prototype.subscribe = function() {};
-Rx.Observable.prototype.subscribeOnError = function() {};
-Rx.Observable.prototype.subscribeOnNext = function() {};
-Rx.Observable.prototype.subscribeOnComplete = function() {};
-Rx.Observable.prototype.amb = function() {};
-Rx.Observable.prototype.merge = function() {};
-Rx.Observable.prototype.skip = function() {};
-Rx.Observable.prototype.take = function() {};
-Rx.Observable.prototype.takeWhile = function() {};
-Rx.Observable.prototype.concat = function() {};
-Rx.Observable.prototype.map = function() {};
-Rx.Observable.prototype.flatMap = function() {};
-Rx.Observable.prototype.zip = function() {};
-Rx.Observable.prototype.filter = function() {};
-Rx.Observable.prototype.reduce = function() {};
-Rx.Observable.prototype.tap = function() {};
-Rx.Observable.prototype.throttle = function() {};
-Rx.Observable.prototype.ignoreElements = function() {};
-Rx.Observable.prototype.interval = function() {};
-
-Rx.Observer = function() {};
-Rx.Observer.prototype.onNext = function() {};
-Rx.Observer.prototype.onError = function() {};
-Rx.Observer.prototype.onComplete = function() {};
-
-Rx.Subject = function() {};
-Rx.Subject.prototype.subscribe = function() {};
-Rx.Subject.prototype.onNext = function() {};
-Rx.Subject.prototype.onError = function() {};
-Rx.Subject.prototype.onComplete = function() {};
-Rx.Subject.prototype.dispose = function() {};
-
+var TopLevel = {
+"amb" : function () {},
+"bufferWithCount" : function () {},
+"clearInterval" : function () {},
+"concat" : function () {},
+"create" : function () {},
+"distinct" : function () {},
+"distinctUntilChanged" : function () {},
+"Error" : function () {},
+"filter" : function () {},
+"flatMap" : function () {},
+"fromArray" : function () {},
+"ignoreElements" : function () {},
+"just" : function () {},
+"map" : function () {},
+"merge" : function () {},
+"Observable" : function () {},
+"onCompleted" : function () {},
+"onError" : function () {},
+"onNext" : function () {},
+"pausable" : function () {},
+"reduce" : function () {},
+"repeat" : function () {},
+"Rx" : function () {},
+"setInterval" : function () {},
+"skip" : function () {},
+"skipUntil" : function () {},
+"skipWhile" : function () {},
+"Subject" : function () {},
+"subscribe" : function () {},
+"subscribeOnCompleted" : function () {},
+"subscribeOnError" : function () {},
+"subscribeOnNext" : function () {},
+"take" : function () {},
+"takeWhile" : function () {},
+"tap" : function () {},
+"throttle" : function () {},
+"zip" : function () {}
+}
