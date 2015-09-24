@@ -295,120 +295,70 @@
 ;; ;; TODO: join
 ;; ;; - when
 
-;; (t/deftest property-as-functor
-;;   (t/async done
-;;     (let [p (s/constant 41)
-;;           life (m/fmap inc p)]
-;;       (t/is (s/property? life))
-;;       (s/on-value life #(do (t/is (= % 42))
-;;                             (done))))))
+(t/deftest event-stream-as-functor
+ (t/async done
+   (let [s (s/from-coll [0 1 2])
+         s2 (m/fmap inc s)]
+     (t/is (s/observable? s))
+     (t/is (s/observable? s2))
+     (drain! s2 #(do (t/is (= % [1 2 3]))
+                      (done))))))
 
-;; (t/deftest property-as-applicative
-;;   (t/async done
-;;     (let [pinc (m/pure s/property-context inc)
-;;           pval (m/pure s/property-context 41)
-;;           life (m/fapply pinc pval)]
-;;       (t/is (s/property? life))
-;;       (s/on-value life #(do (t/is (= % 42))
-;;                             (done))))))
+(t/deftest event-stream-as-applicative
+ (t/async done
+   (let [pinc (m/pure s/observable-context inc)
+         pval (m/pure s/observable-context 41)
+         life (m/fapply pinc pval)]
+     (t/is (s/observable? life))
+     (drain! life #(do (t/is (= % [42]))
+                       (done))))))
 
-;; (defn kw-range
-;;   [n]
-;;   (map (comp keyword str) (range 1 (inc n))))
-
-;; (t/deftest property-as-monad
-;;   (t/async done
-;;     (let [pn (s/to-property (s/from-coll [1 2 3]))
-;;           pnks (m/mlet [n pn
-;;                         k (s/from-coll (kw-range n))]
-;;                  (s/constant [n k]))
-;;           sample (s/take 6 pnks)]
-;;       (t/is (s/property? pnks))
-;;       (drain! sample #(t/is (= % [[1 :1]
-;;                                   [2 :1]
-;;                                   [2 :2]
-;;                                   [3 :1]
-;;                                   [3 :2]
-;;                                   [3 :3]])))
-;;       (s/on-end sample done))))
-
-;; (t/deftest event-stream-as-functor
-;;  (t/async done
-;;    (let [s (s/from-coll [0 1 2])
-;;          s2 (m/fmap inc s)]
-;;      (t/is (s/observable? s))
-;;      (t/is (s/observable? s2))
-;;      (drain! s2 #(do (t/is (= % [1 2 3]))
-;;                       (done))))))
-
-;; (t/deftest event-stream-as-applicative
-;;  (t/async done
-;;    (let [pinc (m/pure s/event-stream-context inc)
-;;          pval (m/pure s/event-stream-context 41)
-;;          life (m/fapply pinc pval)]
-;;      (t/is (s/observable? life))
-;;      (drain! life #(do (t/is (= % [42]))
-;;                        (done))))))
-
-;; (t/deftest event-stream-as-monad
-;;   (t/async done
-;;     (let [sn (s/from-coll [1 2 3])
-;;           snks (m/mlet [n sn
-;;                         k (s/from-coll (map (comp keyword str) (range 1 (inc n))))]
-;;                  (m/return [n k]))
-;;           sample (s/take 6 snks)]
-;;       (t/is (s/observable? snks))
-;;       (drain! sample #(t/is (= % [[1 :1]
-;;                                   [2 :1]
-;;                                   [2 :2]
-;;                                   [3 :1]
-;;                                   [3 :2]
-;;                                   [3 :3]])))
-;;       (s/on-end sample done))))
-
-;; (t/deftest bus-functor
-;;  (t/async done
-;;    (let [b (s/bus)
-;;          b2 (m/fmap inc b)]
-;;      (t/is (s/bus? b))
-;;      (t/is (s/bus? b2))
-;;      (drain! b2 #(do (t/is (= % [1 2 3]))
-;;                      (done)))
-;;      (s/push! b 0)
-;;      (s/push! b 1)
-;;      (s/push! b 2)
-;;      (s/end! b))))
+(t/deftest event-stream-as-monad
+  (t/async done
+    (let [sn (s/from-coll [1 2 3])
+          snks (m/mlet [n sn
+                        k (s/from-coll (map (comp keyword str) (range 1 (inc n))))]
+                 (m/return [n k]))
+          sample (s/take 6 snks)]
+      (t/is (s/observable? snks))
+      (drain! sample #(t/is (= % [[1 :1]
+                                  [2 :1]
+                                  [2 :2]
+                                  [3 :1]
+                                  [3 :2]
+                                  [3 :3]])))
+      (s/on-end sample done))))
 
 ;; ;; interop
 
-;; (t/deftest pipe-to-atom
-;;   (t/async done
-;;     (let [st (s/from-coll [1 2 3])
-;;           a (s/pipe-to-atom st)]
-;;       (s/on-end st #(do (t/is (= @a 3))
-;;                         (done))))))
+(t/deftest pipe-to-atom
+  (t/async done
+    (let [st (s/from-coll [1 2 3])
+          a (s/pipe-to-atom st)]
+      (s/on-end st #(do (t/is (= @a 3))
+                        (done))))))
 
-;; (t/deftest pipe-to-atom-with-atom
-;;   (t/async done
-;;     (let [st (s/from-coll [1 2 3])
-;;           vacc (volatile! [])
-;;           a (atom 0)]
-;;       (add-watch a
-;;                  :acc
-;;                  (fn [_ _ _ v]
-;;                    (vswap! vacc conj v)))
-;;       (s/pipe-to-atom a st)
-;;       (s/on-end st #(do (t/is (= @a 3))
-;;                         (t/is (= @vacc [1 2 3]))
-;;                         (done))))))
+(t/deftest pipe-to-atom-with-atom
+  (t/async done
+    (let [st (s/from-coll [1 2 3])
+          vacc (volatile! [])
+          a (atom 0)]
+      (add-watch a
+                 :acc
+                 (fn [_ _ _ v]
+                   (vswap! vacc conj v)))
+      (s/pipe-to-atom a st)
+      (s/on-end st #(do (t/is (= @a 3))
+                        (t/is (= @vacc [1 2 3]))
+                        (done))))))
 
-;; (t/deftest pipe-to-atom-with-atom-and-function
-;;   (t/async done
-;;     (let [st (s/from-coll [1 2 3])
-;;           a (atom [])]
-;;       (s/pipe-to-atom a st conj)
-;;       (s/on-end st #(do (t/is (= @a [1 2 3]))
-;;                         (done))))))
+(t/deftest pipe-to-atom-with-atom-and-function
+  (t/async done
+    (let [st (s/from-coll [1 2 3])
+          a (atom [])]
+      (s/pipe-to-atom a st conj)
+      (s/on-end st #(do (t/is (= @a [1 2 3]))
+                        (done))))))
 
 ;; (t/deftest transform-with-stateless-transducers
 ;;   (t/async done
@@ -429,5 +379,3 @@
 ;;                           s)]
 ;;       (drain! ts #(t/is (= % [[1 2] [3 4]])))
 ;;       (s/on-end ts done))))
-
-;; TODO: test clojurey aliases
