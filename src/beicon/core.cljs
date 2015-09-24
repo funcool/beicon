@@ -228,14 +228,14 @@
   based on a predicate."
   [f ob]
   {:pre [(observable? ob)]}
-  (.filter ob (fn [x] (f x))))
+  (.filter ob #(f %)))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
   [f ob]
   {:pre [(observable? ob)]}
-  (.map ob f))
+  (.map ob #(f %)))
 
 (defn flat-map
   "Projects each element of an observable sequence to
@@ -244,7 +244,7 @@
   into one observable sequence."
   [f ob]
   {:pre [(observable? ob)]}
-  (.flatMap ob f))
+  (.flatMap ob #(f %)))
 
 (defn skip
   "Bypasses a specified number of elements in an
