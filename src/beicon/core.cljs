@@ -360,3 +360,37 @@
   ([a ob f]
    (on-value ob #(swap! a f %))
    a))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Cats Integration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def observable-context
+  (reify
+    p/Context
+    (-get-level [_] ctx/+level-default+)
+
+    p/Functor
+    (-fmap [_ f obs]
+      (map f obs))
+
+    p/Applicative
+    (-pure [_ v]
+      (once v))
+
+    (-fapply [_ pf pv]
+      (.zip pf pv #(%1 %2)))
+
+    p/Monad
+    (-mreturn [_ v]
+      (once v))
+
+    (-mbind [_ mv f]
+      (flat-map f mv))))
+
+(extend-protocol p/Contextual
+  js/Rx.Observable
+  (-get-context [_] observable-context)
+
+  js/Rx.Subject
+  (-get-context [_] observable-context))
