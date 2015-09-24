@@ -349,3 +349,14 @@
    (.bufferWithCount ob n))
   ([n skip ob]
    (.bufferWithCount ob n skip)))
+
+(defn pipe-to-atom
+  ([ob]
+   (let [a (atom nil)]
+     (pipe-to-atom a ob)))
+  ([a ob]
+   (on-value ob #(reset! a %))
+   a)
+  ([a ob f]
+   (on-value ob #(swap! a f %))
+   a))
