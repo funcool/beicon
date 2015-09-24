@@ -3,11 +3,7 @@
             [cats.protocols :as p]
             [cats.context :as ctx])
   (:refer-clojure :exclude [true? map filter reduce merge repeat repeatedly zip
-                            dedupe drop take take-while not and
-                            or
-                            next
-                            concat
-                            partition]))
+                            dedupe drop take take-while concat partition]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observables Constructors
