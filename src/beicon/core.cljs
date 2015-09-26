@@ -69,6 +69,12 @@
    {:pre [(number? v)]}
    (js/Rx.Observable.repeat v n)))
 
+(defn publish
+  [ob]
+  (let [ob' (.publish ob)]
+    (.connect ob')
+    ob'))
+
 (defn from-coll
   "Generates an observable sequence from collection."
   [coll]
