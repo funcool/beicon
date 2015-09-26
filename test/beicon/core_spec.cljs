@@ -30,6 +30,12 @@
 
 ;; event stream
 
+(defn log
+  [e ob]
+  (s/tap (fn [v]
+           (println "[log]:" e ":" v)
+           v) ob))
+
 (t/deftest observable-from-vector
   (t/async done
     (let [coll [1 2 3]
@@ -37,6 +43,29 @@
       (t/is (s/observable? s))
       (drain! s #(t/is (= % coll)))
       (s/on-end s done))))
+
+(t/deftest observable-from-vector-with-take
+  (t/async done
+    (let [coll [1 2 3 4 5 6]
+          s (->> (s/from-coll coll)
+                 (s/take 2))]
+      (t/is (s/observable? s))
+      (drain! s #(t/is (= % [1 2])))
+      (s/on-end s done))))
+
+(t/deftest observable-from-atom
+  (t/async done
+    (let [a (atom 0)
+          s (->> (s/from-atom a)
+                 (s/take 4))]
+      (t/is (s/observable? s))
+      (drain! s #(do
+                   (t/is (= % [1 2 3 4]))
+                   (done)))
+      (swap! a inc)
+      (swap! a inc)
+      (swap! a inc)
+      (swap! a inc))))
 
 (t/deftest observable-from-set
   (t/async done
@@ -94,45 +123,18 @@
       (drain! s #(t/is (= % [1])))
       (s/on-end s done))))
 
-(t/deftest observable-never
-  (t/async done
-    (let [n (s/never)]
-      (s/on-end n done))))
-
-;; (t/deftest observable-interval
+;; (t/deftest observable-never
 ;;   (t/async done
-;;     (let [i (s/interval 10)
-;;           sample (s/take 4 i)]
-;;       (drain! sample #(t/is (apply = %)))
-;;       (s/on-end sample done))))
+;;     (let [n (s/never)]
+;;       (s/on-end n done))))
 
-;; (t/deftest observable-later
+;; (t/deftest observable-on-value
 ;;   (t/async done
-;;     (let [s (s/later 10 42)]
-;;       (drain! s #(t/is (= % [42])))
-;;       (s/on-end s done))))
-
-;; (t/deftest observable-sequentially
-;;   (t/async done
-;;     (let [s (s/sequentially 10 [1 2 3])
-;;           sample (s/take 6 s)]
-;;       (drain! sample #(t/is (= % [1 2 3])))
-;;       (s/on-end sample done))))
-
-;; (t/deftest observable-repeatedly
-;;   (t/async done
-;;     (let [s (s/repeatedly 10 [1 2 3])
-;;           sample (s/take 6 s)]
-;;       (drain! sample #(t/is (= % [1 2 3 1 2 3])))
-;;       (s/on-end sample done))))
-
-(t/deftest observable-on-value
-  (t/async done
-    (let [s (s/from-coll [1 2 3])
-          vacc (volatile! [])]
-      (s/on-value s #(vswap! vacc conj %))
-      (s/on-end s #(do (t/is (= @vacc [1 2 3]))
-                       (done))))))
+;;     (let [s (s/from-coll [1 2 3])
+;;           vacc (volatile! [])]
+;;       (s/on-value s #(vswap! vacc conj %))
+;;       (s/on-end s #(do (t/is (= @vacc [1 2 3]))
+;;                        (done))))))
 
 (t/deftest observable-concat
   (t/async done
@@ -185,13 +187,6 @@
       (s/end! s)
       (s/end! sv))))
 
-;; ;; - bufferWithTime
-;; ;; - bufferWithCount
-;; ;; - bufferWithTimeOrCount
-;; ;; - toProperty
-
-;; ;; bus
-
 (t/deftest bus-push
   (t/async done
     (let [b (s/bus)]
@@ -203,97 +198,12 @@
       (s/end! b)
       (s/on-end b done))))
 
-
-;; TODO:
-;; (t/deftest bus-erro
-;;   (t/async done
-;;     (let [b (s/bus)]
-;;       (t/is (s/bus? b))
-;;       (drain! b #(t/is (= % [1]))
-;;                 #(t/is (= % :oh-no)))
-;;       (s/push! b 1)
-;;       (s/error! b (ex-info "oh noes" {})
-;;       (s/on-error b done))))
-
-;; (t/deftest bus-plug
-;;   (t/async done
-;;     (let [b (s/bus)]
-;;       (t/is (s/bus? b))
-;;       (s/plug! b (s/from-coll [1 2 3]))
-;;       (s/plug! b (s/from-coll [:four :five]))
-;;       (drain! b #(t/is (= %
-;;                           [1 2 3 :four :five])))
-;;       (s/end! b)
-;;       (s/on-end b done))))
-
 (t/deftest filter-with-predicate
   (t/async done
     (let [s (s/from-coll [1 2 3 4 5])
           fs (s/filter #{3 5} s)]
       (drain! fs #(t/is (= % [3 5])))
       (s/on-end fs done))))
-
-;; ;; ::todo decomplect
-;; ;; - filter (pred, property)
-;; ;; - map
-;; ;; - mapError
-;; ;; - errors
-;; ;; - skipErrors
-;; ;; - mapEnd
-;; ;; - skipDuplicates
-;; ;; - take
-;; ;; - takeUntil
-;; ;; - takeWhile
-;; ;; - first
-;; ;; - last
-;; ;; - skip
-;; ;; - delay
-;; ;; - throttle
-;; ;; - debounce
-;; ;; - debounceImmediate
-;; ;; - bufferingThrottle
-;; ;; - doAction
-;; ;; - doError
-;; ;; - not
-;; ;; - flatMap
-;; ;; - flatMapLatest
-;; ;; - flatMapFirst
-;; ;; - flatMapError
-;; ;; - flatMapWithConcurrencyLimit
-;; ;; - flatMapConcat
-;; ;; - scan
-;; ;; - fold/reduce
-;; ;; - diff
-;; ;; - zip
-;; ;; - slidingWindow
-;; ;; - log
-;; ;; - doLog
-;; ;; - combine
-;; ;; - withStateMachine
-;; ;; - decode
-;; ;; - awaiting
-;; ;; - endOnError
-;; ;; - withHandler
-;; ;; - name
-;; ;; - withDescription
-
-;; ;; TODO
-
-;; ;; - combineAsArray
-;; ;; - combineWith
-;; ;; - combineTemplate
-;; ;; - mergeAll
-;; ;; - zipAsArray
-;; ;; - zipWith
-;; ;; - onValues
-
-
-;; ;; TODO: error handling
-;; ;; - onError, ...
-;; ;; - retry
-
-;; ;; TODO: join
-;; ;; - when
 
 (t/deftest event-stream-as-functor
  (t/async done
@@ -328,8 +238,6 @@
                                   [3 :2]
                                   [3 :3]])))
       (s/on-end sample done))))
-
-;; ;; interop
 
 (t/deftest pipe-to-atom
   (t/async done
