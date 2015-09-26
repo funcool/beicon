@@ -173,27 +173,31 @@
   in the observable sequence."
   [ob f]
   {:pre [(observable? ob) (fn? f)]}
-  (.subscribeOnNext ob f))
+  (let [disposable (.subscribeOnNext ob f)]
+    #(.dispose disposable)))
 
 (defn on-error
   "Subscribes a function to invoke upon exceptional termination
   of the observable sequence."
   [ob f]
   {:pre [(observable? ob) (fn? f)]}
-  (.subscribeOnError ob f))
+  (let [disposable (.subscribeOnError ob f)]
+    #(.dispose disposable)))
 
 (defn on-end
   "Subscribes a function to invoke upon graceful termination
   of the observable sequence."
   [ob f]
   {:pre [(observable? ob) (fn? f)]}
-  (.subscribeOnCompleted ob f))
+  (let [disposable (.subscribeOnCompleted ob f)]
+    #(.dispose disposable)))
 
 (defn subscribe
   "Subscribes an observer to the observable sequence."
   [ob nf ef cf]
   {:pre [(observable? ob)]}
-  (.subscribe ob nf ef cf))
+  (let [disposable (.subscribe ob nf ef cf)]
+    #(.dispose disposable)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observable Transformations
@@ -398,7 +402,7 @@
                        (on-end stream #(do (xsink nil)
                                            (sink nil)))
                        (fn []
-                         (.dispose unsub)))))]
+                         (unsub)))))]
     ns))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
