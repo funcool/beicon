@@ -103,6 +103,15 @@
                        ms)]
               (vreset! semholder sem)))))
 
+(defn from-atom
+  [atm]
+  (create (fn [sink]
+            (let [key (keyword (gensym "beicon"))]
+              (add-watch atm key (fn [_ _ _ val]
+                                   (sink val)))
+              (fn []
+                (remove-watch atm key))))))
+
 (defn once
   "Returns an observable sequence that contains
   a single element."
