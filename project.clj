@@ -1,8 +1,8 @@
 (defproject funcool/beicon "0.1.0-SNAPSHOT"
   :description "A rxjs idiomatic wrapper for ClojureScript"
   :url "https://github.com/funcool/beicon"
-  :license {:name "BSD (2 Clause)"
-            :url "http://opensource.org/licenses/BSD-2-Clause"}
+  :license {:name "Public Domain"
+            :url "http://unlicense.org/"}
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.48" :scope "provided"]
                  [funcool/cats "1.0.0"]]
