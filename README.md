@@ -1,6 +1,7 @@
 # beicon #
 
 [![Travis Badge](https://img.shields.io/travis/funcool/beicon/master.svg)](https://travis-ci.org/funcool/beicon "Travis Badge")
+
 [![Clojars Project](http://clojars.org/funcool/beicon/latest-version.svg)](http://clojars.org/funcool/beicon)
 
 <blockquote>
