@@ -318,6 +318,16 @@
   {:pre [(observable? ob) (number? n)]}
   (.take ob n))
 
+(defn slice
+  "Returns a shallow copy of a portion of an Observable
+  into a new Observable object."
+  ([begin ob]
+   {:pre [(observable? ob) (number? begin)]}
+   (.slice ob begin))
+  ([begin end ob]
+   {:pre [(observable? ob) (number? begin) (number? end)]}
+   (.slice ob begin end)))
+
 (defn take-while
   "Returns elements from an observable sequence as long as a
   specified predicate returns true."

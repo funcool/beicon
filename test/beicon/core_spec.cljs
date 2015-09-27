@@ -213,6 +213,14 @@
                     (t/is (= % [1 2]))
                     (done))))))
 
+(t/deftest observable-slice
+  (t/async done
+    (let [s (s/from-coll [1 2 3 4])
+          fs (s/slice 1 3 s)]
+      (drain! fs #(do
+                    (t/is (= % [2 3]))
+                    (done))))))
+
 (t/deftest observable-as-functor
  (t/async done
    (let [s (s/from-coll [0 1 2])
