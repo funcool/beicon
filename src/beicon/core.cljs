@@ -401,14 +401,16 @@
   ([n skip ob]
    (.bufferWithCount ob n skip)))
 
-(defn pipe-to-atom
+(defn to-atom
   ([ob]
    (let [a (atom nil)]
-     (pipe-to-atom a ob)))
+     (to-atom a ob)))
   ([a ob]
+   {:pre [(observable? ob)]}
    (on-value ob #(reset! a %))
    a)
   ([a ob f]
+   {:pre [(observable? ob)]}
    (on-value ob #(swap! a f %))
    a))
 
