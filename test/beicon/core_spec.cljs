@@ -152,7 +152,7 @@
       (s/push! s2 4)
       (s/end! s2))))
 
-(t/deftest event-stream-merge
+(t/deftest observable-merge
   (t/async done
     (let [s1 (s/from-coll [1 2 3])
           s2 (s/from-coll [:1 :2 :3])
@@ -160,14 +160,14 @@
       (drain! ms #(t/is (= % [1 :1 2 :2 3 :3])))
       (s/on-end ms done))))
 
-(t/deftest event-stream-skip-while
+(t/deftest observable-skip-while
   (t/async done
     (let [nums (s/from-coll [1 1 1 2 3 4 5])
           sample (s/skip-while odd? nums)]
       (drain! sample #(t/is (= % [2 3 4 5])))
       (s/on-end sample done))))
 
-(t/deftest event-stream-skip-until
+(t/deftest observable-skip-until
   (t/async done
     (let [s (s/bus)
           sv (s/bus)
@@ -213,7 +213,7 @@
                     (t/is (= % [1 2]))
                     (done))))))
 
-(t/deftest event-stream-as-functor
+(t/deftest observable-as-functor
  (t/async done
    (let [s (s/from-coll [0 1 2])
          s2 (m/fmap inc s)]
@@ -222,7 +222,7 @@
      (drain! s2 #(do (t/is (= % [1 2 3]))
                       (done))))))
 
-(t/deftest event-stream-as-applicative
+(t/deftest observable-as-applicative
  (t/async done
    (let [pinc (m/pure s/observable-context inc)
          pval (m/pure s/observable-context 41)
@@ -231,7 +231,7 @@
      (drain! life #(do (t/is (= % [42]))
                        (done))))))
 
-(t/deftest event-stream-as-monad
+(t/deftest observable-as-monad
   (t/async done
     (let [sn (s/from-coll [1 2 3])
           snks (m/mlet [n sn
