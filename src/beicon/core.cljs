@@ -91,10 +91,22 @@
    (js/Rx.Observable.repeat v n)))
 
 (defn publish
+  "Create a connectable (hot) observable
+  from other observable."
+  ([ob]
+   (publish ob true))
+  ([ob connect?]
+   {:pre [(observable? ob)]}
+   (let [ob' (.publish ob)]
+     (when connect?
+       (.connect ob'))
+     ob')))
+
+(defn connect!
+  "Connect the connectable observable."
   [ob]
-  (let [ob' (.publish ob)]
-    (.connect ob')
-    ob'))
+  {:pre [(connectable? ob)]}
+  (.connect ob))
 
 (defn from-coll
   "Generates an observable sequence from collection."
