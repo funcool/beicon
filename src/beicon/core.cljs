@@ -414,6 +414,11 @@
    (on-value ob #(swap! a f %))
    a))
 
+(defn to-observable
+  [b]
+  {:pre [(bus? b)]}
+  (.asObservable b))
+
 (defn- sink-step
   [sink]
   (fn
