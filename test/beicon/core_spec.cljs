@@ -198,14 +198,14 @@
       (s/end! b)
       (s/on-end b done))))
 
-(t/deftest filter-with-predicate
+(t/deftest observable-filter-with-predicate
   (t/async done
     (let [s (s/from-coll [1 2 3 4 5])
           fs (s/filter #{3 5} s)]
       (drain! fs #(t/is (= % [3 5])))
       (s/on-end fs done))))
 
-(t/deftest map-with-ifn
+(t/deftest observable-map-with-ifn
   (t/async done
     (let [s (s/from-coll [{:foo 1} {:foo 2}])
           fs (s/map :foo s)]
