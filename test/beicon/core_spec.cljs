@@ -255,14 +255,14 @@
                                   [3 :3]])))
       (s/on-end sample done))))
 
-(t/deftest pipe-to-atom
+(t/deftest observable-to-atom
   (t/async done
     (let [st (s/from-coll [1 2 3])
-          a (s/pipe-to-atom st)]
+          a (s/to-atom st)]
       (s/on-end st #(do (t/is (= @a 3))
                         (done))))))
 
-(t/deftest pipe-to-atom-with-atom
+(t/deftest observable-to-atom-with-atom
   (t/async done
     (let [st (s/from-coll [1 2 3])
           vacc (volatile! [])
@@ -271,16 +271,16 @@
                  :acc
                  (fn [_ _ _ v]
                    (vswap! vacc conj v)))
-      (s/pipe-to-atom a st)
+      (s/to-atom a st)
       (s/on-end st #(do (t/is (= @a 3))
                         (t/is (= @vacc [1 2 3]))
                         (done))))))
 
-(t/deftest pipe-to-atom-with-atom-and-function
+(t/deftest observable-to-atom-with-atom-and-function
   (t/async done
     (let [st (s/from-coll [1 2 3])
           a (atom [])]
-      (s/pipe-to-atom a st conj)
+      (s/to-atom a st conj)
       (s/on-end st #(do (t/is (= @a [1 2 3]))
                         (done))))))
 
