@@ -6,6 +6,27 @@
                             dedupe drop take take-while concat partition]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Predicates
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn observable?
+  "Return true if `ob` is a instance
+  of Rx.Observable."
+  [ob]
+  (instance? js/Rx.Observable ob))
+
+(defn connectable?
+  "Return true if `ob` is a instance
+  of Rx.ConnectableObservable."
+  [ob]
+  (instance? js/Rx.ConnectableObservable ob))
+
+(defn bus?
+  "Return true if `b` is a Subject instance."
+  [b]
+  (instance? js/Rx.Subject b))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observables Constructors
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -125,12 +146,6 @@
   (create (fn [sink]
             (sink nil))))
 
-(defn observable?
-  "Return true if `ob` is a instance
-  of Rx.Observable."
-  [ob]
-  (instance? js/Rx.Observable ob))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Bus
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -140,11 +155,6 @@
   values into the stream."
   []
   (js/Rx.Subject.))
-
-(defn bus?
-  "Return true if `b` is a Subject instance."
-  [b]
-  (instance? js/Rx.Subject b))
 
 (defn push!
   "Pushes the given value to the bus stream."
