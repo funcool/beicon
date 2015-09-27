@@ -205,6 +205,14 @@
       (drain! fs #(t/is (= % [3 5])))
       (s/on-end fs done))))
 
+(t/deftest map-with-ifn
+  (t/async done
+    (let [s (s/from-coll [{:foo 1} {:foo 2}])
+          fs (s/map :foo s)]
+      (drain! fs #(do
+                    (t/is (= % [1 2]))
+                    (done))))))
+
 (t/deftest event-stream-as-functor
  (t/async done
    (let [s (s/from-coll [0 1 2])
