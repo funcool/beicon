@@ -1,9 +1,11 @@
 var TopLevel = {
 "amb" : function () {},
+"asObservable" : function () {},
 "bufferWithCount" : function () {},
 "clearInterval" : function () {},
 "concat" : function () {},
 "connect" : function () {},
+"ConnectableObservable" : function () {},
 "create" : function () {},
 "dispose" : function () {},
 "distinct" : function () {},
