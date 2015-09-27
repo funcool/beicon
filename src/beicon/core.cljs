@@ -269,7 +269,7 @@
   based on a predicate."
   [f ob]
   {:pre [(observable? ob)]}
-  (.filter ob #(f %)))
+  (.filter ob #(boolean (f %))))
 
 (defn map
   "Apply a function to each element of an observable
@@ -301,7 +301,7 @@
   remaining elements."
   [f ob]
   {:pre [(observable? ob) (fn? f)]}
-  (.skipWhile ob f))
+  (.skipWhile ob #(boolean (f %))))
 
 (defn skip-until
   "Returns the values from the source observable sequence
