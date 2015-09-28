@@ -423,6 +423,18 @@
   ([n skip ob]
    (.bufferWithCount ob n skip)))
 
+(defn pr-log
+  ([ob]
+   (on-value ob #(println (pr-str %))))
+  ([prefix ob]
+   (on-value ob #(println (str prefix (pr-str %))))))
+
+(defn log
+  ([ob]
+   (on-value ob #(println %)))
+  ([prefix ob]
+   (on-value ob #(println (str prefix %)))))
+
 (defn to-atom
   "Materialize the observable sequence into an atom."
   ([ob]
