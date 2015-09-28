@@ -371,9 +371,20 @@
   (.ignoreElements ob))
 
 (defn pausable
-  [pauser ob]
-  {:pre [(observable? ob) (observable? pauser)]}
-  (.pausable ob pauser))
+  "Pauses the underlying observable sequence based upon the
+  observable sequence which yields true/false.
+
+  WARNING: The buffered pausable only works with hot
+  observables."
+  ([pauser ob]
+   (pausable pauser false ob))
+   ;; {:pre [(observable? ob) (observable? pauser)]}
+   ;; (.pausable ob pauser))
+  ([pauser buffer? ob]
+   {:pre [(observable? ob) (observable? pauser)]}
+   (if buffer?
+     (.pausableBuffered ob pauser)
+     (.pausable ob pauser))))
 
 (defn dedupe
   "Returns an observable sequence that contains only
