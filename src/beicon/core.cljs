@@ -115,6 +115,8 @@
     (js/Rx.Observable.fromArray array)))
 
 (defn from-callback
+  "Creates an observable sequence of one unique value
+  executing a callback."
   [f & args]
   {:pre [(fn? f)]}
   (create (fn [sink]
