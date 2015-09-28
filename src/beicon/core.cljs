@@ -486,4 +486,7 @@
   (-get-context [_] observable-context)
 
   js/Rx.Subject
+  (-get-context [_] observable-context)
+
+  js/Rx.ConnectableObservable
   (-get-context [_] observable-context))
