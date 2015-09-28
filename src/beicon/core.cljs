@@ -415,6 +415,7 @@
    (.bufferWithCount ob n skip)))
 
 (defn to-atom
+  "Materialize the observable sequence into an atom."
   ([ob]
    (let [a (atom nil)]
      (to-atom a ob)))
