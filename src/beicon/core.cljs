@@ -429,34 +429,30 @@
    a))
 
 (defn to-observable
+  "Hides the identity of an observable sequence."
   [b]
-  {:pre [(bus? b)]}
+  {:pre [(or (observable? b) (bus? b))]}
   (.asObservable b))
 
-(defn- sink-step
-  [sink]
-  (fn
-    ([r]
-     (sink nil)
-     r)
-    ([_ input]
-     (sink input)
-     input)))
-
 (defn transform
+  "Transform the observable sequence using transducers."
   [xform stream]
-  (let [ns (create (fn [sink]
-                     (let [xsink (xform (sink-step sink))
-                           step (fn [input]
-                                  (let [v (xsink nil input)]
-                                    (when (reduced? v)
-                                      (xsink @v))))
-                           unsub (on-value stream step)]
-                       (on-end stream #(do (xsink nil)
-                                           (sink nil)))
-                       (fn []
-                         (unsub)))))]
-    ns))
+  (letfn [(sink-step [sink]
+            (fn
+              ([r] (sink nil) r)
+              ([_ input] (sink input) input)))]
+    (let [ns (create (fn [sink]
+                       (let [xsink (xform (sink-step sink))
+                             step (fn [input]
+                                    (let [v (xsink nil input)]
+                                      (when (reduced? v)
+                                        (xsink @v))))
+                             unsub (on-value stream step)]
+                         (on-end stream #(do (xsink nil)
+                                             (sink nil)))
+                         (fn []
+                           (unsub)))))]
+      ns)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cats Integration
