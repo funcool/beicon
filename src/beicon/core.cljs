@@ -160,6 +160,15 @@
   (create (fn [sink]
             (sink nil))))
 
+(defn timeout
+  "Return an observable sequence that will return
+  one unique nil value after specified timeout."
+  ([ms]
+   (timeout ms nil))
+  ([ms val]
+   {:pre [(number? ms)]}
+   (.map (js/Rx.Observable.timer ms) (fn [_] val))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Bus
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
