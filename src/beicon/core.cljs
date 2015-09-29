@@ -365,9 +365,9 @@
   (.tap ob f))
 
 (defn throttle
-  "Returns an Observable that emits only the first item
-  emitted by the source Observable during sequential
-  time windows of a specified duration."
+  "Returns an observable sequence that emits only the
+  first item emitted by the source Observable during
+  sequential time windows of a specified duration."
   [ms ob]
   {:pre [(observable? ob) (number? ms)]}
   (.throttle ob ms))
