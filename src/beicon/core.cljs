@@ -364,6 +364,22 @@
   {:pre [(observable? ob) (fn? f)]}
   (.tap ob f))
 
+(defn log
+  "Print all values passed through the given
+  observable sequence."
+  ([ob]
+   (tap #(println %) ob))
+  ([prefix ob]
+   (tap #(println (str prefix %)) ob)))
+
+(defn pr-log
+  "Print all values passed through the given
+  observable sequence using pr-str."
+  ([ob]
+   (tap #(println (pr-str %)) ob))
+  ([prefix ob]
+   (tap #(println (str prefix (pr-str %))) ob)))
+
 (defn throttle
   "Returns an observable sequence that emits only the
   first item emitted by the source Observable during

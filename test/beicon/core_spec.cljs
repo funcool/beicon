@@ -20,21 +20,16 @@
    (drain! obs cb #(println "Error: " %)))
   ([obs cb errb]
    (let [values (volatile! [])]
-     (s/on-value obs #(vswap! values conj %))
-     (s/on-error obs #(errb %))
-     (s/on-end obs #(cb @values)))))
+     (s/subscribe obs
+                  #(vswap! values conj %)
+                  #(errb %)
+                  #(cb @values)))))
 
 (defn tick
   [interval]
   (s/from-poll interval #(.getTime (js/Date.))))
 
 ;; event stream
-
-(defn log
-  [e ob]
-  (s/tap (fn [v]
-           (println "[log]:" e ":" v)
-           v) ob))
 
 (t/deftest observable-from-vector
   (t/async done
