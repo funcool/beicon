@@ -31,12 +31,6 @@
 
 ;; event stream
 
-(defn log
-  [e ob]
-  (s/tap (fn [v]
-           (println "[log]:" e ":" v)
-           v) ob))
-
 (t/deftest observable-from-vector
   (t/async done
     (let [coll [1 2 3]
