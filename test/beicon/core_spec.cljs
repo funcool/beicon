@@ -97,6 +97,24 @@
       (drain! s #(t/is (= % [1 2 3])))
       (s/on-end s done))))
 
+(t/deftest observable-from-timeout
+  (t/async done
+    (let [s (s/timeout 1000 :timeout)]
+      (t/is (s/observable? s))
+      (drain! s #(do
+                   (t/is (= % [:timeout]))
+                   (done))))))
+
+(t/deftest observable-from-timeout-and-choice
+  (t/async done
+    (let [s (s/choice
+             (s/timeout 1000 :timeout)
+             (s/timeout 900 :value))]
+      (t/is (s/observable? s))
+      (drain! s #(do
+                   (t/is (= % [:value]))
+                   (done))))))
+
 (t/deftest observable-errors-from-binder
   (t/async done
     (let [s (s/create (fn [sink]
