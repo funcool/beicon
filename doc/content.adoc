@@ -1,0 +1,190 @@
+= beicon - reactive streams for clojurescript
+Andrey Antukh, <niwi@niwi.nz>
+v0.8.1
+:toc: left
+:!numbered:
+:idseparator: -
+:idprefix:
+:source-highlighter: pygments
+:pygments-style: friendly
+:sectlinks:
+
+
+== Introduction
+
+_beicon_ is a small and concise library that provides reactive streams to
+clojurescript built on top of link:https://github.com/Reactive-Extensions/RxJS[rxjs].
+
+
+=== Project Maturity
+
+Since _beicon_ is a young project there can be some API breakage.
+
+
+=== Install
+
+The simplest way to use _beicon_ in a clojure project, is by including it in the
+dependency vector on your *_project.clj_* file:
+
+[source,clojure]
+----
+[funcool/beicon "0.1.0"]
+----
+
+== Creating Streams
+
+This section will give you the available methods for create streams.
+
+=== From a collection
+
+The most basic way to create a streamm is just take a collection
+and convert it in an observable sequence:
+
+[source, clojure]
+----
+(require '[beicon.core :as s])
+
+(def stream (s/from-coll [1 2 3]))
+
+(s/on-value stream #(println "v:" %))
+;; ==> v: 1
+;; ==> v: 2
+;; ==> v: 3
+----
+
+=== Repeating Value
+
+An other way to create potencially infinite stream is using `repeat` constructor
+function:
+
+[source, clojure]
+----
+(def stream (s/repeat :a 3))
+
+(s/on-value stream #(println "v:" %))
+;; ==> v: :a
+;; ==> v: :a
+;; ==> v: :a
+----
+
+The second argument for `repeat` is optional, and omiting it will create
+an infinite stream.
+
+=== From Callback
+
+It there a way for create an observable sequence executing one function:
+
+[source, clojure]
+----
+(def stream (s/from-callback (constantly 1)))
+
+(s/on-value stream #(println "v:" %))
+;; ==> v: 1
+----
+
+The function will be executed once and the stream will contain one unique value.
+
+
+=== From Poll
+
+This method allow create potentially infinite stream from executing a callback
+repeatedly:
+
+[source, clojure]
+----
+(def stream (s/from-poll (constantl 1)))
+
+(s/on-value stream #(println "v:" %))
+;; ==> v: 1
+----
+
+
+== Transformations
+
+TBD
+
+
+== Combinators
+
+TBD
+
+
+== FAQ
+
+TBD
+
+
+== Developers Guide
+
+=== Philosophy
+
+Five most important rules:
+
+- Beautiful is better than ugly.
+- Explicit is better than implicit.
+- Simple is better than complex.
+- Complex is better than complicated.
+- Readability counts.
+
+All contributions to _beicon_ should keep these important rules in mind.
+
+
+=== Contributing
+
+Unlike Clojure and other Clojure contributed libraries _beicon_ does not have many
+restrictions for contributions. Just open an issue or pull request.
+
+
+=== Source Code
+
+_beicon_ is open source and can be found on
+link:https://github.com/funcool/beicon[github].
+
+You can clone the public repository with this command:
+
+[source,text]
+----
+git clone https://github.com/funcool/beicon
+----
+
+=== Run tests
+
+For running tests just execute this:
+
+[source, text]
+----
+./scrpts/build
+node ./out/tests.js
+----
+
+
+=== License
+
+_beicon_ is under public domain:
+
+----
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
+----
