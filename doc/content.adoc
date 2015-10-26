@@ -92,10 +92,31 @@ repeatedly:
 
 [source, clojure]
 ----
-(def stream (s/from-poll (constantl 1)))
+(def stream (s/from-poll (constantly 1)))
 
 (s/on-value stream #(println "v:" %))
 ;; ==> v: 1
+;; ==> ...
+----
+
+If a callback returns nil the stream will be ended and if an exception is returned
+the stream will be ended with error.
+
+
+=== From Atom
+
+Atoms in clojure are watchable, so you can listen its changes. This method convert
+that changes in an infinite observable sequence of atom changes:
+
+[source, clojure]
+----
+(def a (atom 1))
+
+(def stream (s/from-atom a))
+
+(s/on-value stream #(println "v:" %))
+(swap! a inc)
+;; ==> v: 2
 ----
 
 
