@@ -30,4 +30,4 @@ interop details, it has a few goodies though:
 
 ## Documentation ##
 
-Cooming soon.
+http://funcool.github.io/beicon/latest/
