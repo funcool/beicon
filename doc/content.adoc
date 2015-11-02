@@ -1,6 +1,4 @@
 = beicon - reactive streams for clojurescript
-Andrey Antukh, <niwi@niwi.nz>
-v0.1.0
 :toc: left
 :!numbered:
 :idseparator: -
