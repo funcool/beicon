@@ -294,9 +294,11 @@
   an observable sequence and merges the resulting
   observable sequences or Promises or array/iterable
   into one observable sequence."
-  [f ob]
-  {:pre [(observable? ob)]}
-  (.flatMap ob #(f %)))
+  ([ob]
+   (flat-map identity ob))
+  ([f ob]
+   {:pre [(observable? ob)]}
+   (.flatMap ob #(f %))))
 
 (defn skip
   "Bypasses a specified number of elements in an
