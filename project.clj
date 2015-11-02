@@ -11,8 +11,12 @@
   :source-paths ["src" "assets"]
   :test-paths ["test"]
   :jar-exclusions [#"\.swp|\.swo|user.clj"]
+
   :codeina {:sources ["src"]
             :reader :clojurescript
-            :target "doc/dist/latest/api"}
+            :target "doc/dist/latest/api"
+            :src-uri "http://github.com/funcool/beicon/blob/master/"
+            :src-uri-prefix "#L"}
+
   :plugins [[funcool/codeina "0.3.0"]
             [lein-externs "0.1.3"]])
