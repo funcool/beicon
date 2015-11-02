@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.2">
+<meta name="author" content="Andrey Antukh, &lt;niwi@niwi.nz&gt;">
+<title>beicon - reactive streams for clojurescript</title>
+<style>
+.listingblock .pygments .hll { background-color: #ffffcc }
+.listingblock .pygments  { background: #f0f0f0; }
+.listingblock .pygments .tok-c { color: #60a0b0; font-style: italic } /* Comment */
+.listingblock .pygments .tok-err { border: 1px solid #FF0000 } /* Error */
+.listingblock .pygments .tok-k { color: #007020; font-weight: bold } /* Keyword */
+.listingblock .pygments .tok-o { color: #666666 } /* Operator */
+.listingblock .pygments .tok-cm { color: #60a0b0; font-style: italic } /* Comment.Multiline */
+.listingblock .pygments .tok-cp { color: #007020 } /* Comment.Preproc */
+.listingblock .pygments .tok-c1 { color: #60a0b0; font-style: italic } /* Comment.Single */
+.listingblock .pygments .tok-cs { color: #60a0b0; background-color: #fff0f0 } /* Comment.Special */
+.listingblock .pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
+.listingblock .pygments .tok-ge { font-style: italic } /* Generic.Emph */
+.listingblock .pygments .tok-gr { color: #FF0000 } /* Generic.Error */
+.listingblock .pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.listingblock .pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
+.listingblock .pygments .tok-go { color: #888888 } /* Generic.Output */
+.listingblock .pygments .tok-gp { color: #c65d09; font-weight: bold } /* Generic.Prompt */
+.listingblock .pygments .tok-gs { font-weight: bold } /* Generic.Strong */
+.listingblock .pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.listingblock .pygments .tok-gt { color: #0044DD } /* Generic.Traceback */
+.listingblock .pygments .tok-kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.listingblock .pygments .tok-kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.listingblock .pygments .tok-kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.listingblock .pygments .tok-kp { color: #007020 } /* Keyword.Pseudo */
+.listingblock .pygments .tok-kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.listingblock .pygments .tok-kt { color: #902000 } /* Keyword.Type */
+.listingblock .pygments .tok-m { color: #40a070 } /* Literal.Number */
+.listingblock .pygments .tok-s { color: #4070a0 } /* Literal.String */
+.listingblock .pygments .tok-na { color: #4070a0 } /* Name.Attribute */
+.listingblock .pygments .tok-nb { color: #007020 } /* Name.Builtin */
+.listingblock .pygments .tok-nc { color: #0e84b5; font-weight: bold } /* Name.Class */
+.listingblock .pygments .tok-no { color: #60add5 } /* Name.Constant */
+.listingblock .pygments .tok-nd { color: #555555; font-weight: bold } /* Name.Decorator */
+.listingblock .pygments .tok-ni { color: #d55537; font-weight: bold } /* Name.Entity */
+.listingblock .pygments .tok-ne { color: #007020 } /* Name.Exception */
+.listingblock .pygments .tok-nf { color: #06287e } /* Name.Function */
+.listingblock .pygments .tok-nl { color: #002070; font-weight: bold } /* Name.Label */
+.listingblock .pygments .tok-nn { color: #0e84b5; font-weight: bold } /* Name.Namespace */
+.listingblock .pygments .tok-nt { color: #062873; font-weight: bold } /* Name.Tag */
+.listingblock .pygments .tok-nv { color: #bb60d5 } /* Name.Variable */
+.listingblock .pygments .tok-ow { color: #007020; font-weight: bold } /* Operator.Word */
+.listingblock .pygments .tok-w { color: #bbbbbb } /* Text.Whitespace */
+.listingblock .pygments .tok-mb { color: #40a070 } /* Literal.Number.Bin */
+.listingblock .pygments .tok-mf { color: #40a070 } /* Literal.Number.Float */
+.listingblock .pygments .tok-mh { color: #40a070 } /* Literal.Number.Hex */
+.listingblock .pygments .tok-mi { color: #40a070 } /* Literal.Number.Integer */
+.listingblock .pygments .tok-mo { color: #40a070 } /* Literal.Number.Oct */
+.listingblock .pygments .tok-sb { color: #4070a0 } /* Literal.String.Backtick */
+.listingblock .pygments .tok-sc { color: #4070a0 } /* Literal.String.Char */
+.listingblock .pygments .tok-sd { color: #4070a0; font-style: italic } /* Literal.String.Doc */
+.listingblock .pygments .tok-s2 { color: #4070a0 } /* Literal.String.Double */
+.listingblock .pygments .tok-se { color: #4070a0; font-weight: bold } /* Literal.String.Escape */
+.listingblock .pygments .tok-sh { color: #4070a0 } /* Literal.String.Heredoc */
+.listingblock .pygments .tok-si { color: #70a0d0; font-style: italic } /* Literal.String.Interpol */
+.listingblock .pygments .tok-sx { color: #c65d09 } /* Literal.String.Other */
+.listingblock .pygments .tok-sr { color: #235388 } /* Literal.String.Regex */
+.listingblock .pygments .tok-s1 { color: #4070a0 } /* Literal.String.Single */
+.listingblock .pygments .tok-ss { color: #517918 } /* Literal.String.Symbol */
+.listingblock .pygments .tok-bp { color: #007020 } /* Name.Builtin.Pseudo */
+.listingblock .pygments .tok-vc { color: #bb60d5 } /* Name.Variable.Class */
+.listingblock .pygments .tok-vg { color: #bb60d5 } /* Name.Variable.Global */
+.listingblock .pygments .tok-vi { color: #bb60d5 } /* Name.Variable.Instance */
+.listingblock .pygments .tok-il { color: #40a070 } /* Literal.Number.Integer.Long */
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic|Liberation+Mono:400|Roboto+Slab:400,700"/>
+<link rel="stylesheet" href="https://www.niwi.nz/_assets/asciidoctor-styles/simple-red-titles/stylesheet.css"/>
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>beicon - reactive streams for clojurescript</h1>
+<div class="details">
+<span id="author" class="author">Andrey Antukh, &lt;niwi@niwi.nz&gt;</span><br>
+<span id="revdate">v0.1.0</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#introduction">Introduction</a>
+<ul class="sectlevel2">
+<li><a href="#project-maturity">Project Maturity</a></li>
+<li><a href="#install">Install</a></li>
+</ul>
+</li>
+<li><a href="#creating-streams">Creating Streams</a>
+<ul class="sectlevel2">
+<li><a href="#from-a-collection">From a collection</a></li>
+<li><a href="#repeating-value">Repeating Value</a></li>
+<li><a href="#from-callback">From Callback</a></li>
+<li><a href="#from-poll">From Poll</a></li>
+<li><a href="#from-atom">From Atom</a></li>
+<li><a href="#from-value">From Value</a></li>
+<li><a href="#terminated">Terminated</a></li>
+<li><a href="#with-timeout">With timeout</a></li>
+<li><a href="#from-factory">From factory</a></li>
+</ul>
+</li>
+<li><a href="#consuming-streams">Consuming streams</a>
+<ul class="sectlevel2">
+<li><a href="#the-stream-states">The stream states</a></li>
+<li><a href="#general-purpose">General purpose</a></li>
+<li><a href="#consume-values">Consume values</a></li>
+<li><a href="#consume-successful-termination">Consume successful termination</a></li>
+<li><a href="#consume-error-termination">Consume error termination</a></li>
+</ul>
+</li>
+<li><a href="#transformations">Transformations</a>
+<ul class="sectlevel2">
+<li><a href="#filter">Filter</a></li>
+<li><a href="#map">Map</a></li>
+<li><a href="#flat-map">Flat Map</a></li>
+<li><a href="#skip">Skip</a></li>
+<li><a href="#take">Take</a></li>
+<li><a href="#slice">Slice</a></li>
+<li><a href="#reduce">Reduce</a></li>
+<li><a href="#buffer">Buffer</a></li>
+</ul>
+</li>
+<li><a href="#combinators">Combinators</a>
+<ul class="sectlevel2">
+<li><a href="#choice">Choice</a></li>
+<li><a href="#zip">Zip</a></li>
+<li><a href="#concat">Concat</a></li>
+<li><a href="#merge">Merge</a></li>
+</ul>
+</li>
+<li><a href="#bus">Bus</a>
+<ul class="sectlevel2">
+<li><a href="#creating-a-bus">Creating a bus.</a></li>
+<li><a href="#ending-a-bus">Ending a bus</a></li>
+</ul>
+</li>
+<li><a href="#faq">FAQ</a>
+<ul class="sectlevel2">
+<li><a href="#that-is-the-difference-between-hot-and-cold-observables">That is the difference between hot and cold observables.?</a></li>
+</ul>
+</li>
+<li><a href="#developers-guide">Developers Guide</a>
+<ul class="sectlevel2">
+<li><a href="#philosophy">Philosophy</a></li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#source-code">Source Code</a></li>
+<li><a href="#run-tests">Run tests</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="introduction"><a class="link" href="#introduction">Introduction</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><em>beicon</em> is a small and concise library that provides reactive streams to
+clojurescript built on top of <a href="https://github.com/Reactive-Extensions/RxJS">rxjs</a>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+This documentation does not covers all api, so if you miss some function,
+contributions are very welcome. You can see the full <a href="api/index.html#id">API documentation here</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="project-maturity"><a class="link" href="#project-maturity">Project Maturity</a></h3>
+<div class="paragraph">
+<p>Since <em>beicon</em> is a young project there can be some API breakage.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="install"><a class="link" href="#install">Install</a></h3>
+<div class="paragraph">
+<p>The simplest way to use <em>beicon</em> in a clojure project, is by including it in the
+dependency vector on your <strong><em>project.clj</em></strong> file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">funcool/beicon</span> <span class="tok-s">&quot;0.1.0&quot;</span><span class="tok-p">]</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="creating-streams"><a class="link" href="#creating-streams">Creating Streams</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section will give you the available methods for create streams.</p>
+</div>
+<div class="sect2">
+<h3 id="from-a-collection"><a class="link" href="#from-a-collection">From a collection</a></h3>
+<div class="paragraph">
+<p>The most basic way to create a streamm is just take a collection
+and convert it in an observable sequence:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">beicon.core</span> <span class="tok-ss">:as</span> <span class="tok-nv">s</span><span class="tok-p">])</span>
+
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">]))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; ==&gt; v: 1</span>
+<span class="tok-c1">;; ==&gt; v: 2</span>
+<span class="tok-c1">;; ==&gt; v: 3</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="repeating-value"><a class="link" href="#repeating-value">Repeating Value</a></h3>
+<div class="paragraph">
+<p>An other way to create potencially infinite stream is using <code>repeat</code> constructor
+function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/repeat</span> <span class="tok-ss">:a</span> <span class="tok-mi">3</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; ==&gt; v: :a</span>
+<span class="tok-c1">;; ==&gt; v: :a</span>
+<span class="tok-c1">;; ==&gt; v: :a</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The second argument for <code>repeat</code> is optional, and omiting it will create
+an infinite stream.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="from-callback"><a class="link" href="#from-callback">From Callback</a></h3>
+<div class="paragraph">
+<p>It there a way for create an observable sequence executing one function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-callback</span> <span class="tok-p">(</span><span class="tok-nb">constantly </span><span class="tok-mi">1</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; ==&gt; v: 1</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The function will be executed once and the stream will contain one unique value.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="from-poll"><a class="link" href="#from-poll">From Poll</a></h3>
+<div class="paragraph">
+<p>This method allow create potentially infinite stream from executing a callback
+repeatedly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-poll</span> <span class="tok-p">(</span><span class="tok-nb">constantly </span><span class="tok-mi">1</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; ==&gt; v: 1</span>
+<span class="tok-c1">;; ==&gt; ...</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If a callback returns nil the stream will be ended and if an exception is returned
+the stream will be ended with error.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="from-atom"><a class="link" href="#from-atom">From Atom</a></h3>
+<div class="paragraph">
+<p>Atoms in clojure are watchable, so you can listen its changes. This method convert
+that changes in an infinite observable sequence of atom changes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">a</span> <span class="tok-p">(</span><span class="tok-nf">atom</span> <span class="tok-mi">1</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-atom</span> <span class="tok-nv">a</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">swap!</span> <span class="tok-nv">a</span> <span class="tok-nv">inc</span><span class="tok-p">)</span>
+<span class="tok-c1">;; ==&gt; v: 2</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="from-value"><a class="link" href="#from-value">From Value</a></h3>
+<div class="paragraph">
+<p>It creates a observable sequence of one unique value:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/once</span> <span class="tok-mi">10</span><span class="tok-p">)</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; ==&gt; v: 10</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="terminated"><a class="link" href="#terminated">Terminated</a></h3>
+<div class="paragraph">
+<p>Some times you also want just a terminated stream:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/never</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This stream not yelds any value and just terminates.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="with-timeout"><a class="link" href="#with-timeout">With timeout</a></h3>
+<div class="paragraph">
+<p>This allow create an observable seequence of one unique value that will be emited
+after specified amount of time:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/timeout</span> <span class="tok-mi">1000</span> <span class="tok-mi">10</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; After 1 sec...</span>
+<span class="tok-c1">;; ==&gt; v: 10</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="from-factory"><a class="link" href="#from-factory">From factory</a></h3>
+<div class="paragraph">
+<p>This is the most advanced and flexible way to create a observable sequence. It
+allows to have control about termination and errors and intended to be used
+for build other kind of constructors.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span>
+  <span class="tok-p">(</span><span class="tok-nf">s/create</span> <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[</span><span class="tok-nv">sick</span><span class="tok-p">]</span>
+              <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
+              <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
+              <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-nv">nil</span><span class="tok-p">)</span> <span class="tok-c1">;; ends</span>
+              <span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; ==&gt; v: 1</span>
+<span class="tok-c1">;; ==&gt; v: 2</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is implemented using protocols for make it flexible and easy extensible
+by the user. By default any object except <code>nil</code> or instance of <code>js/Error</code> are
+considered valid values; <code>nil</code> is considered as end of stream and <code>js/Error</code> or
+any instance of it is considered error termination.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="consuming-streams"><a class="link" href="#consuming-streams">Consuming streams</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="the-stream-states"><a class="link" href="#the-stream-states">The stream states</a></h3>
+<div class="paragraph">
+<p>The observable sequence can be in 3 different kind of states: alive, errored or
+ended. I an error is emited the stream can be considered ended with an error.
+So error or end states can be considered termination states.</p>
+</div>
+<div class="paragraph">
+<p>And is convenient you can subscribe to any of that states of an observable
+seequence.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="general-purpose"><a class="link" href="#general-purpose">General purpose</a></h3>
+<div class="paragraph">
+<p>A general purpose subscription is one that allows you create one subscription
+that watches all the different possible states of an observable seequence:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+                      <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+                      <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+                      <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end:&quot;</span><span class="tok-p">)))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The return value of <code>subscribe</code> function is a funcition that can be called for
+dispose the subscription.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="consume-values"><a class="link" href="#consume-values">Consume values</a></h3>
+<div class="paragraph">
+<p>But in most circumstances you only want consume values regardless of any error
+or termination. For this purposes is there the <code>on-value</code> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;val:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Like with <code>subscribe</code> function, <code>on-value</code> function also return a callable that
+when is called will dispose the created subscription.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+take care that calling any one of that helper functions creates a separated
+subscription and it can behave unexpectly if you do not aware if you are using
+<a href="#hot or cold observables">hot-vs-cold-observales</a>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="consume-successful-termination"><a class="link" href="#consume-successful-termination">Consume successful termination</a></h3>
+<div class="paragraph">
+<p>With <code>on-end</code> function you can watch the successful termination of an observable
+sequence:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/on-end</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;end!&quot;</span><span class="tok-p">)))</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="consume-error-termination"><a class="link" href="#consume-error-termination">Consume error termination</a></h3>
+<div class="paragraph">
+<p>With <code>on-error</code> function you can watch the error termination of an observable
+seequence:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/on-end</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)))</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="transformations"><a class="link" href="#transformations">Transformations</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="filter"><a class="link" href="#filter">Filter</a></h3>
+<div class="paragraph">
+<p>The main advantage of using reactive streams is that you may treat them like
+normal seequence, and in this case filter them with a predicate:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span> <span class="tok-mi">5</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/filter</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">&gt; </span><span class="tok-nv">%</span> <span class="tok-mi">3</span><span class="tok-p">))))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 4</span>
+<span class="tok-c1">;; ==&gt; on-value: 5</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="map"><a class="link" href="#map">Map</a></h3>
+<div class="paragraph">
+<p>Also, you can apply a function over each value in the stream:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/map</span> <span class="tok-nv">inc</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-value: 3</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="flat-map"><a class="link" href="#flat-map">Flat Map</a></h3>
+<div class="paragraph">
+<p>Convets a observable seequence that can contain other observable seequences in
+an other observable seequences that emits just plain values.</p>
+</div>
+<div class="paragraph">
+<p>The result is similar to concatenate all the underlying seequences.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/map</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nf">sfrom-coll</span> <span class="tok-p">(</span><span class="tok-nb">range </span><span class="tok-nv">%</span> <span class="tok-p">(</span><span class="tok-nb">+ </span><span class="tok-nv">%</span> <span class="tok-mi">2</span><span class="tok-p">))))</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/flat-map</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-value: 3</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="skip"><a class="link" href="#skip">Skip</a></h3>
+<div class="paragraph">
+<p>Also, sometimes you just want to skip values from stream under different criteria.</p>
+</div>
+<div class="paragraph">
+<p>You can skip the first N values:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span> <span class="tok-mi">5</span> <span class="tok-mi">6</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/skip</span> <span class="tok-mi">4</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 5</span>
+<span class="tok-c1">;; ==&gt; on-value: 6</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Skip while some condition evalutates to true:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/skip-while</span> <span class="tok-nv">odd?</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-value: 3</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or skip until an other observable yelds a value using <code>skip-until</code> (no example at
+this moment).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="take"><a class="link" href="#take">Take</a></h3>
+<div class="paragraph">
+<p>You also can limit the observale sequence to an specified number of elements:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/take</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or an condition expression evaluates to true:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/take-while</span> <span class="tok-nv">odd?</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="slice"><a class="link" href="#slice">Slice</a></h3>
+<div class="paragraph">
+<p>This is a some kind of combination of <code>skip</code> and <code>take</code>, and returns a observable
+seequence that represents a portion delimited by start and end of the source
+observable seequence.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/slice</span> <span class="tok-mi">1</span> <span class="tok-mi">3</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-value: 3</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="reduce"><a class="link" href="#reduce">Reduce</a></h3>
+<div class="paragraph">
+<p>Allows combine all results of an observable seequence using a combining function
+also called (reducing function):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/reduce</span> <span class="tok-nb">+ </span><span class="tok-mi">0</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 10</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="buffer"><a class="link" href="#buffer">Buffer</a></h3>
+<div class="paragraph">
+<p>This transformer functions allow accomulate N specified values in a buffer and then
+emits them as one value.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">s/buffer</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: [1 2]</span>
+<span class="tok-c1">;; ==&gt; on-value: [3 4]</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="combinators"><a class="link" href="#combinators">Combinators</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="choice"><a class="link" href="#choice">Choice</a></h3>
+<div class="paragraph">
+<p>Perform an arbitrary choice between two or more observable sequences and return the
+first value available from any provided observables.</p>
+</div>
+<div class="paragraph">
+<p>This kind if combinator works very well with operations that can timeout:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/choice</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/timeout</span> <span class="tok-mi">1000</span> <span class="tok-ss">:timeout</span><span class="tok-p">)</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/timeout</span> <span class="tok-mi">900</span> <span class="tok-ss">:value</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: :value</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="zip"><a class="link" href="#zip">Zip</a></h3>
+<div class="paragraph">
+<p>This combinator combines two observable seequences in one.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/zip</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: [1 2]</span>
+<span class="tok-c1">;; ==&gt; on-value: [2 3]</span>
+<span class="tok-c1">;; ==&gt; on-value: [3 4]</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="concat"><a class="link" href="#concat">Concat</a></h3>
+<div class="paragraph">
+<p>This cobinator concatenates two or more observable seequences.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/concat</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-value: 3</span>
+<span class="tok-c1">;; ==&gt; on-value: 4</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="merge"><a class="link" href="#merge">Merge</a></h3>
+<div class="paragraph">
+<p>This combinator merges two or more observable seequences.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/concat</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 1</span>
+<span class="tok-c1">;; ==&gt; on-value: 3</span>
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-value: 4</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+the order is not required to be the same always.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="bus"><a class="link" href="#bus">Bus</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is an abstraction that combines observable seequence with the observer. So
+you can push values into it and transform and subscribe to it like any other
+seequence.</p>
+</div>
+<div class="sect2">
+<h3 id="creating-a-bus"><a class="link" href="#creating-a-bus">Creating a bus.</a></h3>
+<div class="paragraph">
+<p>You can create a bus instance using <code>bus</code> constructor function. There is an
+example of using bus for the both operations: push values and subscribe to it.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">bus</span> <span class="tok-p">(</span><span class="tok-nf">s/bus</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">bus</span>
+                <span class="tok-p">(</span><span class="tok-nf">s/skip</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
+                <span class="tok-p">(</span><span class="tok-nf">s/map</span> <span class="tok-nv">inc</span><span class="tok-p">)</span>
+                <span class="tok-p">(</span><span class="tok-nf">s/take</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
+
+<span class="tok-c1">;; ==&gt; on-value: 3</span>
+<span class="tok-c1">;; ==&gt; on-value: 2</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ending-a-bus"><a class="link" href="#ending-a-bus">Ending a bus</a></h3>
+<div class="paragraph">
+<p>You can end bus in any moment just executing <code>end!</code> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">bus</span> <span class="tok-p">(</span><span class="tok-nf">s/bus</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">bus</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">s/end!</span> <span class="tok-nv">bus</span><span class="tok-p">)</span>
+<span class="tok-c1">;; ==&gt; on-end</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="faq"><a class="link" href="#faq">FAQ</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="that-is-the-difference-between-hot-and-cold-observables"><a class="link" href="#that-is-the-difference-between-hot-and-cold-observables">That is the difference between hot and cold observables.?</a></h3>
+<div class="paragraph">
+<p>TBD</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="developers-guide"><a class="link" href="#developers-guide">Developers Guide</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="philosophy"><a class="link" href="#philosophy">Philosophy</a></h3>
+<div class="paragraph">
+<p>Five most important rules:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Beautiful is better than ugly.</p>
+</li>
+<li>
+<p>Explicit is better than implicit.</p>
+</li>
+<li>
+<p>Simple is better than complex.</p>
+</li>
+<li>
+<p>Complex is better than complicated.</p>
+</li>
+<li>
+<p>Readability counts.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>All contributions to <em>beicon</em> should keep these important rules in mind.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="contributing"><a class="link" href="#contributing">Contributing</a></h3>
+<div class="paragraph">
+<p>Unlike Clojure and other Clojure contributed libraries <em>beicon</em> does not have many
+restrictions for contributions. Just open an issue or pull request.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="source-code"><a class="link" href="#source-code">Source Code</a></h3>
+<div class="paragraph">
+<p><em>beicon</em> is open source and can be found on
+<a href="https://github.com/funcool/beicon">github</a>.</p>
+</div>
+<div class="paragraph">
+<p>You can clone the public repository with this command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">git clone https://github.com/funcool/beicon</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="run-tests"><a class="link" href="#run-tests">Run tests</a></h3>
+<div class="paragraph">
+<p>For running tests just execute this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="text">./scrpts/build
+node ./out/tests.js</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="license"><a class="link" href="#license">License</a></h3>
+<div class="paragraph">
+<p><em>beicon</em> is under public domain:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to &lt;http://unlicense.org/&gt;</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2015-11-02 17:52:53 EET
+</div>
+</div>
+</body>
+</html>
