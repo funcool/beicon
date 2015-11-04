@@ -1,4 +1,4 @@
-(defproject funcool/beicon "0.1.0"
+(defproject funcool/beicon "0.1.1"
   :description "Reactive Streams for ClojureScript (built on top of RxJS)"
   :url "https://github.com/funcool/beicon"
   :license {:name "Public Domain"
@@ -19,4 +19,4 @@
             :src-uri-prefix "#L"}
 
   :plugins [[funcool/codeina "0.3.0"]
-            [lein-externs "0.1.3"]])
+            [lein-externs "0.1.5"]])
