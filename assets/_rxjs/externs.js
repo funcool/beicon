@@ -23,6 +23,7 @@ var TopLevel = {
 "onError" : function () {},
 "onNext" : function () {},
 "pausable" : function () {},
+"pausableBuffered" : function () {},
 "publish" : function () {},
 "reduce" : function () {},
 "repeat" : function () {},
@@ -41,5 +42,6 @@ var TopLevel = {
 "takeWhile" : function () {},
 "tap" : function () {},
 "throttle" : function () {},
+"timer" : function () {},
 "zip" : function () {}
 }
