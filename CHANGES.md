@@ -1,5 +1,13 @@
 # Changelog #
 
+## Version 0.2.0 ##
+
+Date: 2015-12-03
+
+- Fix incompatibilities with advanced compilations.
+- Add new and improved externs.
+- Update to rxjs 4.0.7
+
 
 ## Version 0.1.1
 
