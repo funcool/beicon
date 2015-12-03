@@ -4,8 +4,8 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.7.145" :scope "provided"]
-                 [funcool/cats "1.0.0"]]
+                 [org.clojure/clojurescript "1.7.189" :scope "provided"]
+                 [funcool/cats "1.2.0"]]
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
   :source-paths ["src" "assets"]
