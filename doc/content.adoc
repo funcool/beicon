@@ -442,6 +442,29 @@ also called (reducing function):
 ;; ==> on-end
 ----
 
+=== Reduce
+
+Allows combine all results of an observable seequence using a combining function
+also called (reducing function). Returns a stream of each intermediate result instead
+of :
+
+[source, clojure]
+----
+(def stream (->> (s/from-coll [1 2 3 4])
+                 (s/scan + 0)))
+
+(s/subscribe stream
+             #(println "on-value:" %)
+             #(println "on-error:" %)
+             #(println "on-end"))
+
+;; ==> on-value: 1
+;; ==> on-value: 3
+;; ==> on-value: 6
+;; ==> on-value: 10
+;; ==> on-end
+----
+
 
 === Buffer
 
