@@ -359,6 +359,17 @@
    {:pre [(observable? ob) (fn? f)]}
    (.reduce ob f seed)))
 
+(defn scan
+  "Applies an accumulator function over an observable
+  sequence and returns each intermediate result.
+  Same as reduce but with intermediate results"
+  ([f ob]
+   {:pre [(observable? ob) (fn? f)]}
+   (.scan ob f))
+  ([f seed ob]
+   {:pre [(observable? ob) (fn? f)]}
+   (.scan ob f seed)))
+
 (defn tap
   "Invokes an action for each element in the
   observable sequence."
