@@ -1,5 +1,13 @@
 # Changelog #
 
+
+## Version 0.3.0
+
+Date: Unreleased
+
+- Fix wrong precondition on `repeat` function.
+- Add `scan` function.
+
 ## Version 0.2.0 ##
 
 Date: 2015-12-03
