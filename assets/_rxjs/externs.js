@@ -138,6 +138,12 @@ Rx.Observable.prototype.concat = function() {};
  * @this {Rx.Observable}
  * @return {Rx.Observable}
  */
+Rx.Observable.prototype.scan = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.prototype.merge = function() {};
 
 /**
