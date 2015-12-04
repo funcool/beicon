@@ -87,7 +87,7 @@
   ([v]
    (repeat v -1))
   ([v n]
-   {:pre [(number? v)]}
+   {:pre [(number? n)]}
    (js/Rx.Observable.repeat v n)))
 
 (defn publish
