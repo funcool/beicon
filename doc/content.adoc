@@ -442,11 +442,11 @@ also called (reducing function):
 ;; ==> on-end
 ----
 
-=== Reduce
+=== Scan
 
 Allows combine all results of an observable seequence using a combining function
-also called (reducing function). Returns a stream of each intermediate result instead
-of :
+also called (reducing function). Returns a stream of each intermediate result 
+instead of:
 
 [source, clojure]
 ----
