@@ -9,6 +9,10 @@ Date: Unreleased
 - Add `scan` function.
 - Add `from-promise` function.
 - Add `retry` function.
+- Add `with-latest-from` function.
+- Improve `zip` function allowing passing user defined
+  join functon.
+
 
 ## Version 0.2.0 ##
 
