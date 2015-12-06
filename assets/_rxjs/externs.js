@@ -21,7 +21,7 @@ Rx.Subject = function() {};
 Rx.ConnectableObservable = function() {};
 
 /**
- * @const
+ * @constructor
  */
 Rx.Scheduler = function() {};
 
