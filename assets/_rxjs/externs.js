@@ -14,12 +14,37 @@ Rx.Observable = function() {};
  */
 Rx.Subject = function() {};
 
-
 /**
  * @constructor
  * @extends {Rx.Observable}
  */
 Rx.ConnectableObservable = function() {};
+
+/**
+ * @constructor
+ */
+Rx.Scheduler = function() {};
+
+/**
+ * @const
+ */
+Rx.Scheduler.default = function() {};
+
+/**
+ * @const
+ */
+Rx.Scheduler.immediate = function() {};
+
+/**
+ * @const
+ */
+Rx.Scheduler.currentThread = function() {};
+
+/**
+ * @this {null}
+ * @return {boolean}
+ */
+Rx.Scheduler.isScheduler = function() {};
 
 /**
  * @this {Rx.Subject}
@@ -272,3 +297,14 @@ Rx.Observable.prototype.distinct = function() {};
  */
 Rx.Observable.prototype.retry = function() {};
 
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.observeOn = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.subscribeOn = function() {};

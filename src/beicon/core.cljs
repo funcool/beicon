@@ -508,6 +508,25 @@
       ns)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Schedulers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn scheduler?
+  [s]
+  (js/Rx.Scheduler.isScheduler s))
+
+(def immediate-scheduler js/Rx.Scheduler.immediate)
+(def current-thread-scheduler js/Rx.Scheduler.currentThread)
+
+(defn observe-on
+  [scheduler ob]
+  (.observeOn ob scheduler))
+
+(defn subscribe-on
+  [scheduler ob]
+  (.subscribeOn ob scheduler))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cats Integration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
