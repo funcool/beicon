@@ -254,6 +254,23 @@
                     (t/is (= % [2 3]))
                     (done))))))
 
+(t/deftest observable-retry
+  (t/async done
+    (let [errored? (volatile! false)
+          s (s/create (fn [sink]
+                        (if @errored?
+                          (do
+                            (sink 2)
+                            (sink 3)
+                            (sink nil))
+                           (do
+                             (vreset! errored? true)
+                                   (sink (js/Error.))))))
+                 rs (s/retry 2 s)]
+      (t/is (s/observable? rs))
+      (drain! rs #(t/is (= % [2 3])))
+      (s/on-end rs done))))
+
 (t/deftest observable-as-functor
  (t/async done
    (let [s (s/from-coll [0 1 2])

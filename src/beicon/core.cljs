@@ -457,6 +457,16 @@
   ([n skip ob]
    (.bufferWithCount ob n skip)))
 
+(defn retry
+  "Given an optional number of retries and an observable,
+  repeats the source observable the specified number of
+  times or until it terminates. If no number of retries
+  is given, it will be retried indefinitely."
+  ([ob]
+   (.retry ob))
+  ([n ob]
+   (.retry ob n)))
+
 (defn to-atom
   "Materialize the observable sequence into an atom."
   ([ob]

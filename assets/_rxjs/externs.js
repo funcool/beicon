@@ -265,3 +265,10 @@ Rx.Observable.prototype.asObservable = function() {};
  * @return {Rx.Observable}
  */
 Rx.Observable.prototype.distinct = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.retry = function() {};
+
