@@ -8,6 +8,7 @@ Date: Unreleased
 - Fix wrong precondition on `repeat` function.
 - Add `scan` function.
 - Add `from-promise` function.
+- Add `retry` function.
 
 ## Version 0.2.0 ##
 
