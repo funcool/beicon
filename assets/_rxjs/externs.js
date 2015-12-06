@@ -375,3 +375,14 @@ Rx.Observable.prototype.empty = function() {};
  */
 Rx.Observable.prototype.share = function() {};
 
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.subscribeOn = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.observeOn = function() {};

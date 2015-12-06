@@ -377,3 +377,18 @@
   (t/is (s/scheduler? s/immediate-scheduler))
   (t/is (s/scheduler? s/current-thread-scheduler)))
 
+(t/deftest observe-on
+  (t/async done
+    (let [coll [1 2 3]
+          s (s/observe-on (s/from-coll coll) s/immediate-scheduler)]
+      (t/is (s/observable? s))
+      (drain! s #(t/is (= % coll)))
+      (s/on-end s done))))
+
+(t/deftest subscribe-on
+  (t/async done
+    (let [coll [1 2 3]
+          s (s/subscribe-on (s/from-coll coll) s/current-thread-scheduler)]
+      (t/is (s/observable? s))
+      (drain! s #(t/is (= % coll)))
+      (s/on-end s done))))
