@@ -519,11 +519,11 @@
 (def current-thread-scheduler js/Rx.Scheduler.currentThread)
 
 (defn observe-on
-  [ob scheduler]
+  [scheduler ob]
   (.observeOn ob scheduler))
 
 (defn subscribe-on
-  [ob scheduler]
+  [scheduler ob]
   (.subscribeOn ob scheduler))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
