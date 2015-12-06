@@ -14,12 +14,37 @@ Rx.Observable = function() {};
  */
 Rx.Subject = function() {};
 
-
 /**
  * @constructor
  * @extends {Rx.Observable}
  */
 Rx.ConnectableObservable = function() {};
+
+/**
+ * @const
+ */
+Rx.Scheduler = function() {};
+
+/**
+ * @const
+ */
+Rx.Scheduler.default = function() {};
+
+/**
+ * @const
+ */
+Rx.Scheduler.immediate = function() {};
+
+/**
+ * @const
+ */
+Rx.Scheduler.currentThread = function() {};
+
+/**
+ * @this {null}
+ * @return {boolean}
+ */
+Rx.Scheduler.prototype.isScheduler = function() {};
 
 /**
  * @this {Rx.Subject}
