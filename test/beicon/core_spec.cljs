@@ -280,6 +280,16 @@
       (drain! s3 #(t/is (= % [[1 0] [2 0] [3 0]])))
       (s/on-end s3 done))))
 
+(t/deftest observable-catch
+  (t/async done
+    (let [s1 (s/from-exception (ex-info "error" {:foo :bar}))
+          s2 (s/catch (fn [error]
+                        (s/once (ex-data error)))
+                 s1)]
+      (t/is (s/observable? s2))
+      (drain! s2 #(t/is (= % [{:foo :bar}])))
+      (s/on-end s2 done))))
+
 (t/deftest observable-as-functor
  (t/async done
    (let [s (s/from-coll [0 1 2])

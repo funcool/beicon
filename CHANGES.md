@@ -10,6 +10,8 @@ Date: Unreleased
 - Add `from-promise` function.
 - Add `retry` function.
 - Add `with-latest-from` function.
+- Add `catch` function.
+- Add `from-exception` function.
 - Improve `zip` function allowing passing user defined
   join functon.
 

@@ -152,6 +152,11 @@
   [p]
   (js/Rx.Observable.fromPromise p))
 
+(defn from-exception
+  [e]
+  (let [func (aget js/Rx.Observable "throw")]
+    (func e)))
+
 (defn once
   "Returns an observable sequence that contains
   a single element."
@@ -385,6 +390,14 @@
    (with-latest-from vector ob' ob))
   ([f ob' ob]
    (.withLatestFrom ob ob' f)))
+
+(defn catch
+  "Continues an observable sequence that is terminated
+  by an exception with the next observable sequence."
+  [handler ob]
+  {:pre [(or (observable? handler)
+             (fn? handler))]}
+  (.catch ob handler))
 
 (defn tap
   "Invokes an action for each element in the

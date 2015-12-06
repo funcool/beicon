@@ -83,6 +83,12 @@ Rx.Observable.just = function() {};
  * @this {null}
  * @return {Rx.Observable}
  */
+Rx.Observable.throw = function() {};
+
+/**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.timer = function() {};
 
 /**
@@ -276,4 +282,10 @@ Rx.Observable.prototype.retry = function() {};
  * @return {Rx.Observable}
  */
 Rx.Observable.prototype.withLatestFrom = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.catch = function() {};
 
