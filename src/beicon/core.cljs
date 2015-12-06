@@ -629,3 +629,14 @@
                          (fn []
                            (unsub)))))]
       ns)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Schedulers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn scheduler?
+  [s]
+  (js/Rx.Scheduler.isScheduler s))
+
+(def immediate-scheduler js/Rx.Scheduler.immediate)
+(def current-thread-scheduler js/Rx.Scheduler.currentThread)

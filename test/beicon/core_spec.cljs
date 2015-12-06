@@ -372,3 +372,8 @@
                           s)]
       (drain! ts #(t/is (= % [[1 2] [3 4]])))
       (s/on-end ts done))))
+
+(t/deftest schedulers
+  (t/is (s/scheduler? s/immediate-scheduler))
+  (t/is (s/scheduler? s/current-thread-scheduler)))
+
