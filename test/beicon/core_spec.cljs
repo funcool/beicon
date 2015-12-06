@@ -271,6 +271,15 @@
       (drain! rs #(t/is (= % [2 3])))
       (s/on-end rs done))))
 
+(t/deftest observable-with-latest-from
+  (t/async done
+    (let [s1 (s/from-coll [0])
+          s2 (s/from-coll [1 2 3])
+          s3 (s/with-latest-from s1 s2)]
+      (t/is (s/observable? s3))
+      (drain! s3 #(t/is (= % [[1 0] [2 0] [3 0]])))
+      (s/on-end s3 done))))
+
 (t/deftest observable-as-functor
  (t/async done
    (let [s (s/from-coll [0 1 2])

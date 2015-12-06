@@ -14,7 +14,6 @@ Rx.Observable = function() {};
  */
 Rx.Subject = function() {};
 
-
 /**
  * @constructor
  * @extends {Rx.Observable}
@@ -271,4 +270,10 @@ Rx.Observable.prototype.distinct = function() {};
  * @return {Rx.Observable}
  */
 Rx.Observable.prototype.retry = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.withLatestFrom = function() {};
 

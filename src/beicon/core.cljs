@@ -376,6 +376,16 @@
    {:pre [(observable? ob) (fn? f)]}
    (.scan ob f seed)))
 
+(defn with-latest-from
+  "Merges the specified observable sequences into
+  one observable sequence by using the selector
+  function only when the source observable sequence
+  (the instance) produces an element."
+  ([ob' ob]
+   (with-latest-from vector ob' ob))
+  ([f ob' ob]
+   (.withLatestFrom ob ob' f)))
+
 (defn tap
   "Invokes an action for each element in the
   observable sequence."
