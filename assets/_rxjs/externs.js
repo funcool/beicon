@@ -72,6 +72,12 @@ Rx.Observable.fromArray = function() {};
  * @this {null}
  * @return {Rx.Observable}
  */
+Rx.Observable.fromPromise = function() {};
+
+/**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.just = function() {};
 
 /**

@@ -1,6 +1,7 @@
 (ns beicon.core-spec
   (:require [cljs.test :as t]
             [cats.core :as m]
+            [promesa.core :as prom]
             [beicon.core :as s]))
 
 ;; --- helpers for testing
@@ -119,6 +120,25 @@
       (t/is (s/observable? s))
       (drain! s
               #(t/is (= % [1]))
+              #(t/is (= (ex-message %) "oh noes")))
+      (s/on-error s done))))
+
+(t/deftest observable-from-promise
+  (t/async done
+    (let [p (prom/resolved 42)
+          s (s/from-promise p)]
+      (t/is (s/observable? s))
+      (drain! s
+              #(t/is (= % [42])))
+      (s/on-end s done))))
+
+(t/deftest observable-from-rejected-promise
+  (t/async done
+    (let [p (prom/rejected (ex-info "oh noes" {}))
+          s (s/from-promise p)]
+      (t/is (s/observable? s))
+      (drain! s
+              #(t/is (= % []))
               #(t/is (= (ex-message %) "oh noes")))
       (s/on-error s done))))
 

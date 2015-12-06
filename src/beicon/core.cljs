@@ -147,6 +147,11 @@
               (fn []
                 (remove-watch atm key))))))
 
+(defn from-promise
+  "Creates an observable from a promise."
+  [p]
+  (js/Rx.Observable.fromPromise p))
+
 (defn once
   "Returns an observable sequence that contains
   a single element."
