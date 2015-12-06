@@ -5,6 +5,7 @@
             :url "http://unlicense.org/"}
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.189" :scope "provided"]
+                 [funcool/promesa "0.6.0" :scope "provided"]
                  [funcool/cats "1.2.0"]]
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
