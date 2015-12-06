@@ -254,10 +254,11 @@
 (defn zip
   "Merges the specified observable sequences or Promises
   into one observable sequence."
-  [a b]
-  {:pre [(observable? a)
-         (observable? b)]}
-  (.zip a b vector))
+  ([ob' ob]
+   (zip vector ob' ob))
+  ([f ob' ob]
+   {:pre [(observable? ob') (observable? ob)]}
+   (.zip ob ob' f)))
 
 (defn concat
   "Concatenates all of the specified observable
