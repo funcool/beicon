@@ -380,7 +380,7 @@
 (t/deftest observe-on
   (t/async done
     (let [coll [1 2 3]
-          s (s/observe-on (s/from-coll coll) s/immediate-scheduler)]
+          s (s/observe-on s/immediate-scheduler (s/from-coll coll))]
       (t/is (s/observable? s))
       (drain! s #(t/is (= % coll)))
       (s/on-end s done))))
@@ -388,7 +388,7 @@
 (t/deftest subscribe-on
   (t/async done
     (let [coll [1 2 3]
-          s (s/subscribe-on (s/from-coll coll) s/current-thread-scheduler)]
+          s (s/subscribe-on s/current-thread-scheduler (s/from-coll coll))]
       (t/is (s/observable? s))
       (drain! s #(t/is (= % coll)))
       (s/on-end s done))))
