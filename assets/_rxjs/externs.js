@@ -297,3 +297,14 @@ Rx.Observable.prototype.distinct = function() {};
  */
 Rx.Observable.prototype.retry = function() {};
 
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.observeOn = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.subscribeOn = function() {};

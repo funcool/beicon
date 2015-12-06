@@ -518,6 +518,14 @@
 (def immediate-scheduler js/Rx.Scheduler.immediate)
 (def current-thread-scheduler js/Rx.Scheduler.currentThread)
 
+(defn observe-on
+  [ob scheduler]
+  (.observeOn ob scheduler))
+
+(defn subscribe-on
+  [ob scheduler]
+  (.subscribeOn ob scheduler))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Cats Integration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
