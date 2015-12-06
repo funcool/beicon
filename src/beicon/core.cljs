@@ -237,10 +237,14 @@
 
 (defn subscribe
   "Subscribes an observer to the observable sequence."
-  [ob nf ef cf]
-  {:pre [(observable? ob)]}
-  (let [disposable (.subscribe ob nf ef cf)]
-    #(.dispose disposable)))
+  ([ob nf]
+   (subscribe ob nf nil nil))
+  ([ob nf ef]
+   (subscribe ob nf ef nil))
+  ([ob nf ef cf]
+   {:pre [(observable? ob)]}
+   (let [disposable (.subscribe ob nf ef cf)]
+     #(.dispose disposable))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observable Transformations
