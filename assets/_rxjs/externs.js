@@ -44,7 +44,7 @@ Rx.Scheduler.currentThread = function() {};
  * @this {null}
  * @return {boolean}
  */
-Rx.Scheduler.prototype.isScheduler = function() {};
+Rx.Scheduler.isScheduler = function() {};
 
 /**
  * @this {Rx.Subject}
