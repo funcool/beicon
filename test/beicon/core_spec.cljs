@@ -340,7 +340,7 @@
                  :acc
                  (fn [_ _ _ v]
                    (vswap! vacc conj v)))
-      (s/to-atom a st)
+      (s/to-atom st a)
       (s/on-end st #(do (t/is (= @a 3))
                         (t/is (= @vacc [1 2 3]))
                         (done))))))
@@ -349,7 +349,7 @@
   (t/async done
     (let [st (s/from-coll [1 2 3])
           a (atom [])]
-      (s/to-atom a st conj)
+      (s/to-atom st a conj)
       (s/on-end st #(do (t/is (= @a [1 2 3]))
                         (done))))))
 
