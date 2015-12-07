@@ -14,9 +14,14 @@ Date: Unreleased
 - Add `from-exception` function.
 - Add `empty` function.
 - Add `share` function.
+- Add `merge-all` function.
+- Add `of` function.
+- Add `just` function (once is now an alias for just).
 - Implement `never` in function of empty.
 - Improve `zip` function allowing passing user defined
   join functon.
+- Changed call signature of `to-atom` for consistency
+  with the subscribe related functions.
 
 
 ## Version 0.2.0 ##

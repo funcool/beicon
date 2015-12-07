@@ -71,6 +71,18 @@ Rx.Observable.fromArray = function() {};
  * @this {null}
  * @return {Rx.Observable}
  */
+Rx.Observable.from = function() {};
+
+/**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.of = function() {};
+
+/**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.fromPromise = function() {};
 
 /**
@@ -156,6 +168,12 @@ Rx.Observable.prototype.scan = function() {};
  * @return {Rx.Observable}
  */
 Rx.Observable.prototype.merge = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.mergeAll = function() {};
 
 /**
  * @this {Rx.Observable}

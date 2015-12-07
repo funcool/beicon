@@ -118,7 +118,7 @@
   "Generates an observable sequence from collection."
   [coll]
   (let [array (into-array coll)]
-    (js/Rx.Observable.fromArray array)))
+    (js/Rx.Observable.from array)))
 
 (defn from-callback
   "Creates an observable sequence of one unique value
@@ -163,11 +163,16 @@
   (let [func (aget js/Rx.Observable "throw")]
     (func e)))
 
-(defn once
+(defn just
   "Returns an observable sequence that contains
   a single element."
   [v]
   (js/Rx.Observable.just v))
+
+(defn once
+  "An alias to `just`."
+  [v]
+  (just v))
 
 (defn empty
   "Returns an observable sequence that is already
@@ -187,6 +192,21 @@
   ([ms val]
    {:pre [(number? ms)]}
    (.map (js/Rx.Observable.timer ms) (fn [_] val))))
+
+(defn of
+  "Converts arguments to an observable sequence."
+  ([a]
+   (js/Rx.Observable.of a))
+  ([a b]
+   (js/Rx.Observable.of a b))
+  ([a b c]
+   (js/Rx.Observable.of a b c))
+  ([a b c d]
+   (js/Rx.Observable.of a b c d))
+  ([a b c d e]
+   (js/Rx.Observable.of a b c d e))
+  ([a b c d e f]
+   (js/Rx.Observable.of a b c d e f)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Bus
@@ -255,6 +275,20 @@
    (let [disposable (.subscribe ob nf ef cf)]
      #(.dispose disposable))))
 
+(defn to-atom
+  "Materialize the observable sequence into an atom."
+  ([ob]
+   (let [a (atom nil)]
+     (to-atom ob a)))
+  ([ob a]
+   {:pre [(observable? ob)]}
+   (on-value ob #(reset! a %))
+   a)
+  ([ob a f]
+   {:pre [(observable? ob)]}
+   (on-value ob #(swap! a f %))
+   a))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observable Transformations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -298,6 +332,12 @@
    (.merge a b))
   ([a b & more]
    (cljs.core/reduce merge (merge a b) more)))
+
+(defn merge-all
+  "Merges an observable sequence of observable
+  sequences into an observable sequence."
+  [ob]
+  (.mergeAll ob))
 
 (defn filter
   "Filters the elements of an observable sequence
@@ -503,20 +543,6 @@
    (.retry ob))
   ([n ob]
    (.retry ob n)))
-
-(defn to-atom
-  "Materialize the observable sequence into an atom."
-  ([ob]
-   (let [a (atom nil)]
-     (to-atom a ob)))
-  ([a ob]
-   {:pre [(observable? ob)]}
-   (on-value ob #(reset! a %))
-   a)
-  ([a ob f]
-   {:pre [(observable? ob)]}
-   (on-value ob #(swap! a f %))
-   a))
 
 (defn to-observable
   "Hides the identity of an observable sequence."
