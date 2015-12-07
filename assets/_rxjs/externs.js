@@ -289,3 +289,9 @@ Rx.Observable.prototype.withLatestFrom = function() {};
  */
 Rx.Observable.prototype.catch = function() {};
 
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.empty = function() {};
+

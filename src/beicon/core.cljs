@@ -3,7 +3,7 @@
             [cats.protocols :as p]
             [cats.context :as ctx])
   (:refer-clojure :exclude [true? map filter reduce merge repeat repeatedly zip
-                            dedupe drop take take-while concat partition]))
+                            dedupe drop take take-while concat partition empty]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Predicates
@@ -163,12 +163,15 @@
   [v]
   (js/Rx.Observable.just v))
 
-(defn never
+(defn empty
   "Returns an observable sequence that is already
   in end state."
   []
-  (create (fn [sink]
-            (sink nil))))
+  (js/Rx.Observable.empty))
+
+(def never
+  "Alias to 'empty'."
+  empty)
 
 (defn timeout
   "Return an observable sequence that will return

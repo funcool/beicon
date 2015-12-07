@@ -12,6 +12,8 @@ Date: Unreleased
 - Add `with-latest-from` function.
 - Add `catch` function.
 - Add `from-exception` function.
+- Add `empty` function.
+- Implement `never` in function of empty.
 - Improve `zip` function allowing passing user defined
   join functon.
 
