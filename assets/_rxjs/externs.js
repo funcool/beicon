@@ -295,3 +295,9 @@ Rx.Observable.prototype.catch = function() {};
  */
 Rx.Observable.prototype.empty = function() {};
 
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.prototype.share = function() {};
+

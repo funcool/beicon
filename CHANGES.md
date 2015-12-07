@@ -13,6 +13,7 @@ Date: Unreleased
 - Add `catch` function.
 - Add `from-exception` function.
 - Add `empty` function.
+- Add `share` function.
 - Implement `never` in function of empty.
 - Improve `zip` function allowing passing user defined
   join functon.
