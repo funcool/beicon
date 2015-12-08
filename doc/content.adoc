@@ -29,7 +29,7 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "0.2.0"]
+[funcool/beicon "0.3.0"]
 ----
 
 == Creating Streams
@@ -127,11 +127,29 @@ It creates a observable sequence of one unique value:
 
 [source, clojure]
 ----
-(def stream (s/once 10)
+(def stream (s/just 10)
 
 (s/on-value stream #(println "v:" %))
 ;; ==> v: 10
 ----
+
+
+=== From multiple values
+
+It there is a way for create a observable seequence from
+multiple values, using the `of` consturctor:
+
+[source, clojure]
+----
+(def stream (s/of 1 2 3))
+
+(s/on-value stream #(println "v:" %))
+;; ==> v: 1
+;; ==> v: 2
+;; ==> v: 3
+----
+
+NOTE: the `of` constructor accept the maximum of 6 parameters.
 
 
 === Terminated
@@ -140,7 +158,7 @@ Some times you also want just a terminated stream:
 
 [source, clojure]
 ----
-(def stream (s/never))
+(def stream (s/empty))
 ----
 
 This stream not yelds any value and just terminates.
