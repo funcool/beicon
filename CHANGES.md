@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 0.5.0 ##
+
+Date: 2015-12-23
+
+- Add `sample` function.
+
+
 ## Version 0.4.0 ##
 
 Date: 2015-12-23
