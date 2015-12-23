@@ -251,6 +251,12 @@ Rx.Observable.prototype.throttle = function() {};
  * @this {Rx.Observable}
  * @return {Rx.Observable}
  */
+Rx.Observable.prototype.debounce = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.prototype.pausableBuffered = function() {};
 
 /**
