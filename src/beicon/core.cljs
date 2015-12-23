@@ -491,6 +491,12 @@
   {:pre [(observable? ob) (number? ms)]}
   (.debounce ob ms))
 
+(defn sample
+  "Samples the observable sequence at each interval."
+  [ms ob]
+  {:pre [(observable? ob) (number? ms)]}
+  (.sample ob ms))
+
 (defn ignore
   "Ignores all elements in an observable sequence leaving
   only the termination messages."
