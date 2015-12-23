@@ -1,6 +1,14 @@
 # Changelog #
 
-## Version 0.3.0
+## Version 0.4.0 ##
+
+Date: 2015-12-23
+
+- Add `debounce` function.
+- Allow multimethods on `on-value`, `on-error` and `on-end`.
+
+
+## Version 0.3.0 ##
 
 Date: 2015-12-08
 
