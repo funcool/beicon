@@ -1,4 +1,4 @@
-(defproject funcool/beicon "0.3.0"
+(defproject funcool/beicon "0.4.0"
   :description "Reactive Streams for ClojureScript (built on top of RxJS)"
   :url "https://github.com/funcool/beicon"
   :license {:name "Public Domain"
@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.189" :scope "provided"]
                  [funcool/promesa "0.6.0" :scope "provided"]
-                 [funcool/cats "1.2.0"]]
+                 [funcool/cats "1.2.1"]]
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
   :source-paths ["src" "assets"]
