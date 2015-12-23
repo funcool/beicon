@@ -244,24 +244,24 @@
   "Subscribes a function to invoke for each element
   in the observable sequence."
   [ob f]
-  {:pre [(observable? ob) (fn? f)]}
-  (let [disposable (.subscribeOnNext ob f)]
+  {:pre [(observable? ob)]}
+  (let [disposable (.subscribeOnNext ob #(f %))]
     #(.dispose disposable)))
 
 (defn on-error
   "Subscribes a function to invoke upon exceptional termination
   of the observable sequence."
   [ob f]
-  {:pre [(observable? ob) (fn? f)]}
-  (let [disposable (.subscribeOnError ob f)]
+  {:pre [(observable? ob)]}
+  (let [disposable (.subscribeOnError ob #(f %))]
     #(.dispose disposable)))
 
 (defn on-end
   "Subscribes a function to invoke upon graceful termination
   of the observable sequence."
   [ob f]
-  {:pre [(observable? ob) (fn? f)]}
-  (let [disposable (.subscribeOnCompleted ob f)]
+  {:pre [(observable? ob)]}
+  (let [disposable (.subscribeOnCompleted ob #(f %))]
     #(.dispose disposable)))
 
 (defn subscribe
