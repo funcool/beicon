@@ -483,6 +483,14 @@
   {:pre [(observable? ob) (number? ms)]}
   (.throttle ob ms))
 
+(defn debounce
+  "Emits an item from the source Observable after a
+  particular timespan has passed without the Observable
+  omitting any other items."
+  [ms ob]
+  {:pre [(observable? ob) (number? ms)]}
+  (.debounce ob ms))
+
 (defn ignore
   "Ignores all elements in an observable sequence leaving
   only the termination messages."
