@@ -1,5 +1,5 @@
-(defproject funcool/beicon "0.5.0"
-  :description "Reactive Streams for ClojureScript (built on top of RxJS)"
+(defproject funcool/beicon "0.5.1"
+  :description "Reactive Streams for ClojureScript (built on top of RxJS 4.x)"
   :url "https://github.com/funcool/beicon"
   :license {:name "Public Domain" :url "http://unlicense.org/"}
   :dependencies [[org.clojure/clojure "1.7.0" :scope "provided"]
