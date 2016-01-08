@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 0.5.1 ##
+
+Date: 2016-01-08
+
+- Fix wrong path to the minified version of bundled rxjs.
+
+
 ## Version 0.5.0 ##
 
 Date: 2015-12-23
