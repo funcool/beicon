@@ -1,4 +1,4 @@
-(ns beicon.cats
+(ns beicon.monad
   "A cats integration namespace.
 
   NOTE: this is a side-effect namespace; you should
@@ -14,22 +14,22 @@
     (-get-level [_] ctx/+level-default+)
 
     p/Functor
-    (-fmap [_ f obs]
-      (map f obs))
+    (-fmap [_ f ob]
+      (.map ob #(f %)))
 
     p/Applicative
     (-pure [_ v]
-      (once v))
+      (js/Rx.Observable.just v))
 
     (-fapply [_ pf pv]
       (.zip ^observable pf pv #(%1 %2)))
 
     p/Monad
     (-mreturn [_ v]
-      (once v))
+      (js/Rx.Observable.just v))
 
     (-mbind [_ mv f]
-      (flat-map f mv))))
+      (.flatMap mv #(f %)))))
 
 (extend-protocol p/Contextual
   js/Rx.Observable
