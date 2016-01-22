@@ -184,14 +184,49 @@
   "Alias to 'empty'."
   empty)
 
-(defn timeout
-  "Return an observable sequence that will return
-  one unique nil value after specified timeout."
+(defn timer
+  "Returns an observable sequence that produces a value after
+  dueTime has elapsed and then after each period."
   ([ms]
-   (timeout ms nil))
-  ([ms val]
    {:pre [(number? ms)]}
-   (.map (js/Rx.Observable.timer ms) (fn [_] val))))
+   (js/Rx.Observable.timer ms))
+  ([ms interval]
+   {:pre [(number? ms) (number? interval)]}
+   (js/Rx.Observable.timer ms interval)))
+
+(defn timeout
+  "Returns the source observable sequence or the other
+  observable sequence if dueTime elapses."
+  ([^number ms ^observable ob]
+   {:pre [(number? ms)]}
+   (.timeout ob ms))
+  ([^number ms ^observable other ^observable ob]
+   {:pre [(number? ms)]}
+   (.timeout ob other ms)))
+
+(defn delay
+  "Time shifts the observable sequence by dueTime. The relative
+  time intervals between the values are preserved."
+  [^number ms ^observable ob]
+  {:pre [(number? ms)]}
+  (.delay ob ms))
+
+(defn delay'
+  "Time shifts the observable sequence based on a subscription
+  delay and a delay selector function for each element."
+  ([ds ^observable ob]
+   {:pre [(ifn? ds)]}
+   (.delay ob ds))
+  ([sd ds ^observable ob]
+   {:pre [(ifn? ds) (observable? sd)]}
+   (.delay ob sd ds)))
+
+(defn interval
+  "Returns an observable sequence that produces a
+  value after each period."
+  [^number ms]
+  {:pre [(number? ms)]}
+  (js/Rx.Observable.interval ms))
 
 (defn of
   "Converts arguments to an observable sequence."

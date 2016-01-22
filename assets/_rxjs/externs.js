@@ -104,6 +104,24 @@ Rx.Observable.throw = function() {};
 Rx.Observable.timer = function() {};
 
 /**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.timeout = function() {};
+
+/**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.delay = function() {};
+
+/**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
+Rx.Observable.interval = function() {};
+
+/**
  * @this {Rx.Observable}
  * @return {Rx.Disposable}
  */
