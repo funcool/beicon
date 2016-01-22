@@ -5,7 +5,7 @@
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.7.228" :scope "provided"]
                  [funcool/promesa "0.7.0" :scope "provided"]
-                 [funcool/cats "1.2.1"]]
+                 [funcool/cats "1.2.1" :scope "provided"]]
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
   :source-paths ["src" "assets"]
