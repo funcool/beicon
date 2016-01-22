@@ -644,9 +644,11 @@
 (def ^:static immediate js/Rx.Scheduler.immediate)
 
 (defn observe-on
-  [scheduler ob]
+  [scheduler ^observable ob]
+  {:pre [(observable? ob) (scheduler? scheduler)]}
   (.observeOn ob scheduler))
 
 (defn subscribe-on
-  [scheduler ob]
+  [scheduler ^observable ob]
+  {:pre [(observable? ob) (scheduler? scheduler)]}
   (.subscribeOn ob scheduler))
