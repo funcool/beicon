@@ -204,7 +204,7 @@
    (.timeout ob ms))
   ([^number ms ^observable other ^observable ob]
    {:pre [(number? ms)]}
-   (.timeout ob other ms)))
+   (.timeout ob ms other)))
 
 (defn delay
   "Time shifts the observable sequence by dueTime. The relative
