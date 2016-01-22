@@ -634,21 +634,16 @@
 ;; Schedulers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn ^boolean scheduler?
-  "Return true if `s` is scheduler instance."
-  [s]
-  (js/Rx.Scheduler.isScheduler s))
-
 (def ^:static asap js/Rx.Scheduler.default)
 (def ^:static queue js/Rx.Scheduler.currentThread)
 (def ^:static immediate js/Rx.Scheduler.immediate)
 
 (defn observe-on
   [scheduler ^observable ob]
-  {:pre [(observable? ob) (scheduler? scheduler)]}
+  {:pre [(observable? ob)]}
   (.observeOn ob scheduler))
 
 (defn subscribe-on
   [scheduler ^observable ob]
-  {:pre [(observable? ob) (scheduler? scheduler)]}
+  {:pre [(observable? ob)]}
   (.subscribeOn ob scheduler))
