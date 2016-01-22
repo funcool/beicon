@@ -2,6 +2,7 @@
   (:require [cljs.test :as t]
             [cats.core :as m]
             [promesa.core :as prom]
+            [beicon.monad :as bc]
             [beicon.core :as s]))
 
 ;; --- helpers for testing
@@ -93,22 +94,13 @@
       (drain! s #(t/is (= % [1 2 3])))
       (s/on-end s done))))
 
-(t/deftest observable-from-timeout
+(t/deftest observable-with-timeout
   (t/async done
-    (let [s (s/timeout 1000 :timeout)]
+    (let [s (->> (s/timer 200)
+                 (s/timeout 100 (s/just :timeout)))]
       (t/is (s/observable? s))
       (drain! s #(do
                    (t/is (= % [:timeout]))
-                   (done))))))
-
-(t/deftest observable-from-timeout-and-choice
-  (t/async done
-    (let [s (s/choice
-             (s/timeout 1000 :timeout)
-             (s/timeout 900 :value))]
-      (t/is (s/observable? s))
-      (drain! s #(do
-                   (t/is (= % [:value]))
                    (done))))))
 
 (t/deftest observable-errors-from-binder
@@ -156,10 +148,10 @@
       (drain! s #(t/is (= % [1])))
       (s/on-end s done))))
 
-;; (t/deftest observable-never
-;;   (t/async done
-;;     (let [n (s/never)]
-;;       (s/on-end n done))))
+(t/deftest observable-never
+  (t/async done
+    (let [n (s/never)]
+      (s/on-end n done))))
 
 ;; (t/deftest observable-on-value
 ;;   (t/async done
@@ -173,7 +165,7 @@
   (t/async done
     (let [s1 (s/bus)
           s2 (s/bus)
-          cs (s/concat s1 s2)]
+          cs (s/concat s2 s1)]
       (drain! cs #(t/is (= % [1 2 3 4])))
       (s/on-end cs done)
       (s/push! s1 1)
@@ -190,7 +182,7 @@
     (let [s1 (s/from-coll [1 2 3])
           s2 (s/from-coll [:1 :2 :3])
           ms (s/merge s1 s2)]
-      (drain! ms #(t/is (= % [1 :1 2 :2 3 :3])))
+      (drain! ms #(t/is (= % [:1 1 :2 2 :3 3])))
       (s/on-end ms done))))
 
 (t/deftest observable-skip-while
@@ -301,8 +293,8 @@
 
 (t/deftest observable-as-applicative
  (t/async done
-   (let [pinc (m/pure s/observable-context inc)
-         pval (m/pure s/observable-context 41)
+   (let [pinc (m/pure bc/observable-context inc)
+         pval (m/pure bc/observable-context 41)
          life (m/fapply pinc pval)]
      (t/is (s/observable? life))
      (drain! life #(do (t/is (= % [42]))
@@ -373,10 +365,10 @@
       (drain! ts #(t/is (= % [[1 2] [3 4]])))
       (s/on-end ts done))))
 
-(t/deftest schedulers
-  (t/is (s/scheduler? s/asap))
-  (t/is (s/scheduler? s/immediate))
-  (t/is (s/scheduler? s/queue)))
+;; (t/deftest schedulers
+;;   ;; (t/is (s/scheduler? s/asap))
+;;   (t/is (s/scheduler? s/immediate))
+;;   (t/is (s/scheduler? s/queue)))
 
 (t/deftest observe-on
   (t/async done
