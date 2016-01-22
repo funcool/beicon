@@ -634,7 +634,7 @@
 ;; Schedulers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn scheduler?
+(defn ^boolean scheduler?
   "Return true if `s` is scheduler instance."
   [s]
   (js/Rx.Scheduler.isScheduler s))
