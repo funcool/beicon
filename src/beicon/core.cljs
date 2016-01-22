@@ -188,7 +188,7 @@
 
 (defn timer
   "Returns an observable sequence that produces a value after
-  dueTime has elapsed and then after each period."
+  `ms` has elapsed and then after each period."
   ([ms]
    {:pre [(number? ms)]}
    (js/Rx.Observable.timer ms))
