@@ -1,5 +1,18 @@
 # Changelog #
 
+## Version 0.6.0 ##
+
+Date: 2016-01-22
+
+- The old `timeout` function becomes `timer`.
+- Add proper `timeout` function.
+- Add `delay` function.
+- Add `interval` function.
+- Add support for schedulers (`subscribe-on` and `observe-on`).
+- Make cats dependency optional (only if you require `beicon.monad` ns).
+  (Is responsability of the user include the appropriate cats version).
+- Start using clojure 1.8 and clojurescript 1.7.228.
+
 ## Version 0.5.1 ##
 
 Date: 2016-01-08
