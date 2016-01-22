@@ -639,8 +639,9 @@
   [s]
   (js/Rx.Scheduler.isScheduler s))
 
-(def immediate-scheduler js/Rx.Scheduler.immediate)
-(def current-thread-scheduler js/Rx.Scheduler.currentThread)
+(def ^:static asap js/Rx.Scheduler.default)
+(def ^:static queue js/Rx.Scheduler.currentThread)
+(def ^:static immediate js/Rx.Scheduler.immediate)
 
 (defn observe-on
   [scheduler ob]
