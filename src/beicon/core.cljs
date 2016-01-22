@@ -9,6 +9,9 @@
 ;; Predicates
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def ^:static observable js/Rx.Observable)
+(def ^:static subject js/Rx.Subject)
+
 (defn observable?
   "Return true if `ob` is a instance
   of Rx.Observable."
