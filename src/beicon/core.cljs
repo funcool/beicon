@@ -96,9 +96,9 @@
 (defn publish
   "Create a connectable (hot) observable
   from other observable."
-  ([ob]
+  ([^observable ob]
    (publish ob true))
-  ([ob connect?]
+  ([^observable ob connect?]
    {:pre [(observable? ob)]}
    (let [ob' (.publish ob)]
      (when connect?
@@ -108,12 +108,12 @@
 (defn share
   "Returns an observable sequence that shares a single
   subscription to the underlying sequence."
-  [ob]
+  [^observable ob]
   (.share ob))
 
 (defn connect!
   "Connect the connectable observable."
-  [ob]
+  [^observable ob]
   {:pre [(connectable? ob)]}
   (.connect ob))
 
@@ -258,19 +258,19 @@
 
 (defn push!
   "Pushes the given value to the bus stream."
-  [b v]
+  [^subject b v]
   {:pre [(bus? b)]}
   (.onNext b v))
 
 (defn error!
   "Pushes the given error to the bus stream."
-  [b e]
+  [^subject b e]
   {:pre [(bus? b)]}
   (.onError b e))
 
 (defn end!
   "Ends the given bus stream."
-  [b]
+  [^subject b]
   {:pre [(bus? b)]}
   (.onCompleted b))
 
@@ -281,7 +281,7 @@
 (defn on-value
   "Subscribes a function to invoke for each element
   in the observable sequence."
-  [ob f]
+  [^observable ob f]
   {:pre [(observable? ob)]}
   (let [disposable (.subscribeOnNext ob #(f %))]
     #(.dispose disposable)))
@@ -289,7 +289,7 @@
 (defn on-error
   "Subscribes a function to invoke upon exceptional termination
   of the observable sequence."
-  [ob f]
+  [^observable ob f]
   {:pre [(observable? ob)]}
   (let [disposable (.subscribeOnError ob #(f %))]
     #(.dispose disposable)))
@@ -297,7 +297,7 @@
 (defn on-end
   "Subscribes a function to invoke upon graceful termination
   of the observable sequence."
-  [ob f]
+  [^observable ob f]
   {:pre [(observable? ob)]}
   (let [disposable (.subscribeOnCompleted ob #(f %))]
     #(.dispose disposable)))
@@ -308,7 +308,7 @@
    (subscribe ob nf nil nil))
   ([ob nf ef]
    (subscribe ob nf ef nil))
-  ([ob nf ef cf]
+  ([^observable ob nf ef cf]
    {:pre [(observable? ob)]}
    (let [disposable (.subscribe ob nf ef cf)]
      #(.dispose disposable))))
@@ -334,7 +334,7 @@
 (defn choice
   "Create an observable that surfaces any of the given
   sequences, whichever reacted first."
-  ([a b]
+  ([^observable a ^observable b]
    {:pre [(observable? a)
           (observable? b)]}
    (.amb a b))
@@ -346,7 +346,7 @@
   into one observable sequence."
   ([ob' ob]
    (zip vector ob' ob))
-  ([f ob' ob]
+  ([f ^observable ob' ^observable ob]
    {:pre [(observable? ob') (observable? ob)]}
    (.zip ob ob' f)))
 
@@ -354,40 +354,44 @@
   "Concatenates all of the specified observable
   sequences, as long as the previous observable
   sequence terminated successfully."
-  ([a b]
+  ([^observable a ^observable ob]
    {:pre [(observable? a)
-          (observable? b)]}
-   (.concat a b))
+          (observable? ob)]}
+   (.concat ob a))
   ([a b & more]
-   (cljs.core/reduce concat (concat a b) more)))
+   (let [ob (last more)
+         obs (into [b] (butlast more))]
+     (cljs.core/reduce concat (concat a ob) more))))
 
 (defn merge
   "Merges all the observable sequences and Promises
   into a single observable sequence."
-  ([a b]
+  ([^observable a ^observable b]
    {:pre [(observable? a)
           (observable? b)]}
-   (.merge a b))
+   (.merge b a))
   ([a b & more]
-   (cljs.core/reduce merge (merge a b) more)))
+   (let [ob (last more)
+         obs (into [b] (butlast more))]
+     (cljs.core/reduce concat (merge a ob) more))))
 
 (defn merge-all
   "Merges an observable sequence of observable
   sequences into an observable sequence."
-  [ob]
+  [^observable ob]
   (.mergeAll ob))
 
 (defn filter
   "Filters the elements of an observable sequence
   based on a predicate."
-  [f ob]
+  [f ^observable ob]
   {:pre [(observable? ob)]}
   (.filter ob #(boolean (f %))))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
-  [f ob]
+  [f ^observable ob]
   {:pre [(observable? ob)]}
   (.map ob #(f %)))
 
@@ -398,7 +402,7 @@
   into one observable sequence."
   ([ob]
    (flat-map identity ob))
-  ([f ob]
+  ([f ^observable ob]
    {:pre [(observable? ob)]}
    (.flatMap ob #(f %))))
 
@@ -406,7 +410,7 @@
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [n ob]
+  [^number n ^observable ob]
   {:pre [(observable? ob) (number? n)]}
   (.skip ob n))
 
@@ -414,14 +418,14 @@
   "Bypasses elements in an observable sequence as long
   as a specified condition is true and then returns the
   remaining elements."
-  [f ob]
+  [f ^observable ob]
   {:pre [(observable? ob) (fn? f)]}
   (.skipWhile ob #(boolean (f %))))
 
 (defn skip-until
   "Returns the values from the source observable sequence
   only after the other observable sequence produces a value."
-  [pob ob]
+  [pob ^observable ob]
   {:pre [(observable? ob) (observable? pob)]}
   (.skipUntil ob pob))
 
@@ -429,24 +433,24 @@
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [n ob]
+  [^number n ^observable ob]
   {:pre [(observable? ob) (number? n)]}
   (.take ob n))
 
 (defn slice
   "Returns a shallow copy of a portion of an Observable
   into a new Observable object."
-  ([begin ob]
+  ([begin ^observable ob]
    {:pre [(observable? ob) (number? begin)]}
    (.slice ob begin))
-  ([begin end ob]
+  ([begin end ^observable ob]
    {:pre [(observable? ob) (number? begin) (number? end)]}
    (.slice ob begin end)))
 
 (defn take-while
   "Returns elements from an observable sequence as long as a
   specified predicate returns true."
-  [f ob]
+  [f ^observable ob]
   {:pre [(observable? ob) (fn? f)]}
   (.takeWhile ob f))
 
@@ -454,10 +458,10 @@
   "Applies an accumulator function over an observable
   sequence, returning the result of the aggregation as a
   single element in the result sequence."
-  ([f ob]
+  ([f ^observable ob]
    {:pre [(observable? ob) (fn? f)]}
    (.reduce ob f))
-  ([f seed ob]
+  ([f seed ^observable ob]
    {:pre [(observable? ob) (fn? f)]}
    (.reduce ob f seed)))
 
@@ -465,10 +469,10 @@
   "Applies an accumulator function over an observable
   sequence and returns each intermediate result.
   Same as reduce but with intermediate results"
-  ([f ob]
+  ([f ^observable ob]
    {:pre [(observable? ob) (fn? f)]}
    (.scan ob f))
-  ([f seed ob]
+  ([f seed ^observable ob]
    {:pre [(observable? ob) (fn? f)]}
    (.scan ob f seed)))
 
@@ -479,13 +483,13 @@
   (the instance) produces an element."
   ([ob' ob]
    (with-latest-from vector ob' ob))
-  ([f ob' ob]
+  ([f ob' ^observable ob]
    (.withLatestFrom ob ob' f)))
 
 (defn catch
   "Continues an observable sequence that is terminated
   by an exception with the next observable sequence."
-  [handler ob]
+  [handler ^observable ob]
   {:pre [(or (observable? handler)
              (fn? handler))]}
   (.catch ob handler))
@@ -493,7 +497,7 @@
 (defn tap
   "Invokes an action for each element in the
   observable sequence."
-  [f ob]
+  [f ^observable ob]
   {:pre [(observable? ob) (fn? f)]}
   (.tap ob f))
 
@@ -517,7 +521,7 @@
   "Returns an observable sequence that emits only the
   first item emitted by the source Observable during
   sequential time windows of a specified duration."
-  [ms ob]
+  [ms ^observable ob]
   {:pre [(observable? ob) (number? ms)]}
   (.throttle ob ms))
 
@@ -525,20 +529,20 @@
   "Emits an item from the source Observable after a
   particular timespan has passed without the Observable
   omitting any other items."
-  [ms ob]
+  [ms ^observable ob]
   {:pre [(observable? ob) (number? ms)]}
   (.debounce ob ms))
 
 (defn sample
   "Samples the observable sequence at each interval."
-  [ms ob]
+  [ms ^observable ob]
   {:pre [(observable? ob) (number? ms)]}
   (.sample ob ms))
 
 (defn ignore
   "Ignores all elements in an observable sequence leaving
   only the termination messages."
-  [ob]
+  [^observable ob]
   {:pre [(observable? ob)]}
   (.ignoreElements ob))
 
@@ -550,8 +554,6 @@
   observables."
   ([pauser ob]
    (pausable pauser false ob))
-   ;; {:pre [(observable? ob) (observable? pauser)]}
-   ;; (.pausable ob pauser))
   ([pauser buffer? ob]
    {:pre [(observable? ob) (observable? pauser)]}
    (if buffer?
@@ -561,9 +563,11 @@
 (defn dedupe
   "Returns an observable sequence that contains only
   distinct contiguous elements."
-  ([ob]
+  ([^observable ob]
+   {:pre [(observable? ob)]}
    (.distinctUntilChanged ob))
-  ([f ob]
+  ([f ^observable ob]
+   {:pre [(observable? ob)]}
    (.distinctUntilChanged ob f)))
 
 (defn dedupe'
@@ -572,18 +576,22 @@
   Usage of this operator should be considered carefully
   due to the maintenance of an internal lookup structure
   which can grow large."
-  ([ob]
+  ([^observable ob]
+   {:pre [(observable? ob)]}
    (.distinct ob))
-  ([f ob]
+  ([f ^observable ob]
+   {:pre [(observable? ob)]}
    (.distinct ob f)))
 
 (defn buffer
   "Projects each element of an observable sequence into zero
   or more buffers which are produced based on element count
   information."
-  ([n ob]
+  ([n ^observable ob]
+   {:pre [(observable? ob)]}
    (.bufferWithCount ob n))
-  ([n skip ob]
+  ([n skip ^observable ob]
+   {:pre [(observable? ob)]}
    (.bufferWithCount ob n skip)))
 
 (defn retry
@@ -591,15 +599,16 @@
   repeats the source observable the specified number of
   times or until it terminates. If no number of retries
   is given, it will be retried indefinitely."
-  ([ob]
+  ([^observable ob]
+   {:pre [(observable? ob)]}
    (.retry ob))
-  ([n ob]
+  ([n ^observable ob]
+   {:pre [(observable? ob)]}
    (.retry ob n)))
 
 (defn to-observable
   "Hides the identity of an observable sequence."
   [b]
-  {:pre [(or (observable? b) (bus? b))]}
   (.asObservable b))
 
 (defn transform
