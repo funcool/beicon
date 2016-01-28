@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 0.6.1 ##
+
+Date: 2016-01-28
+
+- Add `take-until` function.
+
+
 ## Version 0.6.0 ##
 
 Date: 2016-01-22
