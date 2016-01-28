@@ -453,6 +453,13 @@
   {:pre [(observable? ob) (fn? f)]}
   (.takeWhile ob f))
 
+(defn take-until
+  "Returns the values from the source observable sequence until
+  the other observable sequence or Promise produces a value."
+  [other ^observable ob]
+  {:pre [(observable? ob)]}
+  (.takeUntil ob other))
+
 (defn reduce
   "Applies an accumulator function over an observable
   sequence, returning the result of the aggregation as a

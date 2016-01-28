@@ -271,6 +271,12 @@ Rx.Observable.prototype.takeWhile = function() {};
  * @this {Rx.Observable}
  * @return {Rx.Observable}
  */
+Rx.Observable.prototype.takeUntil = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.prototype.slice = function() {};
 
 /**
