@@ -612,7 +612,7 @@ example of using bus for the both operations: push values and subscribe to it.
 [source, clojure]
 ----
 (def bus (s/bus))
-(def stream (-> bus
+(def stream (->> bus
                 (s/skip 1)
                 (s/map inc)
                 (s/take 2)))
