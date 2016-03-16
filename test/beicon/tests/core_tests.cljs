@@ -1,37 +1,19 @@
-(ns beicon.core-spec
+(ns beicon.tests.core-tests
   (:require [cljs.test :as t]
-            [cats.core :as m]
-            [promesa.core :as prom]
-            [beicon.monad :as bc]
-            [beicon.core :as s]))
-
-;; --- helpers for testing
-
-(def no-op (fn [& args]))
-
-(defmacro with-timeout
-  [ms & body]
-  `(js/setTimeout
-    (fn []
-      (do
-        ~@body))
-    ~ms))
-
-(defn drain!
-  ([obs cb]
-   (drain! obs cb #(println "Error: " %)))
-  ([obs cb errb]
-   (let [values (volatile! [])]
-     (s/subscribe obs
-                  #(vswap! values conj %)
-                  #(errb %)
-                  #(cb @values)))))
-
-(defn tick
-  [interval]
-  (s/from-poll interval #(.getTime (js/Date.))))
+            [promesa.core :as p]
+            [beicon.core :as s]
+            [beicon.tests.helpers
+             :refer (no-op drain!)
+             :refer-macros (with-timeout)]))
 
 ;; event stream
+
+(t/deftest observable-from-values
+  (t/async done
+    (let [s (s/of 1 2 3 4 5 6 7 8 9)]
+      (t/is (s/observable? s))
+      (drain! s #(t/is (= % [1 2 3 4 5 6 7 8 9])))
+      (s/on-end s done))))
 
 (t/deftest observable-from-vector
   (t/async done
@@ -72,16 +54,6 @@
       (drain! s #(t/is (= (set %) coll)))
       (s/on-end s done))))
 
-(t/deftest observable-from-callback
-  (t/async done
-    (let [s (s/from-callback (fn [sink]
-                               (with-timeout 10
-                                 (sink 1)
-                                 nil)))]
-      (t/is (s/observable? s))
-      (drain! s #(t/is (= % [1])))
-      (s/on-end s done))))
-
 (t/deftest observable-from-create
   (t/async done
     (let [s (s/create (fn [sink]
@@ -98,12 +70,14 @@
   (t/async done
     (let [s (->> (s/timer 200)
                  (s/timeout 100 (s/just :timeout)))]
+
       (t/is (s/observable? s))
       (drain! s #(do
                    (t/is (= % [:timeout]))
-                   (done))))))
+      (s/on-end s done))))))
 
-(t/deftest observable-errors-from-binder
+
+(t/deftest observable-errors-from-create
   (t/async done
     (let [s (s/create (fn [sink]
                         (with-timeout 10
@@ -117,7 +91,7 @@
 
 (t/deftest observable-from-promise
   (t/async done
-    (let [p (prom/resolved 42)
+    (let [p (p/resolved 42)
           s (s/from-promise p)]
       (t/is (s/observable? s))
       (drain! s
@@ -126,7 +100,7 @@
 
 (t/deftest observable-from-rejected-promise
   (t/async done
-    (let [p (prom/rejected (ex-info "oh noes" {}))
+    (let [p (p/rejected (ex-info "oh noes" {}))
           s (s/from-promise p)]
       (t/is (s/observable? s))
       (drain! s
@@ -134,11 +108,11 @@
               #(t/is (= (ex-message %) "oh noes")))
       (s/on-error s done))))
 
-(t/deftest observable-repeat
+(t/deftest observable-range
   (t/async done
-    (let [s (s/repeat 1 2)]
+    (let [s (s/range 5)]
       (t/is (s/observable? s))
-      (drain! s #(t/is (= % [1 1])))
+      (drain! s #(t/is (= % [0 1 2 3 4])))
       (s/on-end s done))))
 
 (t/deftest observable-once
@@ -153,36 +127,39 @@
     (let [n (s/never)]
       (s/on-end n done))))
 
-;; (t/deftest observable-on-value
-;;   (t/async done
-;;     (let [s (s/from-coll [1 2 3])
-;;           vacc (volatile! [])]
-;;       (s/on-value s #(vswap! vacc conj %))
-;;       (s/on-end s #(do (t/is (= @vacc [1 2 3]))
-;;                        (done))))))
-
 (t/deftest observable-concat
   (t/async done
-    (let [s1 (s/bus)
-          s2 (s/bus)
+    (let [s1 (s/from-coll [1 2 3])
+          s2 (s/from-coll [4 5 6])
           cs (s/concat s2 s1)]
-      (drain! cs #(t/is (= % [1 2 3 4])))
-      (s/on-end cs done)
-      (s/push! s1 1)
-      (s/push! s1 2)
-      (s/push! s2 :discarded)
-      (s/push! s2 :discarded)
-      (s/end! s1)
-      (s/push! s2 3)
-      (s/push! s2 4)
-      (s/end! s2))))
+      (drain! cs #(t/is (= % [1 2 3 4 5 6])))
+      (s/on-end cs done))))
+
+(t/deftest observable-zip
+  (t/async done
+    (let [s1 (s/from-coll [1 2])
+          s2 (s/from-coll [4 5])
+          s3 (s/from-coll [7 8])
+          cs (s/zip s1 s2 s3)]
+      (drain! cs #(t/is (= % [[1 4 7] [2 5 8]])))
+      (s/on-end cs done))))
+
+(t/deftest observable-fjoin
+  (t/async done
+    (let [s1 (s/from-coll [1 2])
+          s2 (s/from-coll [4 5])
+          s3 (s/from-coll [7 8])
+          cs (s/fjoin vector
+                      s1 s2 s3)]
+      (drain! cs #(t/is (= % [[2 5 8]])))
+      (s/on-end cs done))))
 
 (t/deftest observable-merge
   (t/async done
     (let [s1 (s/from-coll [1 2 3])
           s2 (s/from-coll [:1 :2 :3])
           ms (s/merge s1 s2)]
-      (drain! ms #(t/is (= % [:1 1 :2 2 :3 3])))
+      (drain! ms #(t/is (= (set %) #{:1 1 :2 2 :3 3})))
       (s/on-end ms done))))
 
 (t/deftest observable-skip-while
@@ -192,25 +169,25 @@
       (drain! sample #(t/is (= % [2 3 4 5])))
       (s/on-end sample done))))
 
-(t/deftest observable-skip-until
-  (t/async done
-    (let [s (s/bus)
-          sv (s/bus)
-          sample (s/skip-until sv s)]
-      (drain! sample #(t/is (= % [3 4 5])))
-      (s/on-end sample done)
-      ;; push values onto stream
-      (s/push! s 1)
-      (s/push! s 2)
-      ;; open switch
-      (s/push! sv :value)
-      ;; push some more
-      (s/push! s 3)
-      (s/push! s 4)
-      (s/push! s 5)
-      ;; end
-      (s/end! s)
-      (s/end! sv))))
+;; (t/deftest observable-skip-until
+;;   (t/async done
+;;     (let [s (s/bus)
+;;           sv (s/bus)
+;;           sample (s/skip-until sv s)]
+;;       (drain! sample #(t/is (= % [3 4 5])))
+;;       (s/on-end sample done)
+;;       ;; push values onto stream
+;;       (s/push! s 1)
+;;       (s/push! s 2)
+;;       ;; open switch
+;;       (s/push! sv :value)
+;;       ;; push some more
+;;       (s/push! s 3)
+;;       (s/push! s 4)
+;;       (s/push! s 5)
+;;       ;; end
+;;       (s/end! s)
+;;       (s/end! sv))))
 
 (t/deftest bus-push
   (t/async done
@@ -236,14 +213,6 @@
           fs (s/map :foo s)]
       (drain! fs #(do
                     (t/is (= % [1 2]))
-                    (done))))))
-
-(t/deftest observable-slice
-  (t/async done
-    (let [s (s/from-coll [1 2 3 4])
-          fs (s/slice 1 3 s)]
-      (drain! fs #(do
-                    (t/is (= % [2 3]))
                     (done))))))
 
 (t/deftest observable-retry
@@ -281,40 +250,6 @@
       (t/is (s/observable? s2))
       (drain! s2 #(t/is (= % [{:foo :bar}])))
       (s/on-end s2 done))))
-
-(t/deftest observable-as-functor
- (t/async done
-   (let [s (s/from-coll [0 1 2])
-         s2 (m/fmap inc s)]
-     (t/is (s/observable? s))
-     (t/is (s/observable? s2))
-     (drain! s2 #(do (t/is (= % [1 2 3]))
-                      (done))))))
-
-(t/deftest observable-as-applicative
- (t/async done
-   (let [pinc (m/pure bc/observable-context inc)
-         pval (m/pure bc/observable-context 41)
-         life (m/fapply pinc pval)]
-     (t/is (s/observable? life))
-     (drain! life #(do (t/is (= % [42]))
-                       (done))))))
-
-(t/deftest observable-as-monad
-  (t/async done
-    (let [sn (s/from-coll [1 2 3])
-          snks (m/mlet [n sn
-                        k (s/from-coll (map (comp keyword str) (range 1 (inc n))))]
-                 (m/return [n k]))
-          sample (s/take 6 snks)]
-      (t/is (s/observable? snks))
-      (drain! sample #(t/is (= % [[1 :1]
-                                  [2 :1]
-                                  [2 :2]
-                                  [3 :1]
-                                  [3 :2]
-                                  [3 :3]])))
-      (s/on-end sample done))))
 
 (t/deftest observable-to-atom
   (t/async done
@@ -365,15 +300,10 @@
       (drain! ts #(t/is (= % [[1 2] [3 4]])))
       (s/on-end ts done))))
 
-;; (t/deftest schedulers
-;;   ;; (t/is (s/scheduler? s/asap))
-;;   (t/is (s/scheduler? s/immediate))
-;;   (t/is (s/scheduler? s/queue)))
-
 (t/deftest observe-on
   (t/async done
     (let [coll [1 2 3]
-          s (s/observe-on s/immediate (s/from-coll coll))]
+          s (s/observe-on s/async (s/from-coll coll))]
       (t/is (s/observable? s))
       (drain! s #(t/is (= % coll)))
       (s/on-end s done))))
@@ -385,3 +315,4 @@
       (t/is (s/observable? s))
       (drain! s #(t/is (= % coll)))
       (s/on-end s done))))
+

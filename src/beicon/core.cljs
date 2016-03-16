@@ -1,32 +1,29 @@
 (ns beicon.core
   (:require [beicon.extern.rxjs])
-  (:refer-clojure :exclude [true? map filter reduce merge repeat
+  (:refer-clojure :exclude [true? map filter reduce merge repeat mapcat
                             repeatedly zip dedupe drop take take-while
-                            concat partition empty delay]))
+                            concat empty delay range]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Predicates
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def ^:static observable js/Rx.Observable)
-(def ^:static subject js/Rx.Subject)
+(def ^:const Observable js/Rx.Observable)
+(def ^:const Bus js/Rx.Subject)
+(def ^:const Subscriber js/Rx.Subscriber)
+(def ^:const Subscription js/Rx.Subscription)
+(def ^:const Scheduler js/Rx.Scheduler)
 
 (defn observable?
   "Return true if `ob` is a instance
   of Rx.Observable."
   [ob]
-  (instance? js/Rx.Observable ob))
-
-(defn connectable?
-  "Return true if `ob` is a instance
-  of Rx.ConnectableObservable."
-  [ob]
-  (instance? js/Rx.ConnectableObservable ob))
+  (instance? Observable ob))
 
 (defn bus?
   "Return true if `b` is a Subject instance."
   [b]
-  (instance? js/Rx.Subject b))
+  (instance? Bus b))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observables Constructors
@@ -66,38 +63,33 @@
   subscribe method implementation."
   [sf]
   {:pre [(fn? sf)]}
-  (js/Rx.Observable.create
-   (fn [ob]
-     (letfn [(callback [v]
-               (cond
-                 (-next? v)
-                 (.onNext ob v)
+  (letfn [(continuation [subs v]
+            (cond
+              (-next? v) (.next subs v)
+              (-end? v) (.complete subs)
+              (-error? v) (.error subs v)))
+          (factory [subs]
+            (try
+              (sf #(continuation subs %))
+              (catch js/Error e
+                (.error subs e))))]
+    (Observable. factory)))
 
-                 (-end? v)
-                 (.onCompleted ob)
-
-                 (-error? v)
-                 (.onError ob v)))]
-       (try
-         (sf callback)
-         (catch js/Error e
-           (.onError ob e)))))))
-
-(defn repeat
+(defn range
   "Generates an observable sequence that repeats the
   given element."
-  ([v]
-   (repeat v -1))
-  ([v n]
-   {:pre [(number? n)]}
-   (js/Rx.Observable.repeat v n)))
+  ([b]
+   (range 0 b))
+  ([a b]
+   {:pre [(number? a) (number? b)]}
+   (js/Rx.Observable.range a b)))
 
 (defn publish
   "Create a connectable (hot) observable
   from other observable."
-  ([^observable ob]
+  ([ob]
    (publish ob true))
-  ([^observable ob connect?]
+  ([ob connect?]
    {:pre [(observable? ob)]}
    (let [ob' (.publish ob)]
      (when connect?
@@ -107,44 +99,21 @@
 (defn share
   "Returns an observable sequence that shares a single
   subscription to the underlying sequence."
-  [^observable ob]
+  [ob]
+  {:pre [(observable? ob)]}
   (.share ob))
 
 (defn connect!
   "Connect the connectable observable."
-  [^observable ob]
-  {:pre [(connectable? ob)]}
+  [ob]
+  {:pre [(observable? ob)]}
   (.connect ob))
 
 (defn from-coll
   "Generates an observable sequence from collection."
   [coll]
   (let [array (into-array coll)]
-    (js/Rx.Observable.from array)))
-
-(defn from-callback
-  "Creates an observable sequence of one unique value
-  executing a callback."
-  [f & args]
-  {:pre [(fn? f)]}
-  (create (fn [sink]
-            (apply f sink args)
-            (sink nil))))
-
-(defn from-poll
-  "Creates an observable sequence polling given
-  function with given interval."
-  [ms f]
-  (create (fn [sick]
-            (let [semholder (volatile! nil)
-                  sem (js/setInterval
-                       (fn []
-                         (let [v (f)]
-                           (when (or (-end? v) (-error? v))
-                             (js/clearInterval @semholder))
-                           (sick v)))
-                       ms)]
-              (vreset! semholder sem)))))
+    (.from Observable array)))
 
 (defn from-atom
   [atm]
@@ -158,18 +127,18 @@
 (defn from-promise
   "Creates an observable from a promise."
   [p]
-  (js/Rx.Observable.fromPromise p))
+  (.fromPromise Observable p))
 
 (defn from-exception
   [e]
-  (let [func (aget js/Rx.Observable "throw")]
+  (let [func (aget Observable "throw")]
     (func e)))
 
 (defn just
   "Returns an observable sequence that contains
   a single element."
   [v]
-  (js/Rx.Observable.just v))
+  (.of Observable v))
 
 (defn once
   "An alias to `just`."
@@ -180,7 +149,7 @@
   "Returns an observable sequence that is already
   in end state."
   []
-  (js/Rx.Observable.empty))
+  (.empty Observable))
 
 (def never
   "Alias to 'empty'."
@@ -191,59 +160,75 @@
   `ms` has elapsed and then after each period."
   ([ms]
    {:pre [(number? ms)]}
-   (js/Rx.Observable.timer ms))
+   (.timer Observable ms))
   ([ms interval]
    {:pre [(number? ms) (number? interval)]}
-   (js/Rx.Observable.timer ms interval)))
+   (.timer Observable ms interval)))
 
 (defn timeout
   "Returns the source observable sequence or the other
   observable sequence if dueTime elapses."
-  ([^number ms ^observable ob]
+  ([^number ms ob]
    {:pre [(number? ms)]}
-   (.timeout ob ms))
-  ([^number ms ^observable other ^observable ob]
+   (.timeoutWith ob ms))
+  ([^number ms other ob]
    {:pre [(number? ms)]}
-   (.timeout ob ms other)))
+   (.timeoutWith ob ms other)))
 
 (defn delay
   "Time shifts the observable sequence by dueTime. The relative
   time intervals between the values are preserved."
-  [^number ms ^observable ob]
+  [^number ms ob]
   {:pre [(number? ms)]}
   (.delay ob ms))
 
-(defn delay'
+(defn delay-when
   "Time shifts the observable sequence based on a subscription
   delay and a delay selector function for each element."
-  ([ds ^observable ob]
+  ([ds ob]
    {:pre [(ifn? ds)]}
-   (.delay ob ds))
-  ([sd ds ^observable ob]
+   (.delayWhen ob ds))
+  ([sd ds ob]
    {:pre [(ifn? ds) (observable? sd)]}
-   (.delay ob sd ds)))
+   (.delayWhen ob ds sd)))
 
 (defn interval
   "Returns an observable sequence that produces a
   value after each period."
   [^number ms]
   {:pre [(number? ms)]}
-  (js/Rx.Observable.interval ms))
+  (.interval Observable ms))
+
+(defn fjoin
+  "Runs all observable sequences in parallel and collect
+  their last elements."
+  [& items]
+  (let [[selector items] (if (ifn? (first items))
+                           [(first items) (rest items)]
+                           [vector items])
+        items (if (vector? items) items (into [] items))]
+    (apply Observable.forkJoin (conj items selector))))
+
+(def fork-join
+  "Alias to fjoin."
+  fjoin)
 
 (defn of
   "Converts arguments to an observable sequence."
   ([a]
-   (js/Rx.Observable.of a))
+   (Observable.of a))
   ([a b]
-   (js/Rx.Observable.of a b))
+   (Observable.of a b))
   ([a b c]
-   (js/Rx.Observable.of a b c))
+   (Observable.of a b c))
   ([a b c d]
-   (js/Rx.Observable.of a b c d))
+   (Observable.of a b c d))
   ([a b c d e]
-   (js/Rx.Observable.of a b c d e))
+   (Observable.of a b c d e))
   ([a b c d e f]
-   (js/Rx.Observable.of a b c d e f)))
+   (Observable.of a b c d e f))
+  ([a b c d e f & more]
+   (apply Observable.of a b c d e f more)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Bus
@@ -253,53 +238,80 @@
   "Bus is an observable sequence that allows you to push
   values into the stream."
   []
-  (js/Rx.Subject.))
+  (Bus.))
 
 (defn push!
   "Pushes the given value to the bus stream."
   [^subject b v]
   {:pre [(bus? b)]}
-  (.onNext b v))
+  (.next b v))
 
 (defn error!
   "Pushes the given error to the bus stream."
   [^subject b e]
   {:pre [(bus? b)]}
-  (.onError b e))
+  (.error b e))
 
 (defn end!
   "Ends the given bus stream."
   [^subject b]
   {:pre [(bus? b)]}
-  (.onCompleted b))
+  (.complete b))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Observable Subscription
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(def ^:const noop (constantly nil))
+
+(defn- mk-subscription
+  [subs]
+  (reify
+    cljs.core/IFn
+    (-invoke [_]
+      (.unsubscribe subs))
+
+    Object
+    (unsubscribe [_]
+      (.unsubscribe subs))
+
+    (close [_]
+      (.unsubscribe subs))))
+
 (defn on-value
   "Subscribes a function to invoke for each element
   in the observable sequence."
-  [^observable ob f]
+  [ob f]
   {:pre [(observable? ob)]}
-  (let [disposable (.subscribeOnNext ob #(f %))]
-    #(.dispose disposable)))
+  (let [subr (Subscriber. #(f %) noop noop)
+        subs (.subscribe ob subr)]
+    (mk-subscription subs)))
+
+(def on-next
+  "A semantic alias for `on-value`."
+  on-value)
 
 (defn on-error
   "Subscribes a function to invoke upon exceptional termination
   of the observable sequence."
-  [^observable ob f]
+  [ob f]
   {:pre [(observable? ob)]}
-  (let [disposable (.subscribeOnError ob #(f %))]
-    #(.dispose disposable)))
+  (let [subr (Subscriber. noop #(f %) noop)
+        subs (.subscribe ob subr)]
+    (mk-subscription subs)))
 
-(defn on-end
+(defn on-complete
   "Subscribes a function to invoke upon graceful termination
   of the observable sequence."
-  [^observable ob f]
+  [ob f]
   {:pre [(observable? ob)]}
-  (let [disposable (.subscribeOnCompleted ob #(f %))]
-    #(.dispose disposable)))
+  (let [subr (Subscriber. noop noop #(f %))
+        subs (.subscribe ob subr)]
+    (mk-subscription subs)))
+
+(def on-end
+  "A semantic alias for `on-complete`."
+  on-complete)
 
 (defn subscribe
   "Subscribes an observer to the observable sequence."
@@ -307,10 +319,14 @@
    (subscribe ob nf nil nil))
   ([ob nf ef]
    (subscribe ob nf ef nil))
-  ([^observable ob nf ef cf]
+  ([ob nf ef cf]
    {:pre [(observable? ob)]}
-   (let [disposable (.subscribe ob nf ef cf)]
-     #(.dispose disposable))))
+   (let [nf #(nf %)
+         ef (if (identical? ef noop) ef #(ef %))
+         cf (if (identical? cf noop) cf #(cf))
+         subr (Subscriber. nf ef cf)
+         subs (.subscribe ob subr)]
+    (mk-subscription subs))))
 
 (defn to-atom
   "Materialize the observable sequence into an atom."
@@ -330,42 +346,43 @@
 ;; Observable Transformations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn choice
+(defn race
   "Create an observable that surfaces any of the given
   sequences, whichever reacted first."
-  ([^observable a ^observable b]
+  ([a b]
    {:pre [(observable? a)
           (observable? b)]}
-   (.amb a b))
+   (.race a b))
   ([a b & more]
-   (cljs.core/reduce choice (choice a b) more)))
+   (cljs.core/reduce race (race a b) more)))
 
 (defn zip
   "Merges the specified observable sequences or Promises
   into one observable sequence."
-  ([ob' ob]
-   (zip vector ob' ob))
-  ([f ^observable ob' ^observable ob]
-   {:pre [(observable? ob') (observable? ob)]}
-   (.zip ob ob' f)))
+  [& items]
+  (let [[selector items] (if (ifn? (first items))
+                           [(first items) (rest items)]
+                           [vector items])
+        items (if (vector? items) items (into [] items))]
+    (apply Observable.zip (conj items selector))))
 
 (defn concat
   "Concatenates all of the specified observable
   sequences, as long as the previous observable
   sequence terminated successfully."
-  ([^observable a ^observable ob]
+  ([a ob]
    {:pre [(observable? a)
           (observable? ob)]}
    (.concat ob a))
   ([a b & more]
    (let [ob (last more)
          obs (into [b] (butlast more))]
-     (cljs.core/reduce concat (concat a ob) more))))
+     (cljs.core/reduce concat (cljs.core/concat a ob) more))))
 
 (defn merge
   "Merges all the observable sequences and Promises
   into a single observable sequence."
-  ([^observable a ^observable b]
+  ([a b]
    {:pre [(observable? a)
           (observable? b)]}
    (.merge b a))
@@ -377,20 +394,20 @@
 (defn merge-all
   "Merges an observable sequence of observable
   sequences into an observable sequence."
-  [^observable ob]
+  [ob]
   (.mergeAll ob))
 
 (defn filter
   "Filters the elements of an observable sequence
   based on a predicate."
-  [f ^observable ob]
+  [f ob]
   {:pre [(observable? ob)]}
   (.filter ob #(boolean (f %))))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
-  [f ^observable ob]
+  [f ob]
   {:pre [(observable? ob)]}
   (.map ob #(f %)))
 
@@ -401,15 +418,23 @@
   into one observable sequence."
   ([ob]
    (flat-map identity ob))
-  ([f ^observable ob]
+  ([f ob]
    {:pre [(observable? ob)]}
    (.flatMap ob #(f %))))
+
+(defn mapcat
+  "Projects each element of an observable sequence to an observable
+  sequence and concatenates the resulting observable sequences or
+  Promises or array/iterable into one observable sequence."
+  [f ob]
+  {:pre [(observable? ob) (ifn? f)]}
+  (.concatMap ob #(f %)))
 
 (defn skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [^number n ^observable ob]
+  [^number n ob]
   {:pre [(observable? ob) (number? n)]}
   (.skip ob n))
 
@@ -417,14 +442,14 @@
   "Bypasses elements in an observable sequence as long
   as a specified condition is true and then returns the
   remaining elements."
-  [f ^observable ob]
+  [f ob]
   {:pre [(observable? ob) (fn? f)]}
   (.skipWhile ob #(boolean (f %))))
 
 (defn skip-until
   "Returns the values from the source observable sequence
   only after the other observable sequence produces a value."
-  [pob ^observable ob]
+  [pob ob]
   {:pre [(observable? ob) (observable? pob)]}
   (.skipUntil ob pob))
 
@@ -432,31 +457,21 @@
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [^number n ^observable ob]
+  [^number n ob]
   {:pre [(observable? ob) (number? n)]}
   (.take ob n))
-
-(defn slice
-  "Returns a shallow copy of a portion of an Observable
-  into a new Observable object."
-  ([begin ^observable ob]
-   {:pre [(observable? ob) (number? begin)]}
-   (.slice ob begin))
-  ([begin end ^observable ob]
-   {:pre [(observable? ob) (number? begin) (number? end)]}
-   (.slice ob begin end)))
 
 (defn take-while
   "Returns elements from an observable sequence as long as a
   specified predicate returns true."
-  [f ^observable ob]
+  [f ob]
   {:pre [(observable? ob) (fn? f)]}
   (.takeWhile ob f))
 
 (defn take-until
   "Returns the values from the source observable sequence until
   the other observable sequence or Promise produces a value."
-  [other ^observable ob]
+  [other ob]
   {:pre [(observable? ob)]}
   (.takeUntil ob other))
 
@@ -464,10 +479,10 @@
   "Applies an accumulator function over an observable
   sequence, returning the result of the aggregation as a
   single element in the result sequence."
-  ([f ^observable ob]
+  ([f ob]
    {:pre [(observable? ob) (fn? f)]}
    (.reduce ob f))
-  ([f seed ^observable ob]
+  ([f seed ob]
    {:pre [(observable? ob) (fn? f)]}
    (.reduce ob f seed)))
 
@@ -475,10 +490,10 @@
   "Applies an accumulator function over an observable
   sequence and returns each intermediate result.
   Same as reduce but with intermediate results"
-  ([f ^observable ob]
+  ([f ob]
    {:pre [(observable? ob) (fn? f)]}
    (.scan ob f))
-  ([f seed ^observable ob]
+  ([f seed ob]
    {:pre [(observable? ob) (fn? f)]}
    (.scan ob f seed)))
 
@@ -489,13 +504,13 @@
   (the instance) produces an element."
   ([ob' ob]
    (with-latest-from vector ob' ob))
-  ([f ob' ^observable ob]
+  ([f ob' ob]
    (.withLatestFrom ob ob' f)))
 
 (defn catch
   "Continues an observable sequence that is terminated
   by an exception with the next observable sequence."
-  [handler ^observable ob]
+  [handler ob]
   {:pre [(or (observable? handler)
              (fn? handler))]}
   (.catch ob handler))
@@ -503,9 +518,15 @@
 (defn tap
   "Invokes an action for each element in the
   observable sequence."
-  [f ^observable ob]
-  {:pre [(observable? ob) (fn? f)]}
-  (.tap ob f))
+  ([f ob]
+   {:pre [(observable? ob) (fn? f)]}
+   (.do ob f))
+  ([f g ob]
+   {:pre [(observable? ob) (fn? f) (fn? g)]}
+   (.do ob f g))
+  ([f g e ob]
+   {:pre [(observable? ob) (fn? f) (fn? g) (fn? g)]}
+   (.do ob f g e)))
 
 (defn log
   "Print all values passed through the given
@@ -527,52 +548,44 @@
   "Returns an observable sequence that emits only the
   first item emitted by the source Observable during
   sequential time windows of a specified duration."
-  [ms ^observable ob]
+  [ms ob]
   {:pre [(observable? ob) (number? ms)]}
-  (.throttle ob ms))
+  (.throttleTime ob ms))
 
 (defn debounce
   "Emits an item from the source Observable after a
   particular timespan has passed without the Observable
   omitting any other items."
-  [ms ^observable ob]
+  [ms ob]
   {:pre [(observable? ob) (number? ms)]}
-  (.debounce ob ms))
+  (.debounceTime ob ms))
 
 (defn sample
   "Samples the observable sequence at each interval."
-  [ms ^observable ob]
+  [ms ob]
   {:pre [(observable? ob) (number? ms)]}
-  (.sample ob ms))
+  (.sampleTime ob ms))
+
+(defn sample-when
+  "Samples the observable sequence at each interval."
+  [other ob]
+  {:pre [(observable? ob) (observable? other)]}
+  (.sample ob other))
 
 (defn ignore
   "Ignores all elements in an observable sequence leaving
   only the termination messages."
-  [^observable ob]
+  [ob]
   {:pre [(observable? ob)]}
   (.ignoreElements ob))
-
-(defn pausable
-  "Pauses the underlying observable sequence based upon the
-  observable sequence which yields true/false.
-
-  WARNING: The buffered pausable only works with hot
-  observables."
-  ([pauser ob]
-   (pausable pauser false ob))
-  ([pauser buffer? ob]
-   {:pre [(observable? ob) (observable? pauser)]}
-   (if buffer?
-     (.pausableBuffered ob pauser)
-     (.pausable ob pauser))))
 
 (defn dedupe
   "Returns an observable sequence that contains only
   distinct contiguous elements."
-  ([^observable ob]
+  ([ob]
    {:pre [(observable? ob)]}
-   (.distinctUntilChanged ob))
-  ([f ^observable ob]
+   (.distinctUntilChanged ob =))
+  ([f ob]
    {:pre [(observable? ob)]}
    (.distinctUntilChanged ob f)))
 
@@ -582,10 +595,10 @@
   Usage of this operator should be considered carefully
   due to the maintenance of an internal lookup structure
   which can grow large."
-  ([^observable ob]
+  ([ob]
    {:pre [(observable? ob)]}
-   (.distinct ob))
-  ([f ^observable ob]
+   (.distinct ob =))
+  ([f ob]
    {:pre [(observable? ob)]}
    (.distinct ob f)))
 
@@ -593,10 +606,10 @@
   "Projects each element of an observable sequence into zero
   or more buffers which are produced based on element count
   information."
-  ([n ^observable ob]
+  ([n ob]
    {:pre [(observable? ob)]}
    (.bufferWithCount ob n))
-  ([n skip ^observable ob]
+  ([n skip ob]
    {:pre [(observable? ob)]}
    (.bufferWithCount ob n skip)))
 
@@ -605,17 +618,12 @@
   repeats the source observable the specified number of
   times or until it terminates. If no number of retries
   is given, it will be retried indefinitely."
-  ([^observable ob]
+  ([ob]
    {:pre [(observable? ob)]}
    (.retry ob))
-  ([n ^observable ob]
+  ([n ob]
    {:pre [(observable? ob)]}
    (.retry ob n)))
-
-(defn to-observable
-  "Hides the identity of an observable sequence."
-  [b]
-  (.asObservable b))
 
 (defn transform
   "Transform the observable sequence using transducers."
@@ -631,8 +639,8 @@
                                       (when (reduced? v)
                                         (xsink @v))))
                              unsub (on-value stream step)]
-                         (on-end stream #(do (xsink nil)
-                                             (sink nil)))
+                         (on-complete stream #(do (xsink nil)
+                                                  (sink nil)))
                          (fn []
                            (unsub)))))]
       ns)))
@@ -641,16 +649,16 @@
 ;; Schedulers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(def ^:static asap js/Rx.Scheduler.default)
-(def ^:static queue js/Rx.Scheduler.currentThread)
-(def ^:static immediate js/Rx.Scheduler.immediate)
+(def ^:const asap Scheduler.asap)
+(def ^:const queue Scheduler.queue)
+(def ^:const async Scheduler.async)
 
 (defn observe-on
-  [scheduler ^observable ob]
+  [scheduler ob]
   {:pre [(observable? ob)]}
   (.observeOn ob scheduler))
 
 (defn subscribe-on
-  [scheduler ^observable ob]
+  [scheduler ob]
   {:pre [(observable? ob)]}
   (.subscribeOn ob scheduler))
