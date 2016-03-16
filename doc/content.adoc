@@ -11,7 +11,7 @@
 == Introduction
 
 _beicon_ is a small and concise library that provides reactive streams to
-clojurescript built on top of link:https://github.com/Reactive-Extensions/RxJS[rxjs].
+clojurescript built on top of link:https://github.com/ReactiveX/RxJS[rxjs].
 
 WARNING: This documentation does not covers all api, so if you miss some function,
 contributions are very welcome. You can see the full link:api/index.html#id[API documentation here].
@@ -29,12 +29,13 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "0.6.1"]
+[funcool/beicon "1.0.0"]
 ----
 
 == Creating Streams
 
-This section will give you the available methods for create streams.
+This section will give you the available methods for create observable streams.
+
 
 === From a collection
 
@@ -53,55 +54,20 @@ and convert it in an observable sequence:
 ;; ==> v: 3
 ----
 
-=== Repeating Value
+=== From range
 
-An other way to create potencially infinite stream is using `repeat` constructor
-function:
-
-[source, clojure]
-----
-(def stream (s/repeat :a 3))
-
-(s/on-value stream #(println "v:" %))
-;; ==> v: :a
-;; ==> v: :a
-;; ==> v: :a
-----
-
-The second argument for `repeat` is optional, and omiting it will create
-an infinite stream.
-
-=== From Callback
-
-It there a way for create an observable sequence executing one function:
+An other way to create a observable stream is using the `range` constructor
+that is pretty analgous to the clojure's one:
 
 [source, clojure]
 ----
-(def stream (s/from-callback (constantly 1)))
+(def stream (s/range 3))
 
 (s/on-value stream #(println "v:" %))
+;; ==> v: 0
 ;; ==> v: 1
+;; ==> v: 2
 ----
-
-The function will be executed once and the stream will contain one unique value.
-
-
-=== From Poll
-
-This method allow create potentially infinite stream from executing a callback
-repeatedly:
-
-[source, clojure]
-----
-(def stream (s/from-poll (constantly 1)))
-
-(s/on-value stream #(println "v:" %))
-;; ==> v: 1
-;; ==> ...
-----
-
-If a callback returns nil the stream will be ended and if an exception is returned
-the stream will be ended with error.
 
 
 === From Atom
@@ -133,6 +99,8 @@ It creates a observable sequence of one unique value:
 ;; ==> v: 10
 ----
 
+NOTE: `just` or `once` are simple aliases to `of` function.
+
 
 === From multiple values
 
@@ -149,10 +117,8 @@ multiple values, using the `of` consturctor:
 ;; ==> v: 3
 ----
 
-NOTE: the `of` constructor accept the maximum of 6 parameters.
 
-
-=== Terminated
+=== Empty
 
 Some times you also want just a terminated stream:
 
@@ -204,6 +170,7 @@ by the user. By default any object except `nil` or instance of `js/Error` are
 considered valid values; `nil` is considered as end of stream and `js/Error` or
 any instance of it is considered error termination.
 
+
 == Consuming streams
 
 === The stream states
@@ -230,6 +197,7 @@ that watches all the different possible states of an observable seequence:
 
 The return value of `subscribe` function is a funcition that can be called for
 dispose the subscription.
+
 
 === Consume values
 
