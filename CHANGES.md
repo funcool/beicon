@@ -1,5 +1,31 @@
 # Changelog #
 
+## Version 1.0.0 ##
+
+Date: ---
+
+This is a major release due to big internal changes and some
+backward incompatibilities introduced in this version.
+
+- Switch to RxJS 5.x (5.0.0-beta2)
+- Remove `from-callback` observable constructor.
+- Remove `from-poll` observable constructor.
+- Remove `repeat` operator.
+- Remove `slice` operator.
+- Remove `to-observable` operator.
+- Remove `pausable` operator.
+- Remove `immediate` scheduler.
+- Add `mapcat` operator (similar to flatmap but maintains the order).
+- Add `fjoin` a rxjs forkjoin operator (similar to promise `.all` method).
+- Add `range` constructor.
+- Add `async` scheduler.
+- Change `zip` call signature.
+- Rename `delay'` operator to `delay-when`.
+- Rename `choice` operator to `race`.
+- Rename `sample'` operator to `sample-when`.
+- Make `of` consturctor accept more than 6 parameters.
+
+
 ## Version 0.6.1 ##
 
 Date: 2016-01-28
