@@ -608,10 +608,10 @@
   information."
   ([n ob]
    {:pre [(observable? ob)]}
-   (.bufferWithCount ob n))
+   (.bufferCount ob n))
   ([n skip ob]
    {:pre [(observable? ob)]}
-   (.bufferWithCount ob n skip)))
+   (.bufferCount ob n skip)))
 
 (defn retry
   "Given an optional number of retries and an observable,
