@@ -5,11 +5,11 @@
 (let [start (System/nanoTime)]
   (b/build
    (b/inputs "test" "src")
-   {:main 'beicon.tests-runner
+   {:main 'beicon.tests.runner
     :output-to "out/tests.js"
     :output-dir "out"
     :target :nodejs
-    :optimizations :advanced
+    :optimizations :none
     :pretty-print true
     :language-in  :ecmascript5
     :language-out :ecmascript5
