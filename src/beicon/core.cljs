@@ -322,8 +322,8 @@
   ([ob nf ef cf]
    {:pre [(observable? ob)]}
    (let [nf #(nf %)
-         ef (if (identical? ef noop) ef #(ef %))
-         cf (if (identical? cf noop) cf #(cf))
+         ef (if (nil? ef) noop #(ef %))
+         cf (if (nil? cf) noop #(cf))
          subr (Subscriber. nf ef cf)
          subs (.subscribe ob subr)]
     (mk-subscription subs))))

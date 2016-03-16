@@ -1,6 +1,13 @@
 # Changelog #
 
 
+## Version 1.0.3 ##
+
+Date: 2016-03-16
+
+- Fix unexpected exception on subscribe function.
+
+
 ## Version 1.0.2 ##
 
 Date: 2016-03-16
