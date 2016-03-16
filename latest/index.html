@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.3">
+<meta name="generator" content="Asciidoctor 1.5.4">
 <title>beicon - reactive streams for clojurescript</title>
 <style>
 .listingblock .pygments .hll { background-color: #ffffcc }
@@ -89,13 +89,11 @@
 <li><a href="#creating-streams">Creating Streams</a>
 <ul class="sectlevel2">
 <li><a href="#from-a-collection">From a collection</a></li>
-<li><a href="#repeating-value">Repeating Value</a></li>
-<li><a href="#from-callback">From Callback</a></li>
-<li><a href="#from-poll">From Poll</a></li>
+<li><a href="#from-range">From range</a></li>
 <li><a href="#from-atom">From Atom</a></li>
 <li><a href="#from-value">From Value</a></li>
 <li><a href="#from-multiple-values">From multiple values</a></li>
-<li><a href="#terminated">Terminated</a></li>
+<li><a href="#empty">Empty</a></li>
 <li><a href="#with-timeout">With timeout</a></li>
 <li><a href="#from-factory">From factory</a></li>
 </ul>
@@ -159,7 +157,7 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p><em>beicon</em> is a small and concise library that provides reactive streams to
-clojurescript built on top of <a href="https://github.com/Reactive-Extensions/RxJS">rxjs</a>.</p>
+clojurescript built on top of <a href="https://github.com/ReactiveX/RxJS">rxjs</a>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -188,7 +186,7 @@ dependency vector on your <strong><em>project.clj</em></strong> file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">funcool/beicon</span> <span class="tok-s">&quot;0.6.1&quot;</span><span class="tok-p">]</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">funcool/beicon</span> <span class="tok-s">&quot;1.0.1&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
 </div>
@@ -198,7 +196,7 @@ dependency vector on your <strong><em>project.clj</em></strong> file:</p>
 <h2 id="creating-streams"><a class="link" href="#creating-streams">Creating Streams</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section will give you the available methods for create streams.</p>
+<p>This section will give you the available methods for create observable streams.</p>
 </div>
 <div class="sect2">
 <h3 id="from-a-collection"><a class="link" href="#from-a-collection">From a collection</a></h3>
@@ -220,61 +218,20 @@ and convert it in an observable sequence:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="repeating-value"><a class="link" href="#repeating-value">Repeating Value</a></h3>
+<h3 id="from-range"><a class="link" href="#from-range">From range</a></h3>
 <div class="paragraph">
-<p>An other way to create potencially infinite stream is using <code>repeat</code> constructor
-function:</p>
+<p>An other way to create a observable stream is using the <code>range</code> constructor
+that is pretty analgous to the clojure&#8217;s one:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/repeat</span> <span class="tok-ss">:a</span> <span class="tok-mi">3</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/range</span> <span class="tok-mi">3</span><span class="tok-p">))</span>
 
 <span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
-<span class="tok-c1">;; ==&gt; v: :a</span>
-<span class="tok-c1">;; ==&gt; v: :a</span>
-<span class="tok-c1">;; ==&gt; v: :a</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The second argument for <code>repeat</code> is optional, and omiting it will create
-an infinite stream.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="from-callback"><a class="link" href="#from-callback">From Callback</a></h3>
-<div class="paragraph">
-<p>It there a way for create an observable sequence executing one function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-callback</span> <span class="tok-p">(</span><span class="tok-nb">constantly </span><span class="tok-mi">1</span><span class="tok-p">)))</span>
-
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
-<span class="tok-c1">;; ==&gt; v: 1</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The function will be executed once and the stream will contain one unique value.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="from-poll"><a class="link" href="#from-poll">From Poll</a></h3>
-<div class="paragraph">
-<p>This method allow create potentially infinite stream from executing a callback
-repeatedly:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-poll</span> <span class="tok-p">(</span><span class="tok-nb">constantly </span><span class="tok-mi">1</span><span class="tok-p">)))</span>
-
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-c1">;; ==&gt; v: 0</span>
 <span class="tok-c1">;; ==&gt; v: 1</span>
-<span class="tok-c1">;; ==&gt; ...</span></code></pre>
+<span class="tok-c1">;; ==&gt; v: 2</span></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>If a callback returns nil the stream will be ended and if an exception is returned
-the stream will be ended with error.</p>
 </div>
 </div>
 <div class="sect2">
@@ -308,6 +265,18 @@ that changes in an infinite observable sequence of atom changes:</p>
 <span class="tok-c1">;; ==&gt; v: 10</span></code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<code>just</code> or <code>once</code> are simple aliases to <code>of</code> function.
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="from-multiple-values"><a class="link" href="#from-multiple-values">From multiple values</a></h3>
@@ -325,21 +294,9 @@ multiple values, using the <code>of</code> consturctor:</p>
 <span class="tok-c1">;; ==&gt; v: 3</span></code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-the <code>of</code> constructor accept the maximum of 6 parameters.
-</td>
-</tr>
-</table>
-</div>
 </div>
 <div class="sect2">
-<h3 id="terminated"><a class="link" href="#terminated">Terminated</a></h3>
+<h3 id="empty"><a class="link" href="#empty">Empty</a></h3>
 <div class="paragraph">
 <p>Some times you also want just a terminated stream:</p>
 </div>
@@ -872,7 +829,7 @@ example of using bus for the both operations: push values and subscribe to it.</
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">bus</span> <span class="tok-p">(</span><span class="tok-nf">s/bus</span><span class="tok-p">))</span>
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nb">-&gt; </span><span class="tok-nv">bus</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-nv">bus</span>
                 <span class="tok-p">(</span><span class="tok-nf">s/skip</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
                 <span class="tok-p">(</span><span class="tok-nf">s/map</span> <span class="tok-nv">inc</span><span class="tok-p">)</span>
                 <span class="tok-p">(</span><span class="tok-nf">s/take</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
@@ -1029,7 +986,7 @@ For more information, please refer to &lt;http://unlicense.org/&gt;</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-01-28 08:48:40 EET
+Last updated 2016-03-16 19:35:31 EET
 </div>
 </div>
 </body>
