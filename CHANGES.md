@@ -1,5 +1,13 @@
 # Changelog #
 
+
+## Version 1.0.2 ##
+
+Date: 2016-03-16
+
+- Fix wrong call on buffer function impl.
+
+
 ## Version 1.0.1 ##
 
 Date: 2016-03-16
