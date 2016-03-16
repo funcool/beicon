@@ -1,8 +1,15 @@
 # Changelog #
 
+## Version 1.0.1 ##
+
+Date: 2016-03-16
+
+- Fix minified rxjs bundle.
+
+
 ## Version 1.0.0 ##
 
-Date: ---
+Date: 2016-03-16
 
 This is a major release due to big internal changes and some
 backward incompatibilities introduced in this version.
