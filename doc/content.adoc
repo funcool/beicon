@@ -29,8 +29,9 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "1.0.0"]
+[funcool/beicon "1.0.1"]
 ----
+
 
 == Creating Streams
 
