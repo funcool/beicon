@@ -587,10 +587,10 @@
   distinct contiguous elements."
   ([ob]
    {:pre [(observable? ob)]}
-   (.distinctUntilChanged ob =))
+   (.distinctUntilChanged ob = identity))
   ([f ob]
    {:pre [(observable? ob)]}
-   (.distinctUntilChanged ob f)))
+   (.distinctUntilChanged ob = f)))
 
 (defn dedupe'
   "Returns an observable sequence that contains only d
@@ -603,7 +603,7 @@
    (.distinct ob =))
   ([f ob]
    {:pre [(observable? ob)]}
-   (.distinct ob f)))
+   (.distinct ob = f)))
 
 (defn buffer
   "Projects each element of an observable sequence into zero
