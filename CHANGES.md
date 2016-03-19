@@ -1,5 +1,14 @@
 # Changelog #
 
+## Version 1.1.0 ##
+
+Date: 2016-03-19
+
+- Rename `from-exception` to `throw`.
+- Add backward compatible alias for `from-exception`.
+- Update cljs compiler versiont o 1.8.34
+- Update promise dependency to 1.1.1
+
 
 ## Version 1.0.3 ##
 
