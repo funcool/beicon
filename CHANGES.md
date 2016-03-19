@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 1.1.1 ##
+
+Date: 2016-03-19
+
+- Fix wrong parameters order on `dedupe` and `dedupe'` functions.
+
+
 ## Version 1.1.0 ##
 
 Date: 2016-03-19
