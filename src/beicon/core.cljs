@@ -2,7 +2,7 @@
   (:require [beicon.extern.rxjs])
   (:refer-clojure :exclude [true? map filter reduce merge repeat mapcat
                             repeatedly zip dedupe drop take take-while
-                            concat empty delay range]))
+                            concat empty delay range throw]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Predicates
@@ -129,11 +129,6 @@
   [p]
   (.fromPromise Observable p))
 
-(defn from-exception
-  [e]
-  (let [func (aget Observable "throw")]
-    (func e)))
-
 (defn just
   "Returns an observable sequence that contains
   a single element."
@@ -154,6 +149,14 @@
 (def never
   "Alias to 'empty'."
   empty)
+
+(defn throw
+  [e]
+  ((aget Observable "throw") e))
+
+(def ^:deprecated from-exception
+  "A deprecated alias for `throw`."
+  throw)
 
 (defn timer
   "Returns an observable sequence that produces a value after

@@ -243,7 +243,7 @@
 
 (t/deftest observable-catch
   (t/async done
-    (let [s1 (s/from-exception (ex-info "error" {:foo :bar}))
+    (let [s1 (s/throw (ex-info "error" {:foo :bar}))
           s2 (s/catch (fn [error]
                         (s/once (ex-data error)))
                  s1)]
