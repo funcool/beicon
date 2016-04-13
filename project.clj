@@ -3,7 +3,7 @@
   :url "https://github.com/funcool/beicon"
   :license {:name "Public Domain" :url "http://unlicense.org/"}
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.8.34" :scope "provided"]
+                 [org.clojure/clojurescript "1.8.40" :scope "provided"]
                  [funcool/promesa "1.1.1" :scope "provided"]]
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
