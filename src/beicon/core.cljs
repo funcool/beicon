@@ -2,7 +2,7 @@
   (:require [beicon.extern.rxjs])
   (:refer-clojure :exclude [true? map filter reduce merge repeat mapcat
                             repeatedly zip dedupe drop take take-while
-                            concat empty delay range throw]))
+                            concat empty delay range throw do]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Predicates
@@ -537,6 +537,10 @@
   ([f g e ob]
    {:pre [(observable? ob) (fn? f) (fn? g) (fn? g)]}
    (.do ob f g e)))
+
+(def do
+  "An idiomatic alias for `tap`."
+  tap)
 
 (defn log
   "Print all values passed through the given
