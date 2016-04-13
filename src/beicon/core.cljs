@@ -507,10 +507,23 @@
 (defn catch
   "Continues an observable sequence that is terminated
   by an exception with the next observable sequence."
-  [handler ob]
-  {:pre [(or (observable? handler)
-             (fn? handler))]}
-  (.catch ob handler))
+  ([handler ob]
+   {:pre [(or (observable? handler) (fn? handler))]}
+   (.catch ob (fn [value]
+                (let [value (handler value)]
+                  (cond
+                    (observable? value) value
+                    (-end? value) (empty)
+                    (-error? value) (throw value)
+                    (-next? value) (of value))))))
+
+  ([pred handler ob]
+   {:pre [(fn? pred)]}
+   (catch (fn [value]
+            (if (pred value)
+              (handler value)
+              (throw value)))
+       ob)))
 
 (defn tap
   "Invokes an action for each element in the
