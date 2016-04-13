@@ -11,6 +11,7 @@ Date: 2016-04-13
 - Add the ability to add predicate for catch function.
 - Update bundled rxjs.
 
+
 ## Version 1.1.1 ##
 
 Date: 2016-03-19
