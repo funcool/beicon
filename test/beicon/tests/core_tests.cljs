@@ -241,7 +241,7 @@
       (drain! s3 #(t/is (= % [[1 0] [2 0] [3 0]])))
       (s/on-end s3 done))))
 
-(t/deftest observable-catch
+(t/deftest observable-catch-1
   (t/async done
     (let [s1 (s/throw (ex-info "error" {:foo :bar}))
           s2 (s/catch (fn [error]
@@ -250,6 +250,26 @@
       (t/is (s/observable? s2))
       (drain! s2 #(t/is (= % [{:foo :bar}])))
       (s/on-end s2 done))))
+
+(t/deftest observable-catch-2
+  (t/async done
+    (let [type1? #(= 1 (:type (ex-data %)))
+          s1 (->> (s/throw (ex-info "error" {:type 1}))
+                  (s/catch type1? #(s/once (ex-data %))))]
+      (t/is (s/observable? s1))
+      (drain! s1 #(t/is (= % [{:type 1}])))
+      (s/on-end s1 done))))
+
+(t/deftest observable-catch-3
+  (t/async done
+    (let [type1? #(= 1 (:type (ex-data %)))
+          type2? #(= 2 (:type (ex-data %)))
+          s1 (->> (s/throw (ex-info "error" {:type 1}))
+                  (s/catch type2? #(s/once (ex-data %)))
+                  (s/catch type1? #(s/once (ex-data %))))]
+      (t/is (s/observable? s1))
+      (drain! s1 #(t/is (= % [{:type 1}])))
+      (s/on-end s1 done))))
 
 (t/deftest observable-to-atom
   (t/async done
