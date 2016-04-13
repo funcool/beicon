@@ -380,14 +380,9 @@
 (defn merge
   "Merges all the observable sequences and Promises
   into a single observable sequence."
-  ([a b]
-   {:pre [(observable? a)
-          (observable? b)]}
-   (.merge b a))
-  ([a b & more]
-   (let [ob (last more)
-         obs (into [b] (butlast more))]
-     (cljs.core/reduce concat (merge a ob) more))))
+  [& more]
+  (let [more (cljs.core/filter identity more)]
+    (cljs.core/reduce #(.merge %1 %2) more)))
 
 (defn merge-all
   "Merges an observable sequence of observable
