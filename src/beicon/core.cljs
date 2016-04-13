@@ -373,14 +373,9 @@
   "Concatenates all of the specified observable
   sequences, as long as the previous observable
   sequence terminated successfully."
-  ([a ob]
-   {:pre [(observable? a)
-          (observable? ob)]}
-   (.concat ob a))
-  ([a b & more]
-   (let [ob (last more)
-         obs (into [b] (butlast more))]
-     (cljs.core/reduce concat (cljs.core/concat a ob) more))))
+  [& more]
+  (let [more (reverse (cljs.core/filter identity more))]
+    (cljs.core/reduce #(.concat %1 %2) more)))
 
 (defn merge
   "Merges all the observable sequences and Promises
