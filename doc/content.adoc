@@ -45,11 +45,11 @@ and convert it in an observable sequence:
 
 [source, clojure]
 ----
-(require '[beicon.core :as s])
+(require '[beicon.core :as rx])
 
-(def stream (s/from-coll [1 2 3]))
+(def stream (rx/from-coll [1 2 3]))
 
-(s/on-value stream #(println "v:" %))
+(rx/on-value stream #(println "v:" %))
 ;; ==> v: 1
 ;; ==> v: 2
 ;; ==> v: 3
@@ -62,9 +62,9 @@ that is pretty analgous to the clojure's one:
 
 [source, clojure]
 ----
-(def stream (s/range 3))
+(def stream (rx/range 3))
 
-(s/on-value stream #(println "v:" %))
+(rx/on-value stream #(println "v:" %))
 ;; ==> v: 0
 ;; ==> v: 1
 ;; ==> v: 2
@@ -80,9 +80,9 @@ that changes in an infinite observable sequence of atom changes:
 ----
 (def a (atom 1))
 
-(def stream (s/from-atom a))
+(def stream (rx/from-atom a))
 
-(s/on-value stream #(println "v:" %))
+(rx/on-value stream #(println "v:" %))
 (swap! a inc)
 ;; ==> v: 2
 ----
@@ -94,9 +94,9 @@ It creates a observable sequence of one unique value:
 
 [source, clojure]
 ----
-(def stream (s/just 10)
+(def stream (rx/just 10)
 
-(s/on-value stream #(println "v:" %))
+(rx/on-value stream #(println "v:" %))
 ;; ==> v: 10
 ----
 
@@ -110,9 +110,9 @@ multiple values, using the `of` consturctor:
 
 [source, clojure]
 ----
-(def stream (s/of 1 2 3))
+(def stream (rx/of 1 2 3))
 
-(s/on-value stream #(println "v:" %))
+(rx/on-value stream #(println "v:" %))
 ;; ==> v: 1
 ;; ==> v: 2
 ;; ==> v: 3
@@ -125,7 +125,7 @@ Some times you also want just a terminated stream:
 
 [source, clojure]
 ----
-(def stream (s/empty))
+(def stream (rx/empty))
 ----
 
 This stream not yelds any value and just terminates.
@@ -138,9 +138,9 @@ after specified amount of time:
 
 [source, clojure]
 ----
-(def stream (s/timeout 1000 10))
+(def stream (rx/timeout 1000 10))
 
-(s/on-value stream #(println "v:" %))
+(rx/on-value stream #(println "v:" %))
 ;; After 1 sec...
 ;; ==> v: 10
 ----
@@ -155,21 +155,25 @@ for build other kind of constructors.
 [source, clojure]
 ----
 (def stream 
-  (s/create (fn [sick]
-              (sick 1)
-              (sick 2)
-              (sick nil) ;; ends
-              )))
+  (rx/create (fn [sick]
+               (sick 1)          ;; next with `1` as value
+               (sick (rx/end 2)) ;; next with `2` as value and end the stream
+               (fn []
+                 ;; function called on unsubscription
+                 ))))
 
-(s/on-value stream #(println "v:" %))
+(rx/on-value stream #(println "v:" %))
 ;; ==> v: 1
 ;; ==> v: 2
 ----
 
 This is implemented using protocols for make it flexible and easy extensible
-by the user. By default any object except `nil` or instance of `js/Error` are
-considered valid values; `nil` is considered as end of stream and `js/Error` or
-any instance of it is considered error termination.
+by the user. This is how the default impl behaves:
+
+- `js/Error` or `ExceptionInfo` instances triggers the error termination of stream.
+- `(rx/end value)` sends the unwrapped value to the stream, then terminate stream.
+- `rx/end` as value triggers the stream termination.
+- any other value are valid values for send to the stream.
 
 
 == Consuming streams
@@ -190,10 +194,10 @@ that watches all the different possible states of an observable seequence:
 
 [source, clojure]
 ----
-(def sub (s/subscribe stream
-                      #(println "on-value:" %)
-                      #(println "on-error:" %)
-                      #(println "on-end:")))
+(def sub (rx/subscribe stream
+                       #(println "on-value:" %)
+                       #(println "on-error:" %)
+                       #(println "on-end:")))
 ----
 
 The return value of `subscribe` function is a funcition that can be called for
@@ -207,7 +211,7 @@ or termination. For this purposes is there the `on-value` function:
 
 [source, clojure]
 ----
-(def sub (s/on-value sub #(println "val:" %)))
+(def sub (rx/on-value sub #(println "val:" %)))
 ----
 
 Like with `subscribe` function, `on-value` function also return a callable that
@@ -225,7 +229,7 @@ sequence:
 
 [source, clojure]
 ----
-(def sub (s/on-end sub #(println "end!")))
+(def sub (rx/on-end sub #(println "end!")))
 ----
 
 === Consume error termination
@@ -235,7 +239,7 @@ seequence:
 
 [source, clojure]
 ----
-(def sub (s/on-end sub #(println "error:" %)))
+(def sub (rx/on-end sub #(println "error:" %)))
 ----
 
 
@@ -248,13 +252,13 @@ normal seequence, and in this case filter them with a predicate:
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2 3 4 5])
-                 (s/filter #(> % 3))))
+(def stream (->> (rx/from-coll [1 2 3 4 5])
+                 (rx/filter #(> % 3))))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 4
 ;; ==> on-value: 5
@@ -267,13 +271,13 @@ Also, you can apply a function over each value in the stream:
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2])
-                 (s/map inc)))
+(def stream (->> (rx/from-coll [1 2])
+                 (rx/map inc)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 2
 ;; ==> on-value: 3
@@ -290,14 +294,14 @@ The result is similar to concatenate all the underlying seequences.
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2])
-                 (s/map #(sfrom-coll (range % (+ % 2))))
-                 (s/flat-map))
+(def stream (->> (rx/from-coll [1 2])
+                 (rx/map #(sfrom-coll (range % (+ % 2))))
+                 (rx/flat-map))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 1
 ;; ==> on-value: 2
@@ -315,13 +319,13 @@ You can skip the first N values:
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2 3 4 5 6])
-                 (s/skip 4)))
+(def stream (->> (rx/from-coll [1 2 3 4 5 6])
+                 (rx/skip 4)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 5
 ;; ==> on-value: 6
@@ -332,13 +336,13 @@ Skip while some condition evalutates to true:
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 1 1 1 2 3])
-                 (s/skip-while odd?)))
+(def stream (->> (rx/from-coll [1 1 1 1 2 3])
+                 (rx/skip-while odd?)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 2
 ;; ==> on-value: 3
@@ -355,13 +359,13 @@ You also can limit the observale sequence to an specified number of elements:
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 1 1 1 2 3])
-                 (s/take 2)))
+(def stream (->> (rx/from-coll [1 1 1 1 2 3])
+                 (rx/take 2)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 1
 ;; ==> on-value: 1
@@ -372,13 +376,13 @@ Or an condition expression evaluates to true:
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 1 1 1 2 3])
-                 (s/take-while odd?)))
+(def stream (->> (rx/from-coll [1 1 1 1 2 3])
+                 (rx/take-while odd?)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 1
 ;; ==> on-value: 1
@@ -396,13 +400,13 @@ observable seequence.
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2 3 4])
-                 (s/slice 1 3)))
+(def stream (->> (rx/from-coll [1 2 3 4])
+                 (rx/slice 1 3)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 2
 ;; ==> on-value: 3
@@ -417,13 +421,13 @@ also called (reducing function):
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2 3 4])
-                 (s/reduce + 0)))
+(def stream (->> (rx/from-coll [1 2 3 4])
+                 (rx/reduce + 0)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 10
 ;; ==> on-end
@@ -437,13 +441,13 @@ instead of:
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2 3 4])
-                 (s/scan + 0)))
+(def stream (->> (rx/from-coll [1 2 3 4])
+                 (rx/scan + 0)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 1
 ;; ==> on-value: 3
@@ -460,13 +464,13 @@ emits them as one value.
 
 [source, clojure]
 ----
-(def stream (->> (s/from-coll [1 2 3 4])
-                 (s/buffer 2)))
+(def stream (->> (rx/from-coll [1 2 3 4])
+                 (rx/buffer 2)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: [1 2]
 ;; ==> on-value: [3 4]
@@ -485,14 +489,14 @@ This kind if combinator works very well with operations that can timeout:
 
 [source, clojure]
 ----
-(def stream (s/choice
-              (s/timeout 1000 :timeout)
-              (s/timeout 900 :value)))
+(def stream (rx/choice
+              (rx/timeout 1000 :timeout)
+              (rx/timeout 900 :value)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: :value
 ;; ==> on-end
@@ -504,14 +508,14 @@ This combinator combines two observable seequences in one.
 
 [source, clojure]
 ----
-(def stream (s/zip
-              (s/from-coll [1 2 3])
-              (s/from-coll [2 3 4])))
+(def stream (rx/zip
+              (rx/from-coll [1 2 3])
+              (rx/from-coll [2 3 4])))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: [1 2]
 ;; ==> on-value: [2 3]
@@ -526,14 +530,14 @@ This cobinator concatenates two or more observable seequences.
 
 [source, clojure]
 ----
-(def stream (s/concat
-              (s/from-coll [1 2])
-              (s/from-coll [3 4])))
+(def stream (rx/concat
+              (rx/from-coll [1 2])
+              (rx/from-coll [3 4])))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 1
 ;; ==> on-value: 2
@@ -548,14 +552,14 @@ This combinator merges two or more observable seequences.
 
 [source, clojure]
 ----
-(def stream (s/concat
-              (s/from-coll [1 2])
-              (s/from-coll [3 4])))
+(def stream (rx/concat
+              (rx/from-coll [1 2])
+              (rx/from-coll [3 4])))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
 ;; ==> on-value: 1
 ;; ==> on-value: 3
@@ -580,21 +584,21 @@ example of using bus for the both operations: push values and subscribe to it.
 
 [source, clojure]
 ----
-(def bus (s/bus))
+(def bus (rx/bus))
 (def stream (->> bus
-                (s/skip 1)
-                (s/map inc)
-                (s/take 2)))
+                (rx/skip 1)
+                (rx/map inc)
+                (rx/take 2)))
 
-(s/subscribe stream
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe stream
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
-(s/push! bus 1)
-(s/push! bus 2)
-(s/push! bus 1)
-(s/push! bus 2)
+(rx/push! bus 1)
+(rx/push! bus 2)
+(rx/push! bus 1)
+(rx/push! bus 2)
 
 ;; ==> on-value: 3
 ;; ==> on-value: 2
@@ -608,14 +612,14 @@ You can end bus in any moment just executing `end!` function:
 
 [source, clojure]
 ----
-(def bus (s/bus))
+(def bus (rx/bus))
 
-(s/subscribe bus
-             #(println "on-value:" %)
-             #(println "on-error:" %)
-             #(println "on-end"))
+(rx/subscribe bus
+              #(println "on-value:" %)
+              #(println "on-error:" %)
+              #(println "on-end"))
 
-(s/end! bus)
+(rx/end! bus)
 ;; ==> on-end
 ----
 
