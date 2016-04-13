@@ -15,6 +15,13 @@
       (drain! s #(t/is (= % [1 2 3 4 5 6 7 8 9])))
       (s/on-end s done))))
 
+(t/deftest observable-from-values-with-nil
+  (t/async done
+    (let [s (s/of 1 nil 2)]
+      (t/is (s/observable? s))
+      (drain! s #(t/is (= % [1 nil 2])))
+      (s/on-end s done))))
+
 (t/deftest observable-from-vector
   (t/async done
     (let [coll [1 2 3]
@@ -60,8 +67,7 @@
                         (with-timeout 10
                           (sink 1)
                           (sink 2)
-                          (sink 3)
-                          (sink nil))))]
+                          (sink (s/end 3)))))]
       (t/is (s/observable? s))
       (drain! s #(t/is (= % [1 2 3])))
       (s/on-end s done))))
@@ -75,7 +81,6 @@
       (drain! s #(do
                    (t/is (= % [:timeout]))
       (s/on-end s done))))))
-
 
 (t/deftest observable-errors-from-create
   (t/async done
@@ -223,7 +228,7 @@
                           (do
                             (sink 2)
                             (sink 3)
-                            (sink nil))
+                            (sink s/end))
                            (do
                              (vreset! errored? true)
                                    (sink (js/Error.))))))

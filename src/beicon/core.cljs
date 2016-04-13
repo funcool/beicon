@@ -34,17 +34,21 @@
   (-error? [_] "Returns true if is end value.")
   (-next? [_] "Returns true if is end value."))
 
+(def end
+  "Mark a value as a final value of the stream."
+  cljs.core/reduced)
+
 (extend-type default
   IObservableValue
   (-next? [_] true)
   (-error? [_] false)
   (-end? [_] false))
 
-(extend-type nil
+(extend-type cljs.core.Reduced
   IObservableValue
   (-next? [_] false)
   (-error? [_] false)
-  (-end? [_] true))
+  (-end? [_] false))
 
 (extend-type js/Error
   IObservableValue
@@ -63,14 +67,19 @@
   subscribe method implementation."
   [sf]
   {:pre [(fn? sf)]}
-  (letfn [(continuation [subs v]
+  (letfn [(sink [subs v]
             (cond
+              (identical? end v) (.complete subs)
               (-next? v) (.next subs v)
+              (-error? v) (.error subs v)
               (-end? v) (.complete subs)
-              (-error? v) (.error subs v)))
+              (reduced? v) (do
+                             (sink subs @v)
+                             (.complete subs))))
+
           (factory [subs]
             (try
-              (sf #(continuation subs %))
+              (sf (partial sink subs))
               (catch js/Error e
                 (.error subs e))))]
     (Observable. factory)))
@@ -644,7 +653,7 @@
   [xform stream]
   (letfn [(sink-step [sink]
             (fn
-              ([r] (sink nil) r)
+              ([r] (sink end) r)
               ([_ input] (sink input) input)))]
     (let [ns (create (fn [sink]
                        (let [xsink (xform (sink-step sink))
@@ -652,11 +661,11 @@
                                     (let [v (xsink nil input)]
                                       (when (reduced? v)
                                         (xsink @v))))
-                             unsub (on-value stream step)]
+                             sub (on-value stream step)]
                          (on-complete stream #(do (xsink nil)
-                                                  (sink nil)))
+                                                  (sink end)))
                          (fn []
-                           (unsub)))))]
+                           (.close sub)))))]
       ns)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
