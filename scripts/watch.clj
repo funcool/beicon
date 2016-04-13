@@ -5,7 +5,7 @@
    :target :nodejs
    :output-to "out/tests.js"
    :output-dir "out"
-   :optimizations :advanced
+   :optimizations :none
    :pretty-print true
    :language-in  :ecmascript5
    :language-out :ecmascript5
