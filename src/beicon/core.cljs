@@ -415,6 +415,10 @@
    {:pre [(observable? ob)]}
    (.flatMap ob #(f %))))
 
+(def merge-map
+  "An idiomatic alias for flat-map."
+  flat-map)
+
 (defn mapcat
   "Projects each element of an observable sequence to an observable
   sequence and concatenates the resulting observable sequences or
