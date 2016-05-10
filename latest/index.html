@@ -186,7 +186,7 @@ dependency vector on your <strong><em>project.clj</em></strong> file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">funcool/beicon</span> <span class="tok-s">&quot;1.1.1&quot;</span><span class="tok-p">]</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">funcool/beicon</span> <span class="tok-s">&quot;1.3.0&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
 </div>
@@ -206,11 +206,11 @@ and convert it in an observable sequence:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">beicon.core</span> <span class="tok-ss">:as</span> <span class="tok-nv">s</span><span class="tok-p">])</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">require</span> <span class="tok-o">&#39;</span><span class="tok-p">[</span><span class="tok-nv">beicon.core</span> <span class="tok-ss">:as</span> <span class="tok-nv">rx</span><span class="tok-p">])</span>
 
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">]))</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">]))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
 <span class="tok-c1">;; ==&gt; v: 1</span>
 <span class="tok-c1">;; ==&gt; v: 2</span>
 <span class="tok-c1">;; ==&gt; v: 3</span></code></pre>
@@ -225,9 +225,9 @@ that is pretty analgous to the clojure&#8217;s one:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/range</span> <span class="tok-mi">3</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/range</span> <span class="tok-mi">3</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
 <span class="tok-c1">;; ==&gt; v: 0</span>
 <span class="tok-c1">;; ==&gt; v: 1</span>
 <span class="tok-c1">;; ==&gt; v: 2</span></code></pre>
@@ -244,9 +244,9 @@ that changes in an infinite observable sequence of atom changes:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">a</span> <span class="tok-p">(</span><span class="tok-nf">atom</span> <span class="tok-mi">1</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/from-atom</span> <span class="tok-nv">a</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-atom</span> <span class="tok-nv">a</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
 <span class="tok-p">(</span><span class="tok-nf">swap!</span> <span class="tok-nv">a</span> <span class="tok-nv">inc</span><span class="tok-p">)</span>
 <span class="tok-c1">;; ==&gt; v: 2</span></code></pre>
 </div>
@@ -259,9 +259,9 @@ that changes in an infinite observable sequence of atom changes:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/just</span> <span class="tok-mi">10</span><span class="tok-p">)</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/just</span> <span class="tok-mi">10</span><span class="tok-p">)</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
 <span class="tok-c1">;; ==&gt; v: 10</span></code></pre>
 </div>
 </div>
@@ -286,9 +286,9 @@ multiple values, using the <code>of</code> consturctor:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/of</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/of</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
 <span class="tok-c1">;; ==&gt; v: 1</span>
 <span class="tok-c1">;; ==&gt; v: 2</span>
 <span class="tok-c1">;; ==&gt; v: 3</span></code></pre>
@@ -302,7 +302,7 @@ multiple values, using the <code>of</code> consturctor:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/empty</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/empty</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -317,9 +317,9 @@ after specified amount of time:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/timeout</span> <span class="tok-mi">1000</span> <span class="tok-mi">10</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/timeout</span> <span class="tok-mi">1000</span> <span class="tok-mi">10</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
 <span class="tok-c1">;; After 1 sec...</span>
 <span class="tok-c1">;; ==&gt; v: 10</span></code></pre>
 </div>
@@ -335,22 +335,37 @@ for build other kind of constructors.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span>
-  <span class="tok-p">(</span><span class="tok-nf">s/create</span> <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[</span><span class="tok-nv">sick</span><span class="tok-p">]</span>
-              <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
-              <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
-              <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-nv">nil</span><span class="tok-p">)</span> <span class="tok-c1">;; ends</span>
-              <span class="tok-p">)))</span>
+  <span class="tok-p">(</span><span class="tok-nf">rx/create</span> <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[</span><span class="tok-nv">sick</span><span class="tok-p">]</span>
+               <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-mi">1</span><span class="tok-p">)</span>          <span class="tok-c1">;; next with `1` as value</span>
+               <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-p">(</span><span class="tok-nf">rx/end</span> <span class="tok-mi">2</span><span class="tok-p">))</span> <span class="tok-c1">;; next with `2` as value and end the stream</span>
+               <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[]</span>
+                 <span class="tok-c1">;; function called on unsubscription</span>
+                 <span class="tok-p">))))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">stream</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;v:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">))</span>
 <span class="tok-c1">;; ==&gt; v: 1</span>
 <span class="tok-c1">;; ==&gt; v: 2</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>This is implemented using protocols for make it flexible and easy extensible
-by the user. By default any object except <code>nil</code> or instance of <code>js/Error</code> are
-considered valid values; <code>nil</code> is considered as end of stream and <code>js/Error</code> or
-any instance of it is considered error termination.</p>
+by the user. This is how the default impl behaves:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>js/Error</code> or <code>ExceptionInfo</code> instances triggers the error termination of stream.</p>
+</li>
+<li>
+<p><code>(rx/end value)</code> sends the unwrapped value to the stream, then terminate stream.</p>
+</li>
+<li>
+<p><code>rx/end</code> as value triggers the stream termination.</p>
+</li>
+<li>
+<p>any other value are valid values for send to the stream.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -378,10 +393,10 @@ that watches all the different possible states of an observable seequence:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-                      <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-                      <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-                      <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end:&quot;</span><span class="tok-p">)))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+                       <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+                       <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+                       <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end:&quot;</span><span class="tok-p">)))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -397,7 +412,7 @@ or termination. For this purposes is there the <code>on-value</code> function:</
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/on-value</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;val:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">rx/on-value</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;val:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -427,7 +442,7 @@ sequence:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/on-end</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;end!&quot;</span><span class="tok-p">)))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">rx/on-end</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;end!&quot;</span><span class="tok-p">)))</span></code></pre>
 </div>
 </div>
 </div>
@@ -439,7 +454,7 @@ seequence:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">s/on-end</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">rx/on-end</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)))</span></code></pre>
 </div>
 </div>
 </div>
@@ -456,13 +471,13 @@ normal seequence, and in this case filter them with a predicate:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span> <span class="tok-mi">5</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/filter</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">&gt; </span><span class="tok-nv">%</span> <span class="tok-mi">3</span><span class="tok-p">))))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span> <span class="tok-mi">5</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/filter</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">&gt; </span><span class="tok-nv">%</span> <span class="tok-mi">3</span><span class="tok-p">))))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 4</span>
 <span class="tok-c1">;; ==&gt; on-value: 5</span>
@@ -477,13 +492,13 @@ normal seequence, and in this case filter them with a predicate:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/map</span> <span class="tok-nv">inc</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/map</span> <span class="tok-nv">inc</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 2</span>
 <span class="tok-c1">;; ==&gt; on-value: 3</span>
@@ -502,14 +517,14 @@ an other observable seequences that emits just plain values.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/map</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nf">sfrom-coll</span> <span class="tok-p">(</span><span class="tok-nb">range </span><span class="tok-nv">%</span> <span class="tok-p">(</span><span class="tok-nb">+ </span><span class="tok-nv">%</span> <span class="tok-mi">2</span><span class="tok-p">))))</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/flat-map</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/map</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nf">sfrom-coll</span> <span class="tok-p">(</span><span class="tok-nb">range </span><span class="tok-nv">%</span> <span class="tok-p">(</span><span class="tok-nb">+ </span><span class="tok-nv">%</span> <span class="tok-mi">2</span><span class="tok-p">))))</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/flat-map</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
 <span class="tok-c1">;; ==&gt; on-value: 2</span>
@@ -529,13 +544,13 @@ an other observable seequences that emits just plain values.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span> <span class="tok-mi">5</span> <span class="tok-mi">6</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/skip</span> <span class="tok-mi">4</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span> <span class="tok-mi">5</span> <span class="tok-mi">6</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/skip</span> <span class="tok-mi">4</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 5</span>
 <span class="tok-c1">;; ==&gt; on-value: 6</span>
@@ -547,13 +562,13 @@ an other observable seequences that emits just plain values.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/skip-while</span> <span class="tok-nv">odd?</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/skip-while</span> <span class="tok-nv">odd?</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 2</span>
 <span class="tok-c1">;; ==&gt; on-value: 3</span>
@@ -572,13 +587,13 @@ this moment).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/take</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/take</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
@@ -590,13 +605,13 @@ this moment).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/take-while</span> <span class="tok-nv">odd?</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/take-while</span> <span class="tok-nv">odd?</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
@@ -615,13 +630,13 @@ observable seequence.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/slice</span> <span class="tok-mi">1</span> <span class="tok-mi">3</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/slice</span> <span class="tok-mi">1</span> <span class="tok-mi">3</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 2</span>
 <span class="tok-c1">;; ==&gt; on-value: 3</span>
@@ -637,13 +652,13 @@ also called (reducing function):</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/reduce</span> <span class="tok-nb">+ </span><span class="tok-mi">0</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/reduce</span> <span class="tok-nb">+ </span><span class="tok-mi">0</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 10</span>
 <span class="tok-c1">;; ==&gt; on-end</span></code></pre>
@@ -659,13 +674,13 @@ instead of:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/scan</span> <span class="tok-nb">+ </span><span class="tok-mi">0</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/scan</span> <span class="tok-nb">+ </span><span class="tok-mi">0</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
 <span class="tok-c1">;; ==&gt; on-value: 3</span>
@@ -683,13 +698,13 @@ emits them as one value.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
-                 <span class="tok-p">(</span><span class="tok-nf">s/buffer</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])</span>
+                 <span class="tok-p">(</span><span class="tok-nf">rx/buffer</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: [1 2]</span>
 <span class="tok-c1">;; ==&gt; on-value: [3 4]</span>
@@ -713,14 +728,14 @@ first value available from any provided observables.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/choice</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/timeout</span> <span class="tok-mi">1000</span> <span class="tok-ss">:timeout</span><span class="tok-p">)</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/timeout</span> <span class="tok-mi">900</span> <span class="tok-ss">:value</span><span class="tok-p">)))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/choice</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/timeout</span> <span class="tok-mi">1000</span> <span class="tok-ss">:timeout</span><span class="tok-p">)</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/timeout</span> <span class="tok-mi">900</span> <span class="tok-ss">:value</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: :value</span>
 <span class="tok-c1">;; ==&gt; on-end</span></code></pre>
@@ -734,14 +749,14 @@ first value available from any provided observables.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/zip</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/zip</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">2</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: [1 2]</span>
 <span class="tok-c1">;; ==&gt; on-value: [2 3]</span>
@@ -757,14 +772,14 @@ first value available from any provided observables.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/concat</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/concat</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
 <span class="tok-c1">;; ==&gt; on-value: 2</span>
@@ -781,14 +796,14 @@ first value available from any provided observables.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">s/concat</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
-              <span class="tok-p">(</span><span class="tok-nf">s/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">rx/concat</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span><span class="tok-p">])</span>
+              <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">])))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 1</span>
 <span class="tok-c1">;; ==&gt; on-value: 3</span>
@@ -828,21 +843,21 @@ example of using bus for the both operations: push values and subscribe to it.</
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">bus</span> <span class="tok-p">(</span><span class="tok-nf">s/bus</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">bus</span> <span class="tok-p">(</span><span class="tok-nf">rx/bus</span><span class="tok-p">))</span>
 <span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-nv">bus</span>
-                <span class="tok-p">(</span><span class="tok-nf">s/skip</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
-                <span class="tok-p">(</span><span class="tok-nf">s/map</span> <span class="tok-nv">inc</span><span class="tok-p">)</span>
-                <span class="tok-p">(</span><span class="tok-nf">s/take</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
+                <span class="tok-p">(</span><span class="tok-nf">rx/skip</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
+                <span class="tok-p">(</span><span class="tok-nf">rx/map</span> <span class="tok-nv">inc</span><span class="tok-p">)</span>
+                <span class="tok-p">(</span><span class="tok-nf">rx/take</span> <span class="tok-mi">2</span><span class="tok-p">)))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">stream</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">stream</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
-<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
-<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
-<span class="tok-p">(</span><span class="tok-nf">s/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">1</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/push!</span> <span class="tok-nv">bus</span> <span class="tok-mi">2</span><span class="tok-p">)</span>
 
 <span class="tok-c1">;; ==&gt; on-value: 3</span>
 <span class="tok-c1">;; ==&gt; on-value: 2</span>
@@ -857,14 +872,14 @@ example of using bus for the both operations: push values and subscribe to it.</
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">bus</span> <span class="tok-p">(</span><span class="tok-nf">s/bus</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">bus</span> <span class="tok-p">(</span><span class="tok-nf">rx/bus</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/subscribe</span> <span class="tok-nv">bus</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
-             <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe</span> <span class="tok-nv">bus</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-value:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)</span>
+              <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))</span>
 
-<span class="tok-p">(</span><span class="tok-nf">s/end!</span> <span class="tok-nv">bus</span><span class="tok-p">)</span>
+<span class="tok-p">(</span><span class="tok-nf">rx/end!</span> <span class="tok-nv">bus</span><span class="tok-p">)</span>
 <span class="tok-c1">;; ==&gt; on-end</span></code></pre>
 </div>
 </div>
@@ -986,7 +1001,7 @@ For more information, please refer to &lt;http://unlicense.org/&gt;</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-19 17:32:31 EET
+Last updated 2016-05-11 00:22:07 EEST
 </div>
 </div>
 </body>
