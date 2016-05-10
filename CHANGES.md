@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 1.3.0 ##
+
+Date: 2016-05-10
+
+- Update bundled rxjs to 5.0.0.beta7.
+
+
 ## Version 1.2.0 ##
 
 Date: 2016-04-13
