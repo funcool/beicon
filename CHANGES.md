@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 1.4.0 ##
+
+Date: 2016-05-28
+
+- Update bundled rxjs to commit ceb9990 (some commits over 5.0.0.beta8).
+
+
 ## Version 1.3.0 ##
 
 Date: 2016-05-10
