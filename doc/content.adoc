@@ -1,4 +1,4 @@
-= beicon - reactive streams for clojurescript
+= beicon - reactive streams for Clojure(Script)
 :toc: left
 :!numbered:
 :idseparator: -
@@ -10,8 +10,8 @@
 
 == Introduction
 
-_beicon_ is a small and concise library that provides reactive streams to
-clojurescript built on top of link:https://github.com/ReactiveX/RxJS[rxjs].
+_beicon_ is a small and concise library that provides reactive streams api for
+clojure and clojurescript.
 
 WARNING: This documentation does not covers all api, so if you miss some function,
 contributions are very welcome. You can see the full link:api/index.html#id[API documentation here].
@@ -29,7 +29,7 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "1.4.0"]
+[funcool/beicon "2.0.0"]
 ----
 
 
@@ -624,13 +624,6 @@ You can end bus in any moment just executing `end!` function:
 ----
 
 
-== FAQ
-
-=== That is the difference between hot and cold observables.?
-
-TBD
-
-
 == Developers Guide
 
 === Philosophy
@@ -664,14 +657,22 @@ You can clone the public repository with this command:
 git clone https://github.com/funcool/beicon
 ----
 
+
 === Run tests
 
 For running tests just execute this:
 
-[source, text]
+.ClojureScript
+[source, shell]
 ----
 ./scrpts/build
 node ./out/tests.js
+----
+
+.Clojure
+[source, shell]
+----
+lein test
 ----
 
 
