@@ -1,5 +1,5 @@
 (ns beicon.tests.helpers
-  #?(:cljs (:require [beicon.core :as s])))
+  (:require [beicon.core :as s]))
 
 (def no-op (fn [& args]))
 
@@ -21,4 +21,16 @@
         (s/subscribe obs
                      #(vswap! values conj %)
                      #(errb %)
+                     #(cb @values)))))
+   :clj
+   (defn drain!
+     ([obs cb]
+      (drain! obs cb #(println "Error: " %)))
+     ([obs cb errb]
+      (let [values (volatile! [])
+            obs (.toBlocking obs)]
+        (s/subscribe obs
+                     #(vswap! values conj %)
+                     #(errb %)
                      #(cb @values))))))
+
