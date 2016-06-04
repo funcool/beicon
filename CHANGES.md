@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 2.0.0 ##
+
+Date: 2016-06-04
+
+- Add support for clojure using rxjava as underlying implementation.
+
+
 ## Version 1.4.0 ##
 
 Date: 2016-05-28
