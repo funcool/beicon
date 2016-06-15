@@ -391,6 +391,12 @@ Rx.Observable.prototype.share = function() {};
  * @this {Rx.Observable}
  * @return {Rx.Observable}
  */
+Rx.Observable.prototype.ignoreElements = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.prototype.subscribeOn = function() {};
 
 /**
