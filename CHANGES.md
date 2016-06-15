@@ -1,5 +1,13 @@
 # Changelog #
 
+## Version 2.1.0 ##
+
+Date: 2016-06-15
+
+- Add missing ignoreElements to externs.
+- Update to RxJS 5.0.0.beta9
+
+
 ## Version 2.0.0 ##
 
 Date: 2016-06-04
