@@ -5347,11 +5347,6 @@ var WebSocketSubject = (function (_super) {
     WebSocketSubject.create = function (urlConfigOrSource) {
         return new WebSocketSubject(urlConfigOrSource);
     };
-    WebSocketSubject.prototype.lift = function (operator) {
-        var sock = new WebSocketSubject(this, this.destination);
-        sock.operator = operator;
-        return sock;
-    };
     // TODO: factor this out to be a proper Operator/Subscriber implementation and eliminate closures
     WebSocketSubject.prototype.multiplex = function (subMsg, unsubMsg, messageFilter) {
         var self = this;
@@ -6452,7 +6447,8 @@ var BufferWhenSubscriber = (function (_super) {
 
 },{"../OuterSubscriber":8,"../Subscription":14,"../util/errorObject":321,"../util/subscribeToResult":332,"../util/tryCatch":335}],197:[function(require,module,exports){
 "use strict";
-var publishReplay_1 = require('./publishReplay');
+var Observable_1 = require('../Observable');
+var ReplaySubject_1 = require('../ReplaySubject');
 /**
  * @param bufferSize
  * @param windowTime
@@ -6464,11 +6460,42 @@ var publishReplay_1 = require('./publishReplay');
 function cache(bufferSize, windowTime, scheduler) {
     if (bufferSize === void 0) { bufferSize = Number.POSITIVE_INFINITY; }
     if (windowTime === void 0) { windowTime = Number.POSITIVE_INFINITY; }
-    return publishReplay_1.publishReplay.call(this, bufferSize, windowTime, scheduler).refCount();
+    var subject;
+    var source = this;
+    var refs = 0;
+    var outerSub;
+    var getSubject = function () {
+        subject = new ReplaySubject_1.ReplaySubject(bufferSize, windowTime, scheduler);
+        return subject;
+    };
+    return new Observable_1.Observable(function (observer) {
+        if (!subject) {
+            subject = getSubject();
+            outerSub = source.subscribe(function (value) { return subject.next(value); }, function (err) {
+                var s = subject;
+                subject = null;
+                s.error(err);
+            }, function () { return subject.complete(); });
+        }
+        refs++;
+        if (!subject) {
+            subject = getSubject();
+        }
+        var innerSub = subject.subscribe(observer);
+        return function () {
+            refs--;
+            if (innerSub) {
+                innerSub.unsubscribe();
+            }
+            if (refs === 0) {
+                outerSub.unsubscribe();
+            }
+        };
+    });
 }
 exports.cache = cache;
 
-},{"./publishReplay":251}],198:[function(require,module,exports){
+},{"../Observable":5,"../ReplaySubject":9}],198:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
