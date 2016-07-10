@@ -1,5 +1,13 @@
 # Changelog #
 
+## Version 2.2.0 ##
+
+Date: 2016-07-10
+
+- Update to RxJS 5.0.0.beta10
+- Update to RxJava 1.1.7
+
+
 ## Version 2.1.0 ##
 
 Date: 2016-06-15
