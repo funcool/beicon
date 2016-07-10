@@ -203,7 +203,7 @@
  limitations under the License.
 
  **/
-(function(f){if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Rx = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Rx = f()})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -469,7 +469,7 @@ exports.Notification = Notification;
 "use strict";
 var root_1 = require('./util/root');
 var toSubscriber_1 = require('./util/toSubscriber');
-var $$observable = require('symbol-observable');
+var symbol_observable_1 = require('symbol-observable');
 /**
  * A representation of any set of values over any amount of time. This the most basic building block
  * of RxJS.
@@ -586,7 +586,7 @@ var Observable = (function () {
      * @method Symbol.observable
      * @return {Observable} this instance of the observable
      */
-    Observable.prototype[$$observable] = function () {
+    Observable.prototype[symbol_observable_1.default] = function () {
         return this;
     };
     // HACK: Since TypeScript inherits static properties too, we have to
@@ -925,7 +925,7 @@ var queue_1 = require('./scheduler/queue');
 var animationFrame_1 = require('./scheduler/animationFrame');
 var rxSubscriber_1 = require('./symbol/rxSubscriber');
 var iterator_1 = require('./symbol/iterator');
-var observable = require('symbol-observable');
+var symbol_observable_1 = require('symbol-observable');
 /* tslint:enable:no-unused-variable */
 /**
  * @typedef {Object} Rx.Scheduler
@@ -940,9 +940,9 @@ var observable = require('symbol-observable');
  */
 var Scheduler = {
     asap: asap_1.asap,
-    async: async_1.async,
     queue: queue_1.queue,
-    animationFrame: animationFrame_1.animationFrame
+    animationFrame: animationFrame_1.animationFrame,
+    async: async_1.async
 };
 exports.Scheduler = Scheduler;
 /**
@@ -960,7 +960,7 @@ exports.Scheduler = Scheduler;
  */
 var Symbol = {
     rxSubscriber: rxSubscriber_1.$$rxSubscriber,
-    observable: observable,
+    observable: symbol_observable_1.default,
     iterator: iterator_1.$$iterator
 };
 exports.Symbol = Symbol;
@@ -3639,7 +3639,7 @@ var ArrayLikeObservable_1 = require('./ArrayLikeObservable');
 var iterator_1 = require('../symbol/iterator');
 var Observable_1 = require('../Observable');
 var observeOn_1 = require('../operator/observeOn');
-var $$observable = require('symbol-observable');
+var symbol_observable_1 = require('symbol-observable');
 var isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -3719,7 +3719,7 @@ var FromObservable = (function (_super) {
             scheduler = mapFnOrScheduler;
         }
         if (ish != null) {
-            if (typeof ish[$$observable] === 'function') {
+            if (typeof ish[symbol_observable_1.default] === 'function') {
                 if (ish instanceof Observable_1.Observable && !scheduler) {
                     return ish;
                 }
@@ -3744,10 +3744,10 @@ var FromObservable = (function (_super) {
         var ish = this.ish;
         var scheduler = this.scheduler;
         if (scheduler == null) {
-            return ish[$$observable]().subscribe(subscriber);
+            return ish[symbol_observable_1.default]().subscribe(subscriber);
         }
         else {
-            return ish[$$observable]().subscribe(new observeOn_1.ObserveOnSubscriber(subscriber, scheduler, 0));
+            return ish[symbol_observable_1.default]().subscribe(new observeOn_1.ObserveOnSubscriber(subscriber, scheduler, 0));
         }
     };
     return FromObservable;
@@ -4243,16 +4243,18 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Observable_1 = require('../Observable');
+var ConnectableObservable_1 = require('../observable/ConnectableObservable');
 var MulticastObservable = (function (_super) {
     __extends(MulticastObservable, _super);
-    function MulticastObservable(source, connectable, selector) {
+    function MulticastObservable(source, subjectFactory, selector) {
         _super.call(this);
         this.source = source;
-        this.connectable = connectable;
+        this.subjectFactory = subjectFactory;
         this.selector = selector;
     }
     MulticastObservable.prototype._subscribe = function (subscriber) {
-        var _a = this, selector = _a.selector, connectable = _a.connectable;
+        var _a = this, selector = _a.selector, source = _a.source;
+        var connectable = new ConnectableObservable_1.ConnectableObservable(source, this.subjectFactory);
         var subscription = selector(connectable).subscribe(subscriber);
         subscription.add(connectable.connect());
         return subscription;
@@ -4261,7 +4263,7 @@ var MulticastObservable = (function (_super) {
 }(Observable_1.Observable));
 exports.MulticastObservable = MulticastObservable;
 
-},{"../Observable":5}],158:[function(require,module,exports){
+},{"../Observable":5,"../observable/ConnectableObservable":145}],158:[function(require,module,exports){
 "use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -4927,22 +4929,44 @@ var tryCatch_1 = require('../../util/tryCatch');
 var errorObject_1 = require('../../util/errorObject');
 var Observable_1 = require('../../Observable');
 var Subscriber_1 = require('../../Subscriber');
-function createXHRDefault() {
-    var xhr = new root_1.root.XMLHttpRequest();
-    if (this.crossDomain) {
+function getCORSRequest() {
+    if (root_1.root.XMLHttpRequest) {
+        var xhr = new root_1.root.XMLHttpRequest();
         if ('withCredentials' in xhr) {
-            xhr.withCredentials = true;
-            return xhr;
+            xhr.withCredentials = !!this.withCredentials;
         }
-        else if (!!root_1.root.XDomainRequest) {
-            return new root_1.root.XDomainRequest();
-        }
-        else {
-            throw new Error('CORS is not supported by your browser');
-        }
+        return xhr;
+    }
+    else if (!!root_1.root.XDomainRequest) {
+        return new root_1.root.XDomainRequest();
     }
     else {
-        return xhr;
+        throw new Error('CORS is not supported by your browser');
+    }
+}
+function getXMLHttpRequest() {
+    if (root_1.root.XMLHttpRequest) {
+        return new root_1.root.XMLHttpRequest();
+    }
+    else {
+        var progId = void 0;
+        try {
+            var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'];
+            for (var i = 0; i < 3; i++) {
+                try {
+                    progId = progIds[i];
+                    if (new root_1.root.ActiveXObject(progId)) {
+                        break;
+                    }
+                }
+                catch (e) {
+                }
+            }
+            return new root_1.root.ActiveXObject(progId);
+        }
+        catch (e) {
+            throw new Error('XMLHttpRequest is not supported by your browser');
+        }
     }
 }
 function defaultGetResultSelector(response) {
@@ -4987,8 +5011,11 @@ var AjaxObservable = (function (_super) {
         _super.call(this);
         var request = {
             async: true,
-            createXHR: createXHRDefault,
+            createXHR: function () {
+                return this.crossDomain ? getCORSRequest.call(this) : getXMLHttpRequest();
+            },
             crossDomain: false,
+            withCredentials: false,
             headers: {},
             method: 'GET',
             responseType: 'json',
@@ -5006,6 +5033,9 @@ var AjaxObservable = (function (_super) {
         }
         this.request = request;
     }
+    AjaxObservable.prototype._subscribe = function (subscriber) {
+        return new AjaxSubscriber(subscriber, this.request);
+    };
     /**
      * Creates an observable for an Ajax request with either a request object with
      * url, headers, etc or a string for a URL.
@@ -5032,10 +5062,6 @@ var AjaxObservable = (function (_super) {
      * @name ajax
      * @owner Observable
     */
-    AjaxObservable._create_stub = function () { return null; };
-    AjaxObservable.prototype._subscribe = function (subscriber) {
-        return new AjaxSubscriber(subscriber, this.request);
-    };
     AjaxObservable.create = (function () {
         var create = function (urlOrRequest) {
             return new AjaxObservable(urlOrRequest);
@@ -5067,7 +5093,7 @@ var AjaxSubscriber = (function (_super) {
             headers['X-Requested-With'] = 'XMLHttpRequest';
         }
         // ensure content type is set
-        if (!('Content-Type' in headers)) {
+        if (!('Content-Type' in headers) && !(root_1.root.FormData && request.body instanceof root_1.root.FormData)) {
             headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
         }
         // properly serialize body
@@ -5136,15 +5162,19 @@ var AjaxSubscriber = (function (_super) {
         else if (root_1.root.FormData && body instanceof root_1.root.FormData) {
             return body;
         }
-        var splitIndex = contentType.indexOf(';');
-        if (splitIndex !== -1) {
-            contentType = contentType.substring(0, splitIndex);
+        if (contentType) {
+            var splitIndex = contentType.indexOf(';');
+            if (splitIndex !== -1) {
+                contentType = contentType.substring(0, splitIndex);
+            }
         }
         switch (contentType) {
             case 'application/x-www-form-urlencoded':
                 return Object.keys(body).map(function (key) { return (encodeURI(key) + "=" + encodeURI(body[key])); }).join('&');
             case 'application/json':
                 return JSON.stringify(body);
+            default:
+                return body;
         }
     };
     AjaxSubscriber.prototype.setHeaders = function (xhr, headers) {
@@ -5319,20 +5349,25 @@ var assign_1 = require('../../util/assign');
 var WebSocketSubject = (function (_super) {
     __extends(WebSocketSubject, _super);
     function WebSocketSubject(urlConfigOrSource, destination) {
-        _super.call(this);
-        this._output = new Subject_1.Subject();
-        this.WebSocketCtor = root_1.root.WebSocket;
-        if (typeof urlConfigOrSource === 'string') {
-            this.url = urlConfigOrSource;
+        if (urlConfigOrSource instanceof Observable_1.Observable) {
+            _super.call(this, destination, urlConfigOrSource);
         }
         else {
-            // WARNING: config object could override important members here.
-            assign_1.assign(this, urlConfigOrSource);
+            _super.call(this);
+            this.WebSocketCtor = root_1.root.WebSocket;
+            this._output = new Subject_1.Subject();
+            if (typeof urlConfigOrSource === 'string') {
+                this.url = urlConfigOrSource;
+            }
+            else {
+                // WARNING: config object could override important members here.
+                assign_1.assign(this, urlConfigOrSource);
+            }
+            if (!this.WebSocketCtor) {
+                throw new Error('no WebSocket constructor can be found');
+            }
+            this.destination = new ReplaySubject_1.ReplaySubject();
         }
-        if (!this.WebSocketCtor) {
-            throw new Error('no WebSocket constructor can be found');
-        }
-        this.destination = new ReplaySubject_1.ReplaySubject();
     }
     WebSocketSubject.prototype.resultSelector = function (e) {
         return JSON.parse(e.data);
@@ -5346,6 +5381,11 @@ var WebSocketSubject = (function (_super) {
      */
     WebSocketSubject.create = function (urlConfigOrSource) {
         return new WebSocketSubject(urlConfigOrSource);
+    };
+    WebSocketSubject.prototype.lift = function (operator) {
+        var sock = new WebSocketSubject(this, this.destination);
+        sock.operator = operator;
+        return sock;
     };
     // TODO: factor this out to be a proper Operator/Subscriber implementation and eliminate closures
     WebSocketSubject.prototype.multiplex = function (subMsg, unsubMsg, messageFilter) {
@@ -5381,7 +5421,10 @@ var WebSocketSubject = (function (_super) {
     };
     WebSocketSubject.prototype._connectSocket = function () {
         var _this = this;
-        var socket = this.protocol ? new WebSocket(this.url, this.protocol) : new WebSocket(this.url);
+        var WebSocketCtor = this.WebSocketCtor;
+        var socket = this.protocol ?
+            new WebSocketCtor(this.url, this.protocol) :
+            new WebSocketCtor(this.url);
         this.socket = socket;
         var subscription = new Subscription_1.Subscription(function () {
             _this.socket = null;
@@ -5448,6 +5491,10 @@ var WebSocketSubject = (function (_super) {
     };
     WebSocketSubject.prototype._subscribe = function (subscriber) {
         var _this = this;
+        var source = this.source;
+        if (source) {
+            return source.subscribe(subscriber);
+        }
         if (!this.socket) {
             this._connectSocket();
         }
@@ -5463,13 +5510,15 @@ var WebSocketSubject = (function (_super) {
         return subscription;
     };
     WebSocketSubject.prototype.unsubscribe = function () {
-        var socket = this.socket;
+        var _a = this, source = _a.source, socket = _a.socket;
         if (socket && socket.readyState === 1) {
             socket.close();
             this.socket = null;
         }
         _super.prototype.unsubscribe.call(this);
-        this.destination = new ReplaySubject_1.ReplaySubject();
+        if (!source) {
+            this.destination = new ReplaySubject_1.ReplaySubject();
+        }
     };
     return WebSocketSubject;
 }(Subject_1.AnonymousSubject));
@@ -6140,7 +6189,10 @@ var BufferTimeSubscriber = (function (_super) {
     BufferTimeSubscriber.prototype.closeContext = function (context) {
         this.destination.next(context.buffer);
         var contexts = this.contexts;
-        contexts.splice(contexts.indexOf(context), 1);
+        var spliceIndex = contexts ? contexts.indexOf(context) : -1;
+        if (spliceIndex >= 0) {
+            contexts.splice(contexts.indexOf(context), 1);
+        }
     };
     return BufferTimeSubscriber;
 }(Subscriber_1.Subscriber));
@@ -6150,8 +6202,8 @@ function dispatchBufferTimeSpanOnly(state) {
     if (prevContext) {
         subscriber.closeContext(prevContext);
     }
-    state.context = subscriber.openContext();
     if (!subscriber.isUnsubscribed) {
+        state.context = subscriber.openContext();
         state.context.closeAction = this.schedule(state, state.bufferTimeSpan);
     }
 }
@@ -10581,8 +10633,9 @@ function multicast(subjectOrSubjectFactory, selector) {
             return subjectOrSubjectFactory;
         };
     }
-    var connectable = new ConnectableObservable_1.ConnectableObservable(this, subjectFactory);
-    return selector ? new MulticastObservable_1.MulticastObservable(this, connectable, selector) : connectable;
+    return !selector ?
+        new ConnectableObservable_1.ConnectableObservable(this, subjectFactory) :
+        new MulticastObservable_1.MulticastObservable(this, subjectFactory, selector);
 }
 exports.multicast = multicast;
 
@@ -10776,8 +10829,8 @@ var Subscriber_1 = require('../Subscriber');
  * @see {@link buffer}
  * @see {@link bufferCount}
  *
- * @return {Observable<[T, T]>} An Observable of pairs of consecutive values
- * from the source Observable.
+ * @return {Observable<Array<T>>} An Observable of pairs (as arrays) of
+ * consecutive values from the source Observable.
  * @method pairwise
  * @owner Observable
  */
@@ -15588,8 +15641,10 @@ var __extends = (this && this.__extends) || function (d, b) {
 var ArgumentOutOfRangeError = (function (_super) {
     __extends(ArgumentOutOfRangeError, _super);
     function ArgumentOutOfRangeError() {
-        _super.call(this, 'argument out of range');
-        this.name = 'ArgumentOutOfRangeError';
+        var err = _super.call(this, 'argument out of range');
+        this.name = err.name = 'ArgumentOutOfRangeError';
+        this.stack = err.stack;
+        this.message = err.message;
     }
     return ArgumentOutOfRangeError;
 }(Error));
@@ -15615,8 +15670,10 @@ var __extends = (this && this.__extends) || function (d, b) {
 var EmptyError = (function (_super) {
     __extends(EmptyError, _super);
     function EmptyError() {
-        _super.call(this, 'no elements in sequence');
-        this.name = 'EmptyError';
+        var err = _super.call(this, 'no elements in sequence');
+        this.name = err.name = 'EmptyError';
+        this.stack = err.stack;
+        this.message = err.message;
     }
     return EmptyError;
 }(Error));
@@ -15937,8 +15994,10 @@ var __extends = (this && this.__extends) || function (d, b) {
 var ObjectUnsubscribedError = (function (_super) {
     __extends(ObjectUnsubscribedError, _super);
     function ObjectUnsubscribedError() {
-        _super.call(this, 'object unsubscribed');
-        this.name = 'ObjectUnsubscribedError';
+        var err = _super.call(this, 'object unsubscribed');
+        this.name = err.name = 'ObjectUnsubscribedError';
+        this.stack = err.stack;
+        this.message = err.message;
     }
     return ObjectUnsubscribedError;
 }(Error));
@@ -15960,8 +16019,11 @@ var UnsubscriptionError = (function (_super) {
     function UnsubscriptionError(errors) {
         _super.call(this);
         this.errors = errors;
-        this.name = 'UnsubscriptionError';
-        this.message = errors ? errors.length + " errors occurred during unsubscription:\n" + errors.map(function (err, i) { return ((i + 1) + ") " + err.toString()); }).join('\n') : '';
+        var err = Error.call(this, errors ?
+            errors.length + " errors occurred during unsubscription:\n  " + errors.map(function (err, i) { return ((i + 1) + ") " + err.toString()); }).join('\n  ') : '');
+        this.name = err.name = 'UnsubscriptionError';
+        this.stack = err.stack;
+        this.message = err.message;
     }
     return UnsubscriptionError;
 }(Error));
@@ -16117,7 +16179,7 @@ var isPromise_1 = require('./isPromise');
 var Observable_1 = require('../Observable');
 var iterator_1 = require('../symbol/iterator');
 var InnerSubscriber_1 = require('../InnerSubscriber');
-var $$observable = require('symbol-observable');
+var symbol_observable_1 = require('symbol-observable');
 function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
     var destination = new InnerSubscriber_1.InnerSubscriber(outerSubscriber, outerValue, outerIndex);
     if (destination.isUnsubscribed) {
@@ -16166,8 +16228,8 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
             destination.complete();
         }
     }
-    else if (typeof result[$$observable] === 'function') {
-        var obs = result[$$observable]();
+    else if (typeof result[symbol_observable_1.default] === 'function') {
+        var obs = result[symbol_observable_1.default]();
         if (typeof obs.subscribe !== 'function') {
             destination.error('invalid observable');
         }
@@ -16227,26 +16289,50 @@ exports.tryCatch = tryCatch;
 ;
 
 },{"./errorObject":321}],336:[function(require,module,exports){
+module.exports = require('./lib/index');
+
+},{"./lib/index":337}],337:[function(require,module,exports){
 (function (global){
-/* global window */
 'use strict';
 
-module.exports = require('./ponyfill')(global || window || this);
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
+var _ponyfill = require('./ponyfill');
+
+var _ponyfill2 = _interopRequireDefault(_ponyfill);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var root = undefined; /* global window */
+
+if (typeof global !== 'undefined') {
+	root = global;
+} else if (typeof window !== 'undefined') {
+	root = window;
+}
+
+var result = (0, _ponyfill2.default)(root);
+exports.default = result;
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ponyfill":337}],337:[function(require,module,exports){
+},{"./ponyfill":338}],338:[function(require,module,exports){
 'use strict';
 
-module.exports = function symbolObservablePonyfill(root) {
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = symbolObservablePonyfill;
+function symbolObservablePonyfill(root) {
 	var result;
-	var Symbol = root.Symbol;
+	var _Symbol = root.Symbol;
 
-	if (typeof Symbol === 'function') {
-		if (Symbol.observable) {
-			result = Symbol.observable;
+	if (typeof _Symbol === 'function') {
+		if (_Symbol.observable) {
+			result = _Symbol.observable;
 		} else {
-			result = Symbol('observable');
-			Symbol.observable = result;
+			result = _Symbol('observable');
+			_Symbol.observable = result;
 		}
 	} else {
 		result = '@@observable';
@@ -16254,6 +16340,5 @@ module.exports = function symbolObservablePonyfill(root) {
 
 	return result;
 };
-
 },{}]},{},[10])(10)
 });
