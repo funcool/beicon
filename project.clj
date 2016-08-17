@@ -1,13 +1,11 @@
 (defproject funcool/beicon "2.2.0"
   :description "Reactive Streams for Clojure(Script)"
   :url "https://github.com/funcool/beicon"
-  :license {:name "Public Domain"
-            :url "http://unlicense.org/"}
-
+  :license {:name "Public Domain" :url "http://unlicense.org/"}
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.36" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.216" :scope "provided"]
                  [funcool/promesa "1.4.0" :scope "provided"]
-                 [io.reactivex/rxjava "1.1.7"]]
+                 [io.reactivex/rxjava "1.1.9"]]
 
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
@@ -21,5 +19,5 @@
             :src-uri "http://github.com/funcool/beicon/blob/master/"
             :src-uri-prefix "#L"}
 
-  :plugins [[funcool/codeina "0.4.0"]
+  :plugins [[funcool/codeina "0.5.0"]
             [lein-ancient "0.6.10"]])
