@@ -1,4 +1,4 @@
-(defproject funcool/beicon "2.2.0"
+(defproject funcool/beicon "2.3.0"
   :description "Reactive Streams for Clojure(Script)"
   :url "https://github.com/funcool/beicon"
   :license {:name "Public Domain" :url "http://unlicense.org/"}
