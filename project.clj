@@ -1,7 +1,8 @@
 (defproject funcool/beicon "2.3.0"
   :description "Reactive Streams for Clojure(Script)"
   :url "https://github.com/funcool/beicon"
-  :license {:name "Public Domain" :url "http://unlicense.org/"}
+  :license {:name "BSD (2-Clause)"
+            :url "http://opensource.org/licenses/BSD-2-Clause"}
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.9.216" :scope "provided"]
                  [funcool/promesa "1.4.0" :scope "provided"]
