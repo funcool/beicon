@@ -4,9 +4,9 @@
   :license {:name "BSD (2-Clause)"
             :url "http://opensource.org/licenses/BSD-2-Clause"}
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.216" :scope "provided"]
-                 [funcool/promesa "1.4.0" :scope "provided"]
-                 [io.reactivex/rxjava "1.1.9"]]
+                 [org.clojure/clojurescript "1.9.293" :scope "provided"]
+                 [funcool/promesa "1.6.0" :scope "provided"]
+                 [io.reactivex/rxjava "1.2.1"]]
 
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
