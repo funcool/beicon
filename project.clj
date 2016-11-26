@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.9.293" :scope "provided"]
                  [funcool/promesa "1.6.0" :scope "provided"]
-                 [io.reactivex/rxjava "1.2.1"]]
+                 [io.reactivex/rxjava "1.2.3"]]
 
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
