@@ -392,6 +392,22 @@
        (t/is (s/observable? s3))
        (drain! s3 #(t/is (= % [[1 0] [2 0] [3 0]]))))))
 
+(t/deftest observable-combine-latest
+  #?(:cljs
+     (t/async done
+       (let [s1 (s/delay 10 (s/from-coll [9]))
+             s2 (s/delay 10 (s/from-coll [2]))
+             s3 (s/combine-latest s2 s1)]
+         (t/is (s/observable? s3))
+         (drain! s3 #(t/is (= % [[9 2]])))
+         (s/on-end s3 done)))
+     :clj
+     (let [s1 (s/delay 10 (s/from-coll [9]))
+           s2 (s/delay 10 (s/from-coll [2]))
+           s3 (s/combine-latest s2 s1)]
+       (t/is (s/observable? s3))
+       (drain! s3 #(t/is (= % [[9 2]]))))))
+
 (t/deftest observable-catch-1
   #?(:cljs
      (t/async done

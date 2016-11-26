@@ -652,11 +652,21 @@
   one observable sequence by using the selector
   function only when the source observable sequence
   (the instance) produces an element."
+  ([other source]
+   (with-latest-from vector other source))
+  ([f ^Observable other ^Observable source]
+   #?(:cljs (.withLatestFrom source other f)
+      :clj  (.withLatestFrom source other (rxfn2 f)))))
+
+(defn combine-latest
+  "Combines multiple Observables to create an Observable
+  whose values are calculated from the latest values of
+  each of its input Observables."
   ([other ob]
-   (with-latest-from vector other ob))
+   (combine-latest vector other ob))
   ([f ^Observable other ^Observable ob]
-   #?(:cljs (.withLatestFrom ob other f)
-      :clj  (.withLatestFrom ob other (rxfn2 f)))))
+   #?(:cljs (.combineLatest ob other f)
+      :clj  (Observable/combineLatest [ob other] (rxfnn f)))))
 
 (defn catch
   "Continues an observable sequence that is terminated

@@ -367,6 +367,12 @@ Rx.Observable.prototype.withLatestFrom = function() {};
  * @this {Rx.Observable}
  * @return {Rx.Observable}
  */
+Rx.Observable.prototype.combineLatest = function() {};
+
+/**
+ * @this {Rx.Observable}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.prototype.catch = function() {};
 
 /**
