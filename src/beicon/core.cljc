@@ -302,7 +302,8 @@
   "Time shifts the observable sequence by dueTime. The relative
   time intervals between the values are preserved."
   [ms ^Observable ob]
-  (.delay ob ^long ms))
+  #?(:cljs (.delay ob ms)
+     :clj  (.delay ob ^long ms TimeUnit/MILLISECONDS)))
 
 (defn delay-when
   "Time shifts the observable sequence based on a subscription
