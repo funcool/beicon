@@ -1,5 +1,14 @@
 # Changelog #
 
+## Version 2.5.0 ##
+
+Date: unreleased
+
+- Update to RxJS 5.0.0.rc4
+- Update to RxJava 1.2.3
+- Add combine-latest combinator.
+
+
 ## Version 2.4.0 ##
 
 Date: 2016-11-03
