@@ -1,0 +1,5 @@
+Build browserified bundle:
+./node_modules/browserify/bin/cmd.js -s Rx -e dist/cjs/Rx.js -o rx.js
+
+Minified bundle:
+./node_modules/uglify-js/bin/uglifyjs  rx.js -m -o rx.min.js
