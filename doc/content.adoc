@@ -13,8 +13,12 @@
 _beicon_ is a small and concise library that provides reactive streams api for
 clojure and clojurescript.
 
-WARNING: This documentation does not covers all api, so if you miss some function,
-contributions are very welcome. You can see the full link:api/index.html#id[API documentation here].
+[WARNING]
+====
+This documentation does not covers all api, so if you miss
+some function, contributions are very welcome. You can see the full
+link:api/index.html#id[API documentation here].
+====
 
 
 === Project Maturity
@@ -29,7 +33,7 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "2.3.0"]
+[funcool/beicon "2.5.0"]
 ----
 
 
@@ -154,7 +158,7 @@ for build other kind of constructors.
 
 [source, clojure]
 ----
-(def stream 
+(def stream
   (rx/create (fn [sick]
                (sick 1)          ;; next with `1` as value
                (sick (rx/end 2)) ;; next with `2` as value and end the stream
@@ -436,7 +440,7 @@ also called (reducing function):
 === Scan
 
 Allows combine all results of an observable seequence using a combining function
-also called (reducing function). Returns a stream of each intermediate result 
+also called (reducing function). Returns a stream of each intermediate result
 instead of:
 
 [source, clojure]

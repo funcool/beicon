@@ -2,7 +2,7 @@
 
 ## Version 2.5.0 ##
 
-Date: unreleased
+Date: 2016-11-27
 
 - Update to RxJS 5.0.0.rc4
 - Update to RxJava 1.2.3
