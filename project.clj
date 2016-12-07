@@ -1,4 +1,4 @@
-(defproject funcool/beicon "2.6.0"
+(defproject funcool/beicon "2.6.1"
   :description "Reactive Streams for Clojure(Script)"
   :url "https://github.com/funcool/beicon"
   :license {:name "BSD (2-Clause)"
