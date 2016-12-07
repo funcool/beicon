@@ -10,7 +10,9 @@
                     rx.Subscription
                     rx.Observable$OnSubscribe
                     rx.schedulers.Schedulers
+                    rx.subjects.Subject
                     rx.subjects.PublishSubject
+                    rx.subjects.BehaviorSubject
                     rx.observables.AsyncOnSubscribe
                     rx.subscriptions.Subscriptions
                     rx.functions.Action0
@@ -61,7 +63,9 @@
    (do
      (def ^:const Observable js/Rx.Observable)
      (def ^:const Subject js/Rx.Subject)
+     (def ^:const BehaviorSubject js/Rx.BehaviorSubject)
      (def ^:const Subscriber js/Rx.Subscriber)
+     (def ^:const Observer js/Rx.Subscriber)
      (def ^:const Subscription js/Rx.Subscription)
      (def ^:const Scheduler js/Rx.Scheduler)))
 
@@ -71,11 +75,20 @@
   [ob]
   (instance? Observable ob))
 
-(defn bus?
+(defn subject?
   "Return true if `b` is a Subject instance."
   [b]
-  #?(:cljs (instance? Subject b)
-     :clj  (instance? PublishSubject b)))
+  (instance? Subject b))
+
+(defn observer?
+  "Returns true if `o` is an Observer instance."
+  [o]
+  (instance? Observer o))
+
+(defn bus?
+  "Deprecated alias for `subject?`."
+  [b]
+  (instance? Subject b))
 
 ;; --- Observables Constructors
 
@@ -366,12 +379,26 @@
 
 ;; --- Bus / Subject
 
-(defn bus
-  "Bus is an observable sequence that allows you to push
-  values into the stream."
+(defn subject
+  "Subject that, once an Observer has subscribed, emits all
+  subsequently observed items to the subscriber."
   []
   #?(:cljs (Subject.)
      :clj  (PublishSubject/create)))
+
+(defn bus
+  "Deprecated alias to `bus`."
+  {:deprecated true}
+  []
+  #?(:cljs (Subject.)
+     :clj  (PublishSubject/create)))
+
+(defn behavior-subject
+  "Bus that emits the most recent item it has observed and
+  all subsequent observed items to each subscribed Observer."
+  [v]
+  #?(:cljs (BehaviorSubject. v)
+     :clj  (BehaviorSubject/create v)))
 
 (defn push!
   "Pushes the given value to the bus stream."

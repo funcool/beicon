@@ -298,11 +298,11 @@
            sample (s/skip-while odd? nums)]
        (drain! sample #(t/is (= % [2 3 4 5]))))))
 
-(t/deftest bus-push
+(t/deftest subject-push
   #?(:cljs
      (t/async done
-       (let [b (s/bus)]
-         (t/is (s/bus? b))
+       (let [b (s/subject)]
+         (t/is (s/subject? b))
          (drain! b #(t/is (= % [1 2 3])))
          (s/push! b 1)
          (s/push! b 2)
@@ -310,8 +310,8 @@
          (s/end! b)
          (s/on-end b done)))
      :clj
-     (let [b (s/bus)]
-       (t/is (s/bus? b))
+     (let [b (s/subject)]
+       (t/is (s/subject? b))
        (future
          (Thread/sleep 100)
          (s/push! b 1)
@@ -319,6 +319,29 @@
          (s/push! b 3)
          (s/end! b))
        (drain! b #(t/is (= % [1 2 3]))))))
+
+(t/deftest behavior-subject
+  #?(:cljs
+     (t/async done
+       (let [b (s/behavior-subject nil)]
+         (t/is (s/subject? b))
+         (drain! b #(do
+                      (t/is (= % [nil 1 2 3]))
+                      (done)))
+         (s/push! b 1)
+         (s/push! b 2)
+         (s/push! b 3)
+         (s/end! b)))
+     :clj
+     (let [b (s/behavior-subject nil)]
+       (t/is (s/subject? b))
+       (future
+         (Thread/sleep 100)
+         (s/push! b 1)
+         (s/push! b 2)
+         (s/push! b 3)
+         (s/end! b))
+       (drain! b #(t/is (= % [nil 1 2 3]))))))
 
 (t/deftest observable-filter-with-predicate
   #?(:cljs
