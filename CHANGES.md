@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 2.6.1 ##
+
+Date: 2016-12-07
+
+- Add missing externs.
+
+
 ## Version 2.6.0 ##
 
 Date: 2016-12-07
