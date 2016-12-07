@@ -5266,11 +5266,10 @@ var AjaxSubscriber = (function (_super) {
             // now set up the events
             this.setupEvents(xhr, request);
             // finally send the request
-            if (body) {
-                xhr.send(body);
-            }
-            else {
-                xhr.send();
+            result = body ? tryCatch_1.tryCatch(xhr.send).call(xhr, body) : tryCatch_1.tryCatch(xhr.send).call(xhr);
+            if (result === errorObject_1.errorObject) {
+                this.error(errorObject_1.errorObject.e);
+                return null;
             }
         }
         return xhr;
@@ -8937,7 +8936,6 @@ var Subscriber_1 = require("../Subscriber");
  * clicksOnDivs.subscribe(x => console.log(x));
  *
  * @see {@link distinct}
- * @see {@link distinctKey}
  * @see {@link distinctUntilChanged}
  * @see {@link distinctUntilKeyChanged}
  * @see {@link ignoreElements}
@@ -9203,7 +9201,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Subscriber_1 = require("../Subscriber");
 var EmptyError_1 = require("../util/EmptyError");
-/* tslint:disable:max-line-length */
 /**
  * Emits only the first value (or the first value that meets some condition)
  * emitted by the source Observable.
@@ -13741,31 +13738,28 @@ var isDate_1 = require("../util/isDate");
 var Subscriber_1 = require("../Subscriber");
 var TimeoutError_1 = require("../util/TimeoutError");
 /**
- * @param due
- * @param errorToSend
- * @param scheduler
+ * @param {number} due
+ * @param {Scheduler} [scheduler]
  * @return {Observable<R>|WebSocketSubject<T>|Observable<T>}
  * @method timeout
  * @owner Observable
  */
-function timeout(due, errorToSend, scheduler) {
-    if (errorToSend === void 0) { errorToSend = null; }
+function timeout(due, scheduler) {
     if (scheduler === void 0) { scheduler = async_1.async; }
     var absoluteTimeout = isDate_1.isDate(due);
     var waitFor = absoluteTimeout ? (+due - scheduler.now()) : Math.abs(due);
-    var error = errorToSend || new TimeoutError_1.TimeoutError();
-    return this.lift(new TimeoutOperator(waitFor, absoluteTimeout, error, scheduler));
+    return this.lift(new TimeoutOperator(waitFor, absoluteTimeout, scheduler, new TimeoutError_1.TimeoutError()));
 }
 exports.timeout = timeout;
 var TimeoutOperator = (function () {
-    function TimeoutOperator(waitFor, absoluteTimeout, errorToSend, scheduler) {
+    function TimeoutOperator(waitFor, absoluteTimeout, scheduler, errorInstance) {
         this.waitFor = waitFor;
         this.absoluteTimeout = absoluteTimeout;
-        this.errorToSend = errorToSend;
         this.scheduler = scheduler;
+        this.errorInstance = errorInstance;
     }
     TimeoutOperator.prototype.call = function (subscriber, source) {
-        return source._subscribe(new TimeoutSubscriber(subscriber, this.absoluteTimeout, this.waitFor, this.errorToSend, this.scheduler));
+        return source._subscribe(new TimeoutSubscriber(subscriber, this.absoluteTimeout, this.waitFor, this.scheduler, this.errorInstance));
     };
     return TimeoutOperator;
 }());
@@ -13776,12 +13770,12 @@ var TimeoutOperator = (function () {
  */
 var TimeoutSubscriber = (function (_super) {
     __extends(TimeoutSubscriber, _super);
-    function TimeoutSubscriber(destination, absoluteTimeout, waitFor, errorToSend, scheduler) {
+    function TimeoutSubscriber(destination, absoluteTimeout, waitFor, scheduler, errorInstance) {
         var _this = _super.call(this, destination) || this;
         _this.absoluteTimeout = absoluteTimeout;
         _this.waitFor = waitFor;
-        _this.errorToSend = errorToSend;
         _this.scheduler = scheduler;
+        _this.errorInstance = errorInstance;
         _this.index = 0;
         _this._previousIndex = 0;
         _this._hasCompleted = false;
@@ -13830,7 +13824,7 @@ var TimeoutSubscriber = (function (_super) {
         this._hasCompleted = true;
     };
     TimeoutSubscriber.prototype.notifyTimeout = function () {
-        this.error(this.errorToSend);
+        this.error(this.errorInstance);
     };
     return TimeoutSubscriber;
 }(Subscriber_1.Subscriber));
@@ -16902,6 +16896,7 @@ if (!exports.root) {
 var root_1 = require("./root");
 var isArray_1 = require("./isArray");
 var isPromise_1 = require("./isPromise");
+var isObject_1 = require("./isObject");
 var Observable_1 = require("../Observable");
 var iterator_1 = require("../symbol/iterator");
 var InnerSubscriber_1 = require("../InnerSubscriber");
@@ -16921,7 +16916,7 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
             return result.subscribe(destination);
         }
     }
-    if (isArray_1.isArray(result)) {
+    else if (isArray_1.isArray(result)) {
         for (var i = 0, len = result.length; i < len && !destination.closed; i++) {
             destination.next(result[i]);
         }
@@ -16942,7 +16937,7 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
         });
         return destination;
     }
-    else if (typeof result[iterator_1.$$iterator] === 'function') {
+    else if (result && typeof result[iterator_1.$$iterator] === 'function') {
         var iterator = result[iterator_1.$$iterator]();
         do {
             var item = iterator.next();
@@ -16956,23 +16951,26 @@ function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
             }
         } while (true);
     }
-    else if (typeof result[observable_1.$$observable] === 'function') {
+    else if (result && typeof result[observable_1.$$observable] === 'function') {
         var obs = result[observable_1.$$observable]();
         if (typeof obs.subscribe !== 'function') {
-            destination.error(new Error('invalid observable'));
+            destination.error(new TypeError('Provided object does not correctly implement Symbol.observable'));
         }
         else {
             return obs.subscribe(new InnerSubscriber_1.InnerSubscriber(outerSubscriber, outerValue, outerIndex));
         }
     }
     else {
-        destination.error(new TypeError('unknown type returned'));
+        var value = isObject_1.isObject(result) ? 'an invalid object' : "'" + result + "'";
+        var msg = "You provided " + value + " where a stream was expected."
+            + ' You can provide an Observable, Promise, Array, or Iterable.';
+        destination.error(new TypeError(msg));
     }
     return null;
 }
 exports.subscribeToResult = subscribeToResult;
 
-},{"../InnerSubscriber":3,"../Observable":5,"../symbol/iterator":306,"../symbol/observable":307,"./isArray":328,"./isPromise":333,"./root":337}],339:[function(require,module,exports){
+},{"../InnerSubscriber":3,"../Observable":5,"../symbol/iterator":306,"../symbol/observable":307,"./isArray":328,"./isObject":332,"./isPromise":333,"./root":337}],339:[function(require,module,exports){
 "use strict";
 var Subscriber_1 = require("../Subscriber");
 var rxSubscriber_1 = require("../symbol/rxSubscriber");
