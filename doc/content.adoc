@@ -61,8 +61,8 @@ and convert it in an observable sequence:
 
 === From range
 
-An other way to create a observable stream is using the `range` constructor
-that is pretty analgous to the clojure's one:
+An other way to create an observable stream is using the `range` constructor
+that is pretty analogous to the clojure's one:
 
 [source, clojure]
 ----
@@ -94,7 +94,7 @@ that changes in an infinite observable sequence of atom changes:
 
 === From Value
 
-It creates a observable sequence of one unique value:
+It creates an observable sequence of one unique value:
 
 [source, clojure]
 ----
@@ -109,7 +109,7 @@ NOTE: `just` or `once` are simple aliases to `of` function.
 
 === From multiple values
 
-It there is a way for create a observable seequence from
+It there is a way for create an observable seequence from
 multiple values, using the `of` consturctor:
 
 [source, clojure]
@@ -152,9 +152,9 @@ after specified amount of time:
 
 === From factory
 
-This is the most advanced and flexible way to create a observable sequence. It
+This is the most advanced and flexible way to create an observable sequence. It
 allows to have control about termination and errors and intended to be used
-for build other kind of constructors.
+for build other kinds of constructors.
 
 [source, clojure]
 ----
@@ -189,12 +189,12 @@ ended. I an error is emited the stream can be considered ended with an error.
 So error or end states can be considered termination states.
 
 And is convenient you can subscribe to any of that states of an observable
-seequence.
+sequence.
 
 === General purpose
 
 A general purpose subscription is one that allows you create one subscription
-that watches all the different possible states of an observable seequence:
+that watches all the different possible states of an observable sequence:
 
 [source, clojure]
 ----
@@ -239,7 +239,7 @@ sequence:
 === Consume error termination
 
 With `on-error` function you can watch the error termination of an observable
-seequence:
+sequence:
 
 [source, clojure]
 ----
@@ -252,7 +252,7 @@ seequence:
 === Filter
 
 The main advantage of using reactive streams is that you may treat them like
-normal seequence, and in this case filter them with a predicate:
+normal sequence, and in this case filter them with a predicate:
 
 [source, clojure]
 ----
@@ -291,10 +291,10 @@ Also, you can apply a function over each value in the stream:
 
 === Flat Map
 
-Convets a observable seequence that can contain other observable seequences in
-an other observable seequences that emits just plain values.
+Convets an observable sequence that can contain other observable sequences in
+an other observable sequences that emits just plain values.
 
-The result is similar to concatenate all the underlying seequences.
+The result is similar to concatenate all the underlying sequences.
 
 [source, clojure]
 ----
@@ -398,9 +398,9 @@ Or an condition expression evaluates to true:
 
 === Slice
 
-This is a some kind of combination of `skip` and `take`, and returns a observable
-seequence that represents a portion delimited by start and end of the source
-observable seequence.
+This is a some kind of combination of `skip` and `take`, and returns an observable
+sequence that represents a portion delimited by start and end of the source
+observable sequence.
 
 [source, clojure]
 ----
@@ -420,7 +420,7 @@ observable seequence.
 
 === Reduce
 
-Allows combine all results of an observable seequence using a combining function
+Allows combine all results of an observable sequence using a combining function
 also called (reducing function):
 
 [source, clojure]
@@ -439,7 +439,7 @@ also called (reducing function):
 
 === Scan
 
-Allows combine all results of an observable seequence using a combining function
+Allows combine all results of an observable sequence using a combining function
 also called (reducing function). Returns a stream of each intermediate result
 instead of:
 
@@ -508,7 +508,7 @@ This kind if combinator works very well with operations that can timeout:
 
 === Zip
 
-This combinator combines two observable seequences in one.
+This combinator combines two observable sequences in one.
 
 [source, clojure]
 ----
@@ -530,7 +530,7 @@ This combinator combines two observable seequences in one.
 
 === Concat
 
-This cobinator concatenates two or more observable seequences.
+This cobinator concatenates two or more observable sequences.
 
 [source, clojure]
 ----
@@ -552,7 +552,7 @@ This cobinator concatenates two or more observable seequences.
 
 === Merge
 
-This combinator merges two or more observable seequences.
+This combinator merges two or more observable sequences.
 
 [source, clojure]
 ----
@@ -577,9 +577,9 @@ NOTE: the order is not required to be the same always.
 
 == Bus
 
-This is an abstraction that combines observable seequence with the observer. So
+This is an abstraction that combines observable sequence with the observer. So
 you can push values into it and transform and subscribe to it like any other
-seequence.
+sequence.
 
 === Creating a bus.
 
