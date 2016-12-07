@@ -575,21 +575,21 @@ This combinator merges two or more observable sequences.
 NOTE: the order is not required to be the same always.
 
 
-== Bus
+== Subject
 
 This is an abstraction that combines observable sequence with the observer. So
 you can push values into it and transform and subscribe to it like any other
 sequence.
 
-=== Creating a bus.
+=== Creating a subject.
 
-You can create a bus instance using `bus` constructor function. There is an
-example of using bus for the both operations: push values and subscribe to it.
+You can create a subject instance using `subject` constructor function. There is an
+example of using subject for the both operations: push values and subscribe to it.
 
 [source, clojure]
 ----
-(def bus (rx/bus))
-(def stream (->> bus
+(def subject (rx/subject))
+(def stream (->> subject
                 (rx/skip 1)
                 (rx/map inc)
                 (rx/take 2)))
@@ -599,10 +599,10 @@ example of using bus for the both operations: push values and subscribe to it.
               #(println "on-error:" %)
               #(println "on-end"))
 
-(rx/push! bus 1)
-(rx/push! bus 2)
-(rx/push! bus 1)
-(rx/push! bus 2)
+(rx/push! subject 1)
+(rx/push! subject 2)
+(rx/push! subject 1)
+(rx/push! subject 2)
 
 ;; ==> on-value: 3
 ;; ==> on-value: 2
@@ -610,20 +610,20 @@ example of using bus for the both operations: push values and subscribe to it.
 ----
 
 
-=== Ending a bus
+=== Ending a subject
 
-You can end bus in any moment just executing `end!` function:
+You can end subject in any moment just executing `end!` function:
 
 [source, clojure]
 ----
-(def bus (rx/bus))
+(def subject (rx/subject))
 
-(rx/subscribe bus
+(rx/subscribe subject
               #(println "on-value:" %)
               #(println "on-error:" %)
               #(println "on-end"))
 
-(rx/end! bus)
+(rx/end! subject)
 ;; ==> on-end
 ----
 

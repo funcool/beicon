@@ -1,5 +1,15 @@
 # Changelog #
 
+## Version 2.6.0 ##
+
+Date: 2016-12-07
+
+- Update to RxJS 5.0.0.rc5
+- Rename `bus` constructor to `subject` (for name consistency with rxjs).
+- Add `behavior-subject` constructor.
+- Add the ability to use subject's and Observers as parameter to subscribe.
+
+
 ## Version 2.5.0 ##
 
 Date: 2016-11-27
