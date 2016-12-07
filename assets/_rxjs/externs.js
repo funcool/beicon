@@ -16,6 +16,12 @@ Rx.Subject = function() {};
 
 /**
  * @constructor
+ * @extends {Rx.Subject}
+ */
+Rx.BehaviorSubject = function() {};
+
+/**
+ * @constructor
  */
 Rx.Subscriber = function() {};
 
