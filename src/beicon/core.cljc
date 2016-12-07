@@ -423,13 +423,12 @@
 (def noop (constantly nil))
 
 #?(:cljs
-   (defn- mk-subscription
+   (defn- wrap-subscription
      [subs]
      (reify
        cljs.core/IFn
        (-invoke [_]
          (.unsubscribe subs))
-
        Object
        (unsubscribe [_]
          (.unsubscribe subs))
@@ -437,7 +436,7 @@
        (close [_]
          (.unsubscribe subs))))
    :clj
-   (defn- mk-subscription
+   (defn- wrap-subscription
      [^Subscription subs]
      (reify
        Subscription
@@ -455,24 +454,35 @@
        (invoke [_]
          (.unsubscribe subs)))))
 
-(defn- mk-observer
-  [next error complete]
-  (let [next (or next noop)
-        error (or error noop)
-        complete (or complete noop)]
-    #?(:cljs (Subscriber. next error complete)
-       :clj  (reify Observer
-               (onNext [_ v] (next v))
-               (onError [_ e] (error e))
-               (onCompleted [_] (complete))))))
+(defn- map->observer
+  [{:keys [next error complete]
+    :or {next noop error noop complete noop}}]
+  #?(:cljs (Subscriber. next error complete)
+     :clj  (reify Observer
+             (onNext [_ v] (next v))
+             (onError [_ e] (error e))
+             (onCompleted [_] (complete)))))
+
+(defn- make-observer
+  [data]
+  (cond
+    (map? data)
+    (map->observer data)
+
+    (or (subject? data)
+        (observer? data))
+    data
+
+    :else
+    (throw (ex-info "Invalid arguments for build observer." {:data data}))))
 
 (defn on-value
   "Subscribes a function to invoke for each element
   in the observable sequence."
   [^Observable ob f]
-  (let [subr (mk-observer f nil nil)
-        subs (.subscribe ob subr)]
-    (mk-subscription subs)))
+  (let [observer (make-observer {:next f})
+        subscription (.subscribe ob observer)]
+    (wrap-subscription subscription)))
 
 (def on-next
   "A semantic alias for `on-value`."
@@ -482,17 +492,17 @@
   "Subscribes a function to invoke upon exceptional termination
   of the observable sequence."
   [^Observable ob f]
-  (let [subr (mk-observer nil f nil)
-        subs (.subscribe ob subr)]
-    (mk-subscription subs)))
+  (let [observer (make-observer {:error f})
+        subscription (.subscribe ob observer)]
+    (wrap-subscription subscription)))
 
 (defn on-complete
   "Subscribes a function to invoke upon graceful termination
   of the observable sequence."
   [^Observable ob f]
-  (let [subr (mk-observer nil nil f)
-        subs (.subscribe ob subr)]
-    (mk-subscription subs)))
+  (let [observer (make-observer {:complete f})
+        subscription (.subscribe ob observer)]
+    (wrap-subscription subscription)))
 
 (def on-end
   "A semantic alias for `on-complete`."
@@ -505,9 +515,11 @@
   ([ob nf ef]
    (subscribe ob nf ef nil))
   ([^Observable ob nf ef cf]
-   (let [subr (mk-observer nf ef cf)
-         subs (.subscribe ob subr)]
-     (mk-subscription subs))))
+   (let [observer (make-observer {:next nf
+                                  :error ef
+                                  :complete cf})
+         subscription (.subscribe ob observer)]
+     (wrap-subscription subscription))))
 
 (defn to-atom
   "Materialize the observable sequence into an atom."
