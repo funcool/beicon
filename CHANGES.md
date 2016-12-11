@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 2.7.0 ##
+
+Date: 2016-12-14
+
+- Update to RxJS 5.0.1.
+
+
 ## Version 2.6.1 ##
 
 Date: 2016-12-07
