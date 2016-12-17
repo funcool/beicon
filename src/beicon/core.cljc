@@ -838,6 +838,12 @@
    #?(:cljs (.bufferCount ob n skip)
       :clj  (.buffer ob (int n) (int skip)))))
 
+(defn buffer-time
+  "Buffers the source Observable values for a specific time period."
+  [ms ^Observable ob]
+  #?(:cljs (.bufferTime ob ms)
+     :clj (.buffer ob ms TimeUnit/MILLISECONDS)))
+
 (defn retry
   "Given an optional number of retries and an observable,
   repeats the source observable the specified number of
