@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 2.8.0 ##
+
+Date: 2016-12-18
+
+- Add `buffer-time` operator.
+
+
 ## Version 2.7.0 ##
 
 Date: 2016-12-14
