@@ -565,9 +565,9 @@
   sequences, as long as the previous observable
   sequence terminated successfully."
   [& more]
-  #?(:cljs (let [more (reverse (cljs.core/filter identity more))]
+  #?(:cljs (let [more (cljs.core/filter identity more)]
              (cljs.core/reduce #(.concat %1 %2) more))
-     :clj  (let [more (reverse (clojure.core/filter identity more))]
+     :clj  (let [more (clojure.core/filter identity more)]
              (clojure.core/reduce (fn [^Observable a ^Observable b]
                                     (Observable/concat a b))
                                   more))))
