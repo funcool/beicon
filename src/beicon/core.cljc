@@ -214,9 +214,12 @@
 
 (defn publish
   "Create a connectable (hot) observable
-  from other observable."
-  ([ob]
-   (publish ob true))
+  from other observable.
+
+  WARNING: the arity 2 is deprecated, if you
+  want to connect, just use `connect!` function."
+  ([^Observable ob]
+   (.publish ob))
   ([^Observable ob connect?]
    {:pre [(observable? ob)]}
    (let [ob' (.publish ob)]
