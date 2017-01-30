@@ -1,5 +1,21 @@
 # Changelog #
 
+## Version 2.9.0 ##
+
+Date: 2017-01-30
+
+- Fix wrong behavior of concat combinator.
+- The convenience arity for automatically connect on `publish` is
+  **deprecated**. If you want to connect, just use the `connect!`
+  function. **The arity will be removed in the next version.**
+- The `with-latest-from` function is deprecated in favor of the new
+  `with-latest` function that has the project function mandatory in
+  contrast to the deprecated function. **The deprecated function will
+  be removed in the next version.**
+- Update to RxJS 5.0.3 (master at d4533c40)
+- Update to RxJava 1.2.5
+
+
 ## Version 2.8.0 ##
 
 Date: 2016-12-18
