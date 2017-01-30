@@ -695,11 +695,21 @@
   one observable sequence by using the selector
   function only when the source observable sequence
   (the instance) produces an element."
+  {:deprecated true}
   ([other source]
    (with-latest-from vector other source))
   ([f ^Observable other ^Observable source]
    #?(:cljs (.withLatestFrom source other f)
       :clj  (.withLatestFrom source other (rxfn2 f)))))
+
+(defn with-latest
+  "Merges the specified observable sequences into
+  one observable sequence by using the selector
+  function only when the source observable sequence
+  (the instance) produces an element."
+  [f ^Observable other ^Observable source]
+  #?(:cljs (.withLatestFrom source other f)
+     :clj  (.withLatestFrom source other (rxfn2 f))))
 
 (defn combine-latest
   "Combines multiple Observables to create an Observable
