@@ -236,13 +236,13 @@
      (t/async done
        (let [s1 (s/from-coll [1 2 3])
              s2 (s/from-coll [4 5 6])
-             cs (s/concat s2 s1)]
+             cs (s/concat s1 s2)]
          (drain! cs #(t/is (= % [1 2 3 4 5 6])))
          (s/on-end cs done)))
      :clj
      (let [s1 (s/from-coll [1 2 3])
            s2 (s/from-coll [4 5 6])
-           cs (s/concat s2 s1)]
+           cs (s/concat s1 s2)]
        (drain! cs #(t/is (= % [1 2 3 4 5 6]))))))
 
 (t/deftest observable-zip
@@ -404,14 +404,14 @@
      (t/async done
        (let [s1 (s/from-coll [0])
              s2 (s/from-coll [1 2 3])
-             s3 (s/with-latest-from s1 s2)]
+             s3 (s/with-latest vector s1 s2)]
          (t/is (s/observable? s3))
          (drain! s3 #(t/is (= % [[1 0] [2 0] [3 0]])))
          (s/on-end s3 done)))
      :clj
      (let [s1 (s/from-coll [0])
            s2 (s/from-coll [1 2 3])
-           s3 (s/with-latest-from s1 s2)]
+           s3 (s/with-latest vector s1 s2)]
        (t/is (s/observable? s3))
        (drain! s3 #(t/is (= % [[1 0] [2 0] [3 0]]))))))
 
