@@ -1,15 +1,14 @@
-(ns beicon.tests.core-tests
+(ns beicon.tests.test-core
   (:require #?(:cljs [cljs.test :as t]
                :clj  [clojure.test :as t])
             [promesa.core :as p]
             [beicon.core :as s]
-            #?(:clj  [beicon.tests.helpers :refer (drain! no-op)]
+            #?(:clj  [beicon.tests.helpers :refer (drain! noop flowable-drain!)]
                :cljs [beicon.tests.helpers
-                      :refer (no-op drain!)
+                      :refer (noop drain!)
                       :refer-macros (with-timeout)])))
 
 #?(:clj (set! *warn-on-reflection* true))
-
 #?(:clj (defn ex-message [^Exception e] (.getMessage e)))
 
 ;; event stream
@@ -26,18 +25,13 @@
        (t/is (s/observable? s))
        (drain! s #(t/is (= % [1 2 3 4 5 6 7 8 9]))))))
 
-(t/deftest observable-from-values-with-nil
-  #?(:cljs
+#?(:cljs
+   (t/deftest observable-from-values-with-nil
      (t/async done
        (let [s (s/of 1 nil 2)]
          (t/is (s/observable? s))
          (drain! s #(t/is (= % [1 nil 2])))
-         (s/on-end s done)))
-
-     :clj
-     (let [s (s/of 1 nil 2)]
-       (t/is (s/observable? s))
-       (drain! s #(t/is (= % [1 nil 2]))))))
+         (s/on-end s done)))))
 
 (t/deftest observable-from-vector
   #?(:cljs
@@ -164,7 +158,7 @@
                          (sink (ex-info "oh noes" {}))))]
        (t/is (s/observable? s))
        (drain! s
-               no-op
+               noop
                #(t/is (= (ex-message %) "oh noes"))))))
 
 (t/deftest observable-from-promise
@@ -323,17 +317,17 @@
 (t/deftest behavior-subject
   #?(:cljs
      (t/async done
-       (let [b (s/behavior-subject nil)]
+       (let [b (s/behavior-subject -1)]
          (t/is (s/subject? b))
          (drain! b #(do
-                      (t/is (= % [nil 1 2 3]))
+                      (t/is (= % [-1 1 2 3]))
                       (done)))
          (s/push! b 1)
          (s/push! b 2)
          (s/push! b 3)
          (s/end! b)))
      :clj
-     (let [b (s/behavior-subject nil)]
+     (let [b (s/behavior-subject -1)]
        (t/is (s/subject? b))
        (future
          (Thread/sleep 100)
@@ -341,7 +335,7 @@
          (s/push! b 2)
          (s/push! b 3)
          (s/end! b))
-       (drain! b #(t/is (= % [nil 1 2 3]))))))
+       (drain! b #(t/is (= % [-1 1 2 3]))))))
 
 (t/deftest observable-filter-with-predicate
   #?(:cljs
@@ -479,9 +473,11 @@
      :clj
      (let [type1? #(= 1 (:type (ex-data %)))
            type2? #(= 2 (:type (ex-data %)))
+           type3? #(= 3 (:type (ex-data %)))
            s1 (->> (s/throw (ex-info "error" {:type 1}))
-                   (s/catch type2? #(s/once (ex-data %)))
-                   (s/catch type1? #(s/once (ex-data %))))]
+                   (s/catch type2? #(s/just (ex-data %)))
+                   (s/catch type3? #(s/just (ex-data %)))
+                   (s/catch type1? #(s/just (ex-data %))))]
        (t/is (s/observable? s1))
        (drain! s1 #(t/is (= % [{:type 1}]))))))
 
@@ -578,13 +574,13 @@
   #?(:cljs
      (t/async done
        (let [coll [1 2 3]
-             s (s/observe-on s/async (s/from-coll coll))]
+             s (s/observe-on :async (s/from-coll coll))]
          (t/is (s/observable? s))
          (drain! s #(t/is (= % coll)))
          (s/on-end s done)))
      :clj
      (let [coll [1 2 3]
-           s (s/observe-on s/io (s/from-coll coll))]
+           s (s/observe-on :io (s/from-coll coll))]
        (t/is (s/observable? s))
        (drain! s #(t/is (= % coll))))))
 
@@ -592,13 +588,42 @@
   #?(:cljs
      (t/async done
        (let [coll [1 2 3]
-             s (s/subscribe-on s/queue (s/from-coll coll))]
+             s (s/subscribe-on :trampoline (s/from-coll coll))]
          (t/is (s/observable? s))
          (drain! s #(t/is (= % coll)))
          (s/on-end s done)))
      :clj
      (let [coll [1 2 3]
-           s (s/subscribe-on s/trampoline (s/from-coll coll))]
+           s (s/subscribe-on :trampoline (s/from-coll coll))]
        (t/is (s/observable? s))
        (drain! s #(t/is (= % coll))))))
 
+
+#?(:clj
+   (defn- flowable-from-coll
+     [coll]
+     (s/generate (constantly coll)
+                 (fn [state sink]
+                   (sink (first state))
+                   (rest state)))))
+
+#?(:clj
+   (t/deftest flowable-filter-with-predicate
+     (let [s (flowable-from-coll [1 2 3 4 5])
+           fs (s/filter #{3 5} s)]
+       (flowable-drain! fs #(t/is (= % [3 5]))))))
+
+
+;; --- CLJS Tests Entry-Point
+
+#?(:cljs
+   (do
+     (enable-console-print!)
+     (set! *main-cli-fn* #(t/run-tests))))
+
+#?(:cljs
+   (defmethod t/report [:cljs.test/default :end-run-tests]
+     [m]
+     (if (t/successful? m)
+       (set! (.-exitCode js/process) 0)
+       (set! (.-exitCode js/process) 1))))

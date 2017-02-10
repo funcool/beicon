@@ -3,59 +3,91 @@
                             repeatedly zip dedupe drop take take-while
                             concat empty delay range throw do trampoline])
   #?(:cljs (:require [beicon.extern.rxjs]))
-  #?(:clj  (:import rx.Observable
-                    rx.Observer
-                    rx.Scheduler
-                    rx.Subscriber
-                    rx.Subscription
-                    rx.Observable$OnSubscribe
-                    rx.schedulers.Schedulers
-                    rx.subjects.Subject
-                    rx.subjects.PublishSubject
-                    rx.subjects.BehaviorSubject
-                    rx.observables.AsyncOnSubscribe
-                    rx.subscriptions.Subscriptions
-                    rx.functions.Action0
-                    rx.functions.Action1
-                    rx.functions.Func1
-                    rx.functions.Func2
-                    rx.functions.FuncN
+  #?(:clj  (:import io.reactivex.BackpressureStrategy
+                    io.reactivex.Emitter
+                    io.reactivex.Flowable
+                    io.reactivex.Observable
+                    io.reactivex.ObservableOnSubscribe
+                    io.reactivex.Observer
+                    io.reactivex.Scheduler
+                    io.reactivex.Single
+                    io.reactivex.SingleObserver
+                    io.reactivex.disposables.Disposable
+                    io.reactivex.exceptions.CompositeException
+                    io.reactivex.functions.Action
+                    io.reactivex.functions.BiFunction
+                    io.reactivex.functions.Cancellable
+                    io.reactivex.functions.Consumer
+                    io.reactivex.functions.Function
+                    io.reactivex.functions.Predicate
+                    io.reactivex.internal.functions.Functions
+                    io.reactivex.internal.observers.LambdaObserver
+                    io.reactivex.observers.ResourceObserver
+                    io.reactivex.schedulers.Schedulers
+                    io.reactivex.subjects.BehaviorSubject
+                    io.reactivex.subjects.PublishSubject
+                    io.reactivex.subjects.Subject
+                    java.lang.AutoCloseable
+                    java.util.concurrent.Callable
                     java.util.concurrent.Future
-                    java.util.concurrent.TimeUnit)))
-
+                    java.util.concurrent.TimeUnit
+                    java.util.concurrent.atomic.AtomicReference
+                    org.reactivestreams.Subscriber
+                    org.reactivestreams.Subscription)))
 
 ;; --- Interop Helpers
 
 #?(:clj
+   (defn as-consumer
+     "Wrap the provided function into a Consumer instance."
+     ^Consumer
+     [f]
+     (reify Consumer
+       (accept [_ v]
+         (f v)))))
+
+#?(:clj
+   (defn as-action
+     "Wrap the provided function into a Action instance."
+     ^Action
+     [f]
+     (reify Action
+       (run [_]
+         (f)))))
+
+#?(:clj
+   (defn as-predicate
+     "Wrap the provided function into a Predicate instance."
+     ^Predicate
+     [f]
+     (reify Predicate
+       (test [_ v]
+         (boolean (f v))))))
+
+#?(:clj
+   (defn as-function
+     "Wrap the provided function into a Function instance."
+     ^Function
+     [f]
+     (reify Function
+       (apply [_ v]
+         (f v)))))
+
+#?(:clj
+   (defn as-bifunction
+     "Wrap the provided function into a Function instance."
+     ^BiFunction
+     [f]
+     (reify BiFunction
+       (apply [_ v b]
+         (f v b)))))
+
+(def ^:private noop (constantly nil))
+
+#?(:clj
    (do
-     (defn- rxfn1
-       ^Func1 [f]
-       (reify Func1
-         (call [_ v]
-           (f v))))
-     (defn- rxfn2
-       ^Func2 [f]
-       (reify Func2
-         (call [_ a b]
-           (f a b))))
-
-     (defn- rxfnn
-       ^FuncN [f]
-       (reify FuncN
-         (call [_ objs]
-           (apply f objs))))
-
-     (defn- rxaction0
-       ^Action0 [f]
-       (reify Action0
-         (call [_]
-           (f))))
-
-     (defn- rxaction1
-       ^Action1 [f]
-       (reify Action1
-         (call [_ a]
-           (f a))))))
+     (def ^:private noop-consumer (as-consumer noop))
+     (def ^:private noop-action (as-action noop))))
 
 ;; --- Predicates
 
@@ -66,7 +98,7 @@
      (def ^:const BehaviorSubject js/Rx.BehaviorSubject)
      (def ^:const Subscriber js/Rx.Subscriber)
      (def ^:const Observer js/Rx.Subscriber)
-     (def ^:const Subscription js/Rx.Subscription)
+     (def ^:const Disposable js/Rx.Subscription)
      (def ^:const Scheduler js/Rx.Scheduler)))
 
 (defn observable?
@@ -75,22 +107,34 @@
   [ob]
   (instance? Observable ob))
 
+(defn disposable?
+  "Check if the provided object is disposable (jvm) or subscription (js)."
+  [v]
+  #?(:clj (instance? Disposable v)
+     :clj (instance? Subscription v)))
+
+#?(:clj
+   (defn flowable?
+     "Check if the provided value is Flowable instance."
+     [o]
+     (instance? Flowable o)))
+
+(defn scheduler?
+  "Check if the provided value is Scheduler instance."
+  [v]
+  (instance? Scheduler v))
+
 (defn subject?
-  "Return true if `b` is a Subject instance."
+  "Check if the provided value is Subject instance."
   [b]
   (instance? Subject b))
 
 (defn observer?
-  "Returns true if `o` is an Observer instance."
+  "Check if the provided value is Observer instance."
   [o]
   (instance? Observer o))
 
-(defn bus?
-  "Deprecated alias for `subject?`."
-  [b]
-  (instance? Subject b))
-
-;; --- Observables Constructors
+;; --- Observables Constructor
 
 (defprotocol IObservableValue
   (-end? [_] "Returns true if is end value.")
@@ -141,6 +185,12 @@
        (-error? [_] false)
        (-end? [_] false))
 
+     (extend-type nil
+       IObservableValue
+       (-next? [_] false)
+       (-error? [_] false)
+       (-end? [_] true))
+
      (extend-type Throwable
        IObservableValue
        (-next? [_] false)
@@ -161,46 +211,262 @@
                  (-end? v) (.complete subs)
                  (reduced? v) (do
                                 (sink subs @v)
-                                (.complete subs))))
-             (factory [subs]
-               (try
-                 (sf (partial sink subs))
-                 (catch js/Error e
-                   (.error subs e))))]
-       (Observable. factory))))
+                                (.complete subs))))]
+       (Observable.
+        (fn [subs]
+          (try
+            (sf (partial sink subs))
+            (catch js/Error e
+              (.error subs e)))))))
 
-
-#?(:clj
-   (defn- from-function
-     [sf]
-     (letfn [(sink [^Subscriber subs v]
-               (cond
-                 (identical? end v) (.onCompleted subs)
-                 (-next? v) (.onNext subs v)
-                 (-error? v) (.onError subs v)
-                 (-end? v) (.onCompleted subs)
-                 (reduced? v) (do
-                                (sink subs @v)
-                                (.onCompleted subs))))
-             (factory [^Subscriber subr]
-               (try
-                 (let [dispose (sf (partial sink subr))
-                       subs (Subscriptions/create
-                             (rxaction0 #(when (ifn? dispose)
-                                           (dispose))))]
-                   (.add subr subs))
-                 (catch Exception e
-                   (.onError subr e))))]
-       (Observable/create (reify Observable$OnSubscribe
-                            (call [_ v]
-                              (factory v)))))))
-
-#?(:clj
+   :clj
    (defn create
      "Creates an observable sequence from a specified
      subscribe method implementation."
-     [sf]
-     (from-function sf)))
+     [factory]
+     (letfn [(sink [^Emitter emitter v]
+               (cond
+                 (identical? end v) (.onComplete emitter)
+                 (-next? v) (.onNext emitter v)
+                 (-error? v) (.onError emitter v)
+                 (-end? v) (.onComplete emitter)
+                 (reduced? v) (do
+                                (sink emitter @v)
+                                (.onComplete emitter))))]
+       (Observable/create
+        (reify ObservableOnSubscribe
+          (subscribe [_ emitter]
+            (try
+              (let [disposefn (factory (partial sink emitter))
+                    cancellable (reify Cancellable
+                                  (cancel [_]
+                                    (when (fn? disposefn)
+                                      (disposefn))))]
+                (.setCancellable emitter cancellable))
+              (catch Exception e
+                (.onError emitter e)))))))))
+
+
+(defn generate
+  "Returns a cold, synchronous, stateful and backpressure-aware
+  generator of values."
+  ([init next] (generate init next nil))
+  ([init next dispose]
+   (let [init (if (fn? init) init (constantly init))
+         next (as-bifunction (fn sink [state ^Emitter emitter]
+                               (let [sink (fn sink [v]
+                                            (cond
+                                              (identical? end v) (.onComplete emitter)
+                                              (-next? v) (.onNext emitter v)
+                                              (-error? v) (.onError emitter v)
+                                              (-end? v) (.onComplete emitter)
+                                              (reduced? v) (do
+                                                             (sink @v)
+                                                             (.onComplete emitter))))]
+                                 (next state sink))))
+         dispose (if (fn? dispose) (as-consumer dispose) noop-consumer)]
+     (Flowable/generate ^Callable init next ^Consumer dispose))))
+
+
+;; --- Observable Subscription
+
+(defprotocol ICancellable
+  (-cancel [_] "dispose resources."))
+
+(defn cancel!
+  "Dispose resources acquired by the subscription."
+  [v]
+  (-cancel v))
+
+#?(:cljs
+   (defn- wrap-disposable
+     [disposable]
+     (specify! disposable
+       ICancellable
+       (-cancel [this]
+         (.unsubscribe this)))
+
+       cljs.core/IFn
+       (-invoke [this]
+         (.unsubscribe this)))
+   :clj
+   (defn- wrap-disposable
+     [^Disposable disposable]
+     (reify
+       ICancellable
+       (-cancel [_]
+         (.dispose disposable))
+
+       Disposable
+       (dispose [_]
+         (.dispose disposable))
+
+       java.lang.AutoCloseable
+       (close [_]
+         (.dispose disposable))
+
+       clojure.lang.IFn
+       (invoke [_]
+         (.dispose disposable)))))
+
+(defprotocol ISubscriber
+  "Backpressure aware subscriber abstraction."
+  (-on-init [_ s] "Subscription initialization hook.")
+  (-on-next [_ s value] "Subscription data notification hook.")
+  (-on-error [_ s error] "Subscription error notification hook.")
+  (-on-end [_ s] "Subscription termination notification hook."))
+
+(defprotocol ISubscription
+  (-request [_ n] "request 1 or n items to the subscription."))
+
+(defn request!
+  [s n]
+  {:pre [(satisfies? ISubscription s)]}
+  (-request s n))
+
+#?(:clj
+   (defn subscribe-with
+     "Subscribes an backpressure aware observer to the flowable sequence."
+     [^Flowable ob subscriber]
+     {:pre [(satisfies? ISubscriber subscriber) (flowable? ob)]}
+     (let [subref (AtomicReference. nil)
+           subs (reify
+                  ISubscription
+                  (-request [_ n]
+                    (when-let [^Subscription sub (.get subref)]
+                      (.request sub ^long n)))
+
+                  ICancellable
+                  (-cancel [_]
+                    (when-let [^Subscription sub (.get subref)]
+                      (.cancel sub)))
+
+                  Disposable
+                  (dispose [_]
+                    (when-let [^Subscription sub (.get subref)]
+                      (.cancel sub)))
+
+                  AutoCloseable
+                  (close [_]
+                    (when-let [^Subscription sub (.get subref)]
+                      (.cancel sub)))
+
+                  clojure.lang.IFn
+                  (invoke [_]
+                    (when-let [^Subscription sub (.get subref)]
+                      (.cancel sub))))]
+       (.subscribe ob (reify Subscriber
+                        (onSubscribe [_ subscription]
+                          (.compareAndSet subref nil subscription)
+                          (-on-init subscriber subs))
+
+                        (onNext [_ value]
+                          (-on-next subscriber subs value))
+
+                        (onError [_ error]
+                          (-on-error subscriber subs error))
+
+                        (onComplete [_]
+                          (-on-end subscriber subs))))
+       subs)))
+
+#?(:cljs
+   (defn subscribe
+     "Subscribes an observer to the observable sequence."
+     ([ob nf]
+      (if (or (observer? nf)
+              (subject? nf))
+        (wrap-disposable (.subscribe ob nf))
+        (subscribe ob nf nil nil)))
+     ([ob nf ef]
+      (subscribe ob nf ef nil))
+     ([ob nf ef cf]
+      (let [observer (Subscriber. (if (fn? nf) nf noop)
+                                  (if (fn? ef) ef noop)
+                                  (if (fn? cf) cf noop))]
+        (wrap-disposable (.subscribe ob observer)))))
+
+   :clj
+   (defn subscribe
+     "Subscribes an observer to the observable sequence."
+     ([ob nf]
+      (if (and (disposable? nf)
+               (observer? nf))
+        (wrap-disposable (.subscribeWith ^Observable ob ^Observer nf))
+        (subscribe ob nf nil nil nil)))
+     ([ob nf ef]
+      (subscribe ob nf ef nil nil))
+     ([ob nf ef cf]
+      (subscribe ob nf ef cf nil))
+     ([ob nf ef cf sf]
+      (let [observer (LambdaObserver.
+                      (if (fn? nf) (as-consumer nf) noop-consumer)
+                      (if (fn? ef) (as-consumer ef) noop-consumer)
+                      (if (fn? cf) (as-action cf) noop-action)
+                      (if (fn? sf) (as-consumer sf) noop-consumer))]
+        (wrap-disposable (.subscribeWith ^Observable ob observer))))))
+
+(defn on-value
+  "Subscribes a function to invoke for each element
+  in the observable sequence."
+  [ob f]
+  (subscribe ob f nil nil nil))
+
+(def on-next
+  "A semantic alias for `on-value`."
+  on-value)
+
+(defn on-error
+  "Subscribes a function to invoke upon exceptional termination
+  of the observable sequence."
+  [ob f]
+  (subscribe ob nil f nil nil))
+
+(defn on-complete
+  "Subscribes a function to invoke upon graceful termination
+  of the observable sequence."
+  [ob f]
+  (subscribe ob nil nil f nil))
+
+(def on-end
+  "A semantic alias for `on-complete`."
+  on-complete)
+
+;; --- Bus / Subject
+
+(defn subject
+  "Subject that, once an Observer has subscribed, emits all
+  subsequently observed items to the subscriber."
+  []
+  #?(:cljs (Subject.)
+     :clj  (PublishSubject/create)))
+
+(defn behavior-subject
+  "Bus that emits the most recent item it has observed and
+  all subsequent observed items to each subscribed Observer."
+  [v]
+  #?(:cljs (BehaviorSubject. v)
+     :clj  (BehaviorSubject/createDefault v)))
+
+(defn push!
+  "Pushes the given value to the bus stream."
+  [b v]
+  #?(:cljs (.next b v)
+     :clj  (.onNext ^Observer b v)))
+
+(defn error!
+  "Pushes the given error to the bus stream."
+  [b e]
+  #?(:cljs (.error b e)
+     :clj  (.onError ^Observer b e)))
+
+(defn end!
+  "Ends the given bus stream."
+  [b]
+  #?(:cljs (.complete b)
+     :clj  (.onComplete ^Observer b)))
+
+;; --- Observable Factory Helpers
 
 (defn range
   "Generates an observable sequence that repeats the
@@ -214,30 +480,19 @@
 
 (defn publish
   "Create a connectable (hot) observable
-  from other observable.
-
-  WARNING: the arity 2 is deprecated, if you
-  want to connect, just use `connect!` function."
-  ([^Observable ob]
-   (.publish ob))
-  ([^Observable ob connect?]
-   {:pre [(observable? ob)]}
-   (let [ob' (.publish ob)]
-     (when connect?
-       (.connect ob'))
-     ob')))
+  from other observable."
+  [ob]
+  (.publish ob))
 
 (defn share
   "Returns an observable sequence that shares a single
   subscription to the underlying sequence."
-  [^Observable ob]
-  {:pre [(observable? ob)]}
+  [ob]
   (.share ob))
 
 (defn connect!
   "Connect the connectable observable."
-  [^Observable ob]
-  {:pre [(observable? ob)]}
+  [ob]
   (.connect ob))
 
 (defn from-coll
@@ -245,7 +500,7 @@
   [coll]
   #?(:cljs (let [array (into-array coll)]
              (.from Observable array))
-     :clj  (Observable/from ^Iterable coll)))
+     :clj  (Observable/fromIterable ^Iterable coll)))
 
 (defn from-atom
   [atm]
@@ -260,7 +515,7 @@
   "Creates an observable from a promise."
   [p]
   #?(:cljs (.fromPromise Observable p)
-     :clj (Observable/from ^Future p)))
+     :clj (Observable/fromFuture ^Future p)))
 
 (defn just
   "Returns an observable sequence that contains
@@ -290,10 +545,6 @@
   #?(:cljs ((aget Observable "throw") e)
      :clj  (Observable/error e)))
 
-(def ^:deprecated from-exception
-  "A deprecated alias for `throw`."
-  throw)
-
 (defn timer
   "Returns an observable sequence that produces a value after
   `ms` has elapsed and then after each period."
@@ -307,28 +558,28 @@
 (defn timeout
   "Returns the source observable sequence or the other
   observable sequence if dueTime elapses."
-  ([ms ^Observable ob]
+  ([ms ob]
    #?(:cljs (.timeoutWith ob ms)
       :clj  (.timeout ob ^long ms TimeUnit/MILLISECONDS)))
-  ([ms ^Observable other ^Observable ob]
+  ([ms other ob]
    #?(:cljs (.timeoutWith ob ms other)
       :clj  (.timeout ob ^long ms TimeUnit/MILLISECONDS other))))
 
 (defn delay
   "Time shifts the observable sequence by dueTime. The relative
   time intervals between the values are preserved."
-  [ms ^Observable ob]
+  [ms ob]
   #?(:cljs (.delay ob ms)
      :clj  (.delay ob ^long ms TimeUnit/MILLISECONDS)))
 
 (defn delay-when
   "Time shifts the observable sequence based on a subscription
   delay and a delay selector function for each element."
-  ([sf ^Observable ob]
+  ([sf ob]
    #?(:cljs (.delayWhen ob sf)
-      :clj  (.delay ob (rxfn1 sf))))
+      :clj  (.delay ob (as-function sf))))
 
-  ([^Observable sd sf ^Observable ob]
+  ([sd sf ob]
    #?(:cljs (.delayWhen ob sf sd)
       :clj  (throw (ex-info "Not implemented" {})))))
 
@@ -359,170 +610,68 @@
   "Converts arguments to an observable sequence."
   ([a]
    #?(:cljs (Observable.of a)
-      :clj  (Observable/from ^Iterable [a])))
+      :clj  (Observable/just a)))
   ([a b]
    #?(:cljs (Observable.of a b)
-      :clj  (Observable/from ^Iterable [a b])))
+      :clj  (Observable/just a b)))
   ([a b c]
    #?(:cljs (Observable.of a b c)
-      :clj  (Observable/from ^Iterable [a b c])))
+      :clj  (Observable/just a b c)))
   ([a b c d]
    #?(:cljs (Observable.of a b c d)
-      :clj  (Observable/from ^Iterable [a b c d])))
+      :clj  (Observable/just a b c d)))
   ([a b c d e]
    #?(:cljs (Observable.of a b c d e)
-      :clj  (Observable/from ^Iterable [a b c d e])))
+      :clj  (Observable/just a b c d e)))
   ([a b c d e f]
    #?(:cljs (Observable.of a b c d e f)
-      :clj  (Observable/from ^Iterable [a b c d e f])))
+      :clj  (Observable/just a b c d e f)))
   ([a b c d e f & more]
    #?(:cljs (apply Observable.of a b c d e f more)
       :clj  (let [values (into [a b c d e f] more)]
-              (Observable/from ^Iterable values)))))
+              (Observable/fromIterable ^Iterable values)))))
 
-;; --- Bus / Subject
-
-(defn subject
-  "Subject that, once an Observer has subscribed, emits all
-  subsequently observed items to the subscriber."
-  []
-  #?(:cljs (Subject.)
-     :clj  (PublishSubject/create)))
-
-(defn bus
-  "Deprecated alias to `bus`."
-  {:deprecated true}
-  []
-  #?(:cljs (Subject.)
-     :clj  (PublishSubject/create)))
-
-(defn behavior-subject
-  "Bus that emits the most recent item it has observed and
-  all subsequent observed items to each subscribed Observer."
-  [v]
-  #?(:cljs (BehaviorSubject. v)
-     :clj  (BehaviorSubject/create v)))
-
-(defn push!
-  "Pushes the given value to the bus stream."
-  [b v]
-  #?(:cljs (.next b v)
-     :clj  (.onNext ^Observer b v)))
-
-(defn error!
-  "Pushes the given error to the bus stream."
-  [b e]
-  #?(:cljs (.error b e)
-     :clj  (.onError ^Observer b e)))
-
-(defn end!
-  "Ends the given bus stream."
-  [b]
-  #?(:cljs (.complete b)
-     :clj  (.onCompleted ^Observer b)))
-
-;; --- Observable Subscription
-
-(def noop (constantly nil))
-
-#?(:cljs
-   (defn- wrap-subscription
-     [subs]
+#?(:clj
+   (defn- disposable-atom
+     [^clojure.lang.IAtom ref disposable]
      (reify
+       clojure.lang.IDeref
+       (deref [_] (deref ref))
+
+       clojure.lang.IAtom
+       (reset [_ newval] (.reset ref newval))
+       (swap [_ f] (.swap ref f))
+       (swap [_ f x] (.swap ref f x))
+       (swap [_ f x y] (.swap ref f x y))
+       (swap [_ f x y more] (.swap ref f x y more))
+
+       clojure.lang.IRef
+       (setValidator [_ cb]
+         (.setValidator ^clojure.lang.IRef ref cb))
+
+       (getValidator [_]
+         (.getValidator ^clojure.lang.IRef ref))
+
+       (getWatches [_]
+         (.getWatches ^clojure.lang.IRef ref))
+
+       (addWatch [_ key cb]
+         (.addWatch ^clojure.lang.IRef ref key cb))
+
+       (removeWatch [self key]
+         (.removeWatch ^clojure.lang.IRef ref key))))
+
+   :cljs
+   (defn- disposable-atom
+     [ref disposable]
+     (specify! ref
+       ICancellable
+       (-cancel [_]
+         (.unsubscribe disposable))
+
        cljs.core/IFn
-       (-invoke [_]
-         (.unsubscribe subs))
-       Object
-       (unsubscribe [_]
-         (.unsubscribe subs))
-
-       (close [_]
-         (.unsubscribe subs))))
-   :clj
-   (defn- wrap-subscription
-     [^Subscription subs]
-     (reify
-       Subscription
-       (isUnsubscribed [_]
-         (.isUnsubscribed subs))
-
-       (unsubscribe [_]
-         (.unsubscribe subs))
-
-       java.lang.AutoCloseable
-       (close [_]
-         (.unsubscribe subs))
-
-       clojure.lang.IFn
-       (invoke [_]
-         (.unsubscribe subs)))))
-
-(defn- map->observer
-  [{:keys [next error complete]
-    :or {next noop error noop complete noop}}]
-  #?(:cljs (Subscriber. next error complete)
-     :clj  (reify Observer
-             (onNext [_ v] (next v))
-             (onError [_ e] (error e))
-             (onCompleted [_] (complete)))))
-
-(defn- make-observer
-  [data]
-  (cond
-    (map? data)
-    (map->observer data)
-
-    (or (subject? data)
-        (observer? data))
-    data
-
-    :else
-    (throw (ex-info "Invalid arguments for build observer." {:data data}))))
-
-(defn on-value
-  "Subscribes a function to invoke for each element
-  in the observable sequence."
-  [^Observable ob f]
-  (let [observer (make-observer {:next f})
-        subscription (.subscribe ob observer)]
-    (wrap-subscription subscription)))
-
-(def on-next
-  "A semantic alias for `on-value`."
-  on-value)
-
-(defn on-error
-  "Subscribes a function to invoke upon exceptional termination
-  of the observable sequence."
-  [^Observable ob f]
-  (let [observer (make-observer {:error f})
-        subscription (.subscribe ob observer)]
-    (wrap-subscription subscription)))
-
-(defn on-complete
-  "Subscribes a function to invoke upon graceful termination
-  of the observable sequence."
-  [^Observable ob f]
-  (let [observer (make-observer {:complete f})
-        subscription (.subscribe ob observer)]
-    (wrap-subscription subscription)))
-
-(def on-end
-  "A semantic alias for `on-complete`."
-  on-complete)
-
-(defn subscribe
-  "Subscribes an observer to the observable sequence."
-  ([ob nf]
-   (subscribe ob nf nil nil))
-  ([ob nf ef]
-   (subscribe ob nf ef nil))
-  ([^Observable ob nf ef cf]
-   (let [observer (make-observer {:next nf
-                                  :error ef
-                                  :complete cf})
-         subscription (.subscribe ob observer)]
-     (wrap-subscription subscription))))
+       (-invoke [this]
+         (.unsubscribe disposable)))))
 
 (defn to-atom
   "Materialize the observable sequence into an atom."
@@ -530,23 +679,23 @@
    (let [a (atom nil)]
      (to-atom ob a)))
   ([ob a]
-   (on-value ob #(reset! a %))
-   a)
+   (let [disposable (on-value ob #(reset! a %))]
+     (disposable-atom a disposable)))
   ([ob a f]
-   (on-value ob #(swap! a f %))
-   a))
+   (let [disposable (on-value ob #(swap! a f %))]
+     (disposable-atom a disposable))))
 
 ;; --- Observable Transformations
 
 (defn race
   "Create an observable that surfaces any of the given
   sequences, whichever reacted first."
-  ([^Observable a ^Observable b]
+  ([a b]
    #?(:cljs (.race a b)
-      :clj  (Observable/amb a b)))
+      :clj  (Observable/amb ^Iterable (list a b))))
   ([a b & more]
    #?(:cljs (cljs.core/reduce race (race a b) more)
-      :clj  (let [values (into [a b] more)]
+      :clj  (let [values (cons a (cons b more))]
               (Observable/amb ^Iterable values)))))
 
 (defn zip
@@ -556,9 +705,9 @@
   (let [[selector items] (if (ifn? (first items))
                            [(first items) (rest items)]
                            [vector items])
-        items (if (vector? items) items (into [] items))]
+        items (if (vector? items) items (vec items))]
     #?(:cljs (apply Observable.zip (conj items selector))
-       :clj  (Observable/zip ^Iterable items (rxfnn selector)))))
+       :clj  (Observable/zip ^Iterable items (as-function #(apply selector (seq %)))))))
 
 (defn concat
   "Concatenates all of the specified observable
@@ -568,7 +717,7 @@
   #?(:cljs (let [more (cljs.core/filter identity more)]
              (cljs.core/reduce #(.concat %1 %2) more))
      :clj  (let [more (clojure.core/filter identity more)]
-             (clojure.core/reduce (fn [^Observable a ^Observable b]
+             (clojure.core/reduce (fn [a b]
                                     (Observable/concat a b))
                                   more))))
 
@@ -579,7 +728,7 @@
   #?(:cljs (let [more (cljs.core/filter identity more)]
              (cljs.core/reduce #(.merge %1 %2) more))
      :clj  (let [more (clojure.core/filter identity more)]
-             (clojure.core/reduce (fn [^Observable a ^Observable b]
+             (clojure.core/reduce (fn [a b]
                                     (Observable/merge a b))
                                   more))))
 
@@ -593,16 +742,16 @@
 (defn filter
   "Filters the elements of an observable sequence
   based on a predicate."
-  [f ^Observable ob]
+  [f ob]
   #?(:cljs (.filter ob #(boolean (f %)))
-     :clj  (.filter ob (rxfn1 #(boolean (f %))))))
+     :clj  (.filter ob (as-predicate f))))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
-  [f ^Observable ob]
+  [f ob]
   #?(:cljs (.map ob #(f %))
-     :clj  (.map ob (rxfn1 f))))
+     :clj  (.map ob (as-function f))))
 
 (defn flat-map
   "Projects each element of an observable sequence to
@@ -611,9 +760,9 @@
   into one observable sequence."
   ([ob]
    (flat-map identity ob))
-  ([f ^Observable ob]
+  ([f ob]
    #?(:cljs (.flatMap ob #(f %))
-      :clj  (.flatMap ob (rxfn1 f)))))
+      :clj  (.flatMap ob (as-function f)))))
 
 (def merge-map
   "An idiomatic alias for flat-map."
@@ -623,36 +772,36 @@
   "Projects each element of an observable sequence to an observable
   sequence and concatenates the resulting observable sequences or
   Promises or array/iterable into one observable sequence."
-  [f ^Observable ob]
+  [f ob]
   #?(:cljs (.concatMap ob #(f %))
-     :clj  (.concatMap ob (rxfn1 f))))
+     :clj  (.concatMap ob (as-function f))))
 
 (defn skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [n ^Observable ob]
+  [n ob]
   (.skip ob (int n)))
 
 (defn skip-while
   "Bypasses elements in an observable sequence as long
   as a specified condition is true and then returns the
   remaining elements."
-  [f ^Observable ob]
+  [f ob]
   #?(:cljs (.skipWhile ob #(boolean (f %)))
-     :clj  (.skipWhile ob (rxfn1 #(boolean (f %))))))
+     :clj  (.skipWhile ob (as-predicate f))))
 
 (defn skip-until
   "Returns the values from the source observable sequence
   only after the other observable sequence produces a value."
-  [^Observable pob ^Observable ob]
+  [pob ob]
   (.skipUntil ob pob))
 
 (defn take
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
-  [n ^Observable ob]
+  [n ob]
   (.take ob (int n)))
 
 (defn take-while
@@ -660,56 +809,44 @@
   specified predicate returns true."
   [f ob]
   #?(:cljs (.takeWhile ob #(boolean (f %)))
-     :clj  (.takeWhile ob (rxfn1 #(boolean (f %))))))
+     :clj  (.takeWhile ob (as-predicate f))))
 
 (defn take-until
   "Returns the values from the source observable sequence until
   the other observable sequence or Promise produces a value."
-  [^Observable other ^Observable ob]
+  [other ob]
   (.takeUntil ob other))
 
 (defn reduce
   "Applies an accumulator function over an observable
   sequence, returning the result of the aggregation as a
   single element in the result sequence."
-  ([f ^Observable ob]
+  ([f ob]
    #?(:cljs (.reduce ob f)
-      :clj  (.reduce ob (rxfn2 f))))
-  ([f seed ^Observable ob]
+      :clj  (.reduce ob (as-bifunction f))))
+  ([f seed ob]
    #?(:cljs (.reduce ob f seed)
-      :clj  (.reduce ob seed (rxfn2 f)))))
+      :clj  (.reduce ob seed (as-bifunction f)))))
 
 (defn scan
   "Applies an accumulator function over an observable
   sequence and returns each intermediate result.
   Same as reduce but with intermediate results"
-  ([f ^Observable ob]
+  ([f ob]
    #?(:cljs (.scan ob f)
-      :clj  (.scan ob (rxfn2 f))))
-  ([f seed ^Observable ob]
+      :clj  (.scan ob (as-bifunction f))))
+  ([f seed ob]
    #?(:cljs (.scan ob f seed)
-      :clj  (.scan ob seed (rxfn2 f)))))
-
-(defn with-latest-from
-  "Merges the specified observable sequences into
-  one observable sequence by using the selector
-  function only when the source observable sequence
-  (the instance) produces an element."
-  {:deprecated true}
-  ([other source]
-   (with-latest-from vector other source))
-  ([f ^Observable other ^Observable source]
-   #?(:cljs (.withLatestFrom source other f)
-      :clj  (.withLatestFrom source other (rxfn2 f)))))
+      :clj  (.scan ob seed (as-bifunction f)))))
 
 (defn with-latest
   "Merges the specified observable sequences into
   one observable sequence by using the selector
   function only when the source observable sequence
   (the instance) produces an element."
-  [f ^Observable other ^Observable source]
+  [f other source]
   #?(:cljs (.withLatestFrom source other f)
-     :clj  (.withLatestFrom source other (rxfn2 f))))
+     :clj  (.withLatestFrom source other (as-bifunction f))))
 
 (defn combine-latest
   "Combines multiple Observables to create an Observable
@@ -717,52 +854,63 @@
   each of its input Observables."
   ([other ob]
    (combine-latest vector other ob))
-  ([f ^Observable other ^Observable ob]
+  ([f other ob]
    #?(:cljs (.combineLatest ob other f)
-      :clj  (Observable/combineLatest [ob other] (rxfnn f)))))
+      :clj  (let [^Iterable sources (list ob other)
+                  ^Function combiner (as-function #(apply f (seq %)))]
+              (Observable/combineLatest sources combiner)))))
+
+#?(:clj
+   (defn- unwrap-composite-exception
+     [exc]
+     (if (instance? io.reactivex.exceptions.CompositeException exc)
+       (first (.getExceptions exc))
+       exc)))
 
 (defn catch
   "Continues an observable sequence that is terminated
   by an exception with the next observable sequence."
-  ([handler ^Observable ob]
+  ([handler ob]
    #?(:cljs (.catch ob (fn [value]
                          (let [value (handler value)]
                            (cond
                              (observable? value) value
                              (-end? value) (empty)
                              (-error? value) (throw value)
-                             (-next? value) (of value)))))
-      :clj  (.onErrorResumeNext ob (rxfn1 (fn [value]
-                                            (let [value (handler value)]
-                                              (cond
-                                                (observable? value) value
-                                                (-end? value) (empty)
-                                                (-error? value) (throw value)
-                                                (-next? value) (of value))))))))
+                             (-next? value) (just value)))))
+      :clj  (.onErrorResumeNext ob (as-function (fn [value]
+                                                  (let [value (unwrap-composite-exception value)
+                                                        value (handler value)]
+                                                    (cond
+                                                      (observable? value) value
+                                                      (-end? value) (empty)
+                                                      (-error? value) (throw value)
+                                                      (-next? value) (just value))))))))
   ([pred handler ob]
    (catch (fn [value]
-            (if (pred value)
-              (handler value)
-              (throw value)))
+            (let [value (unwrap-composite-exception value)]
+              (if (pred value)
+                (handler value)
+                (throw value))))
        ob)))
 
 (defn tap
   "Invokes an action for each element in the
   observable sequence."
-  ([f ^Observable ob]
+  ([f ob]
    #?(:cljs (.do ob f)
-      :clj  (.doOnNext ob (rxaction1 f))))
-  ([f g ^Observable ob]
+      :clj  (.doOnNext ob (as-consumer f))))
+  ([f g ob]
    #?(:cljs (.do ob f g)
       :clj  (-> ob
-                (.doOnNext (rxaction1 f))
-                (.doOnError (rxaction1 g)))))
+                (.doOnNext (as-consumer f))
+                (.doOnError (as-consumer g)))))
   ([f g e ob]
    #?(:cljs (.do ob f g e)
       :clj  (-> ob
-                (.doOnNext (rxaction1 f))
-                (.doOnError (rxaction1 g))
-                (.doOnCompleted (rxaction0 e))))))
+                (.doOnNext (as-consumer f))
+                (.doOnError (as-consumer g))
+                (.doOnComplete (as-action e))))))
 
 (def do
   "An idiomatic alias for `tap`."
@@ -788,7 +936,7 @@
   "Returns an observable sequence that emits only the
   first item emitted by the source Observable during
   sequential time windows of a specified duration."
-  [ms ^Observable ob]
+  [ms ob]
   #?(:cljs (.throttleTime ob ms)
      :clj  (.throttleFirst ob ^long ms TimeUnit/MILLISECONDS)))
 
@@ -796,36 +944,36 @@
   "Emits an item from the source Observable after a
   particular timespan has passed without the Observable
   omitting any other items."
-  [ms ^Observable ob]
+  [ms ob]
   #?(:cljs (.debounceTime ob ms)
      :clj  (.debounce ob ^long ms TimeUnit/MILLISECONDS)))
 
 (defn sample
   "Samples the observable sequence at each interval."
-  [ms ^Observable ob]
+  [ms ob]
   #?(:cljs (.sampleTime ob ms)
      :clj  (.sample ob ^long ms TimeUnit/MILLISECONDS)))
 
 (defn sample-when
   "Samples the observable sequence at each interval."
-  [^Observable other ^Observable ob]
+  [other ob]
   (.sample ob other))
 
 (defn ignore
   "Ignores all elements in an observable sequence leaving
   only the termination messages."
-  [^Observable ob]
+  [ob]
   (.ignoreElements ob))
 
 (defn dedupe
   "Returns an observable sequence that contains only
   distinct contiguous elements."
-  ([^Observable ob]
+  ([ob]
    #?(:cljs (dedupe identity ob)
       :clj  (.distinctUntilChanged ob)))
-  ([f ^Observable ob]
+  ([f ob]
    #?(:cljs (.distinctUntilChanged ob = f)
-      :clj  (.distinctUntilChanged ob (rxfn1 f)))))
+      :clj  (.distinctUntilChanged ob (as-function f)))))
 
 (defn dedupe'
   "Returns an observable sequence that contains only d
@@ -833,27 +981,27 @@
   Usage of this operator should be considered carefully
   due to the maintenance of an internal lookup structure
   which can grow large."
-  ([^Observable ob]
+  ([ob]
    #?(:cljs (.distinct ob =)
       :clj  (.distinct ob)))
-  ([f ^Observable ob]
+  ([f ob]
    #?(:cljs (.distinct ob = f)
-      :clj  (.distinct ob (rxfn1 f)))))
+      :clj  (.distinct ob (as-function f)))))
 
 (defn buffer
   "Projects each element of an observable sequence into zero
   or more buffers which are produced based on element count
   information."
-  ([n ^Observable ob]
+  ([n ob]
    #?(:cljs (.bufferCount ob n)
       :clj  (.buffer ob (int n))))
-  ([n skip ^Observable ob]
+  ([n skip ob]
    #?(:cljs (.bufferCount ob n skip)
       :clj  (.buffer ob (int n) (int skip)))))
 
 (defn buffer-time
   "Buffers the source Observable values for a specific time period."
-  [ms ^Observable ob]
+  [ms ob]
   #?(:cljs (.bufferTime ob ms)
      :clj (.buffer ob ms TimeUnit/MILLISECONDS)))
 
@@ -862,10 +1010,10 @@
   repeats the source observable the specified number of
   times or until it terminates. If no number of retries
   is given, it will be retried indefinitely."
-  ([^Observable ob]
+  ([ob]
    (.retry ob))
-  ([n ^Observable ob]
-   (.retry ob (int n))))
+  ([n ob]
+   (.retry ob ^long n)))
 
 (defn transform
   "Transform the observable sequence using transducers."
@@ -874,39 +1022,62 @@
             (fn
               ([r] (sink end) r)
               ([_ input] (sink input) input)))]
-    (let [ns (create (fn [sink]
-                       (let [xsink (xform (sink-step sink))
-                             step (fn [input]
-                                    (let [v (xsink nil input)]
-                                      (when (reduced? v)
-                                        (xsink @v))))
-                             sub (on-value stream step)]
-                         (on-complete stream #(do (xsink nil)
-                                                  (sink end)))
-                         (fn []
-                           (.close sub)))))]
-      ns)))
+    (create (fn [sink]
+              (let [xsink (xform (sink-step sink))
+                    step (fn [input]
+                           (let [v (xsink nil input)]
+                             (when (reduced? v)
+                               (xsink @v))))
+                    disposable (on-value stream step)]
+                (on-complete stream #(do (xsink nil)
+                                         (sink end)))
+                (fn []
+                  (cancel! disposable)))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Schedulers
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; --- Schedulers
 
 #?(:cljs
-   (do
-     (def ^:const asap Scheduler.asap)
-     (def ^:const queue Scheduler.queue)
-     (def ^:const async Scheduler.async))
+   (defn scheduler
+     "Get the scheduler instance by type.
+     The posible types are: `:asap`, `:queue`, `:async`."
+     [type]
+     (case type
+       :trampoline (.-queue Scheduler)
+       :asap (.-asap Scheduler)
+       :async (.-async Scheduler)))
    :clj
-   (do
-     (def computation (Schedulers/computation))
-     (def io (Schedulers/io))
-     (def immediate (Schedulers/immediate))
-     (def trampoline (Schedulers/trampoline))))
+   (defn scheduler
+     "Get the scheduler instance by type. The possible
+     types are: `:computation`, `:io`, `:single`,
+     `:thread` and `:trampoline`."
+     [type]
+     (case type
+       :computation (Schedulers/computation)
+       :io (Schedulers/io)
+       :single (Schedulers/single)
+       :thread (Schedulers/newThread)
+       :trampoline (Schedulers/trampoline))))
 
 (defn observe-on
-  [^Scheduler scheduler ^Observable ob]
-  (.observeOn ob scheduler))
+  [schd ob]
+  (cond
+    (scheduler? scheduler)
+    (.observeOn ob ^Scheduler schd)
+
+    (keyword? schd)
+    (.observeOn ob ^Scheduler (scheduler schd))
+
+    :else
+    (throw (ex-info "Invalid argument" {:type ::invalid-argument}))))
 
 (defn subscribe-on
-  [^Scheduler scheduler ^Observable ob]
-  (.subscribeOn ob scheduler))
+  [schd ob]
+  (cond
+    (scheduler? scheduler)
+    (.subscribeOn ob ^Scheduler schd)
+
+    (keyword? schd)
+    (.subscribeOn ob ^Scheduler (scheduler schd))
+
+    :else
+    (throw (ex-info "Invalid argument" {:type ::invalid-argument}))))
