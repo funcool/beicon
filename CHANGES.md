@@ -1,5 +1,27 @@
 # Changelog #
 
+## Version 3.0.0 ##
+
+Date: unreleased
+
+- Remove deprecated `bus?` predicate.
+- Remove deprecated `bus` function (subject constructor).
+- Remove deprecated second arity of `publish` function.
+- Remove deprecated `from-exception` function.
+- Remove deprecated `with-latest-from` (replaced by `with-latest`).
+- Remove `.close` method on disposable on clojurescript.
+
+- Scheduler vars are removed in favor to `scheduler` function.
+- The functions `subscribe-on` and `observe-on` now accept keywords
+  as argument that automatically resolves to proper scheduler or raises
+  an exception if no scheduler found for the provided keyword).
+- Add `cancel!` function for cancel subscriptions more conciselly.
+- Introduce backpressure support with rxjava2 flowables through the
+  new `generate` function, see documentation for more info.
+- `to-atom` now return a cancellable variant of atom (a wrapper that
+  implements the atom interface and ICancellable protocol).
+
+
 ## Version 2.9.0 ##
 
 Date: 2017-01-30
