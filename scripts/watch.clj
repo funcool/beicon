@@ -1,7 +1,7 @@
 (require '[cljs.build.api :as b])
 
-(b/watch (b/inputs "test" "src")
-  {:main 'beicon.tests.runner
+(def options
+  {:main 'beicon.tests.test_core
    :target :nodejs
    :output-to "out/tests.js"
    :output-dir "out"
@@ -10,3 +10,5 @@
    :language-in  :ecmascript6
    :language-out :ecmascript5
    :verbose true})
+
+(b/watch (b/inputs "test" "src") options)
