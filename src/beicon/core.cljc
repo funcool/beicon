@@ -602,6 +602,13 @@
   #?(:cljs (.fromPromise Observable p)
      :clj (Observable/fromFuture ^Future p)))
 
+#?(:clj
+   (defn from-publisher
+     "Converts an arbitrary Reactive-Streams Publisher into a
+     Flowable if not already a Flowable."
+     [v]
+     (Flowable/fromPublisher ^Publisher v)))
+
 (defn just
   "Returns an observable sequence that contains
   a single element."
