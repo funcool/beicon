@@ -1,6 +1,6 @@
 (ns user
   (:refer-clojure :exclude [test])
-  (:require [clojure.tools.namespace.repl :as repl]
+  (:require [clojure.tools.namespace.repl :as nsrepl]
             [clojure.walk :refer [macroexpand-all]]
             [clojure.pprint :refer [pprint]]
             [clojure.test :as test]))
@@ -10,7 +10,7 @@
 (defn test
   ([] (test #"^beicon.tests.*"))
   ([o]
-   (repl/refresh)
+   (nsrepl/refresh)
    (cond
      (instance? java.util.regex.Pattern o)
      (test/run-all-tests o)

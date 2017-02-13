@@ -972,12 +972,13 @@
                   ^Function combiner (as-function #(apply f (seq %)))]
               (Observable/combineLatest sources combiner)))))
 
-#?(:clj
-   (defn- unwrap-composite-exception
-     [exc]
+(defn- unwrap-composite-exception
+  [exc]
+  #?(:clj
      (if (instance? io.reactivex.exceptions.CompositeException exc)
        (first (.getExceptions exc))
-       exc)))
+       exc)
+     :cljs exc))
 
 (defn catch
   "Continues an observable sequence that is terminated
@@ -990,14 +991,15 @@
                              (-end? value) (empty)
                              (-error? value) (throw value)
                              (-next? value) (just value)))))
-      :clj  (.onErrorResumeNext ob (as-function (fn [value]
-                                                  (let [value (unwrap-composite-exception value)
-                                                        value (handler value)]
-                                                    (cond
-                                                      (observable? value) value
-                                                      (-end? value) (empty)
-                                                      (-error? value) (throw value)
-                                                      (-next? value) (just value))))))))
+      :clj  (.onErrorResumeNext ob (as-function
+                                    (fn [value]
+                                      (let [value (unwrap-composite-exception value)
+                                            value (handler value)]
+                                        (cond
+                                          (observable? value) value
+                                          (-end? value) (empty)
+                                          (-error? value) (throw value)
+                                          (-next? value) (just value))))))))
   ([pred handler ob]
    (catch (fn [value]
             (let [value (unwrap-composite-exception value)]
@@ -1173,7 +1175,7 @@
 (defn observe-on
   [schd ob]
   (cond
-    (scheduler? scheduler)
+    (scheduler? schd)
     (.observeOn ob ^Scheduler schd)
 
     (keyword? schd)
@@ -1185,7 +1187,7 @@
 (defn subscribe-on
   [schd ob]
   (cond
-    (scheduler? scheduler)
+    (scheduler? schd)
     (.subscribeOn ob ^Scheduler schd)
 
     (keyword? schd)
