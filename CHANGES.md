@@ -2,24 +2,31 @@
 
 ## Version 3.0.0 ##
 
-Date: unreleased
+Date: 2017-02-13
 
+WARNING: many changes are backward incompatible with the previous version.
+They are introduced because for make the library more concise and more
+consistent between clj and cljs.
+
+A list of relevant changes:
+
+- Upgrade to RxJava2 (2.0.5)
+- Scheduler vars are removed in favor to `scheduler` function.
+- The functions `subscribe-on` and `observe-on` now accept keywords
+  as argument that automatically resolves to proper scheduler or raises
+  an exception if no scheduler found for the provided keyword).
+- Add `cancel!` function for cancel subscriptions more conciselly.
+- Remove the ability to call the subscription in order to cancel it.
+- Introduce backpressure support with rxjava2 flowables through the
+  new `generate` function, see documentation for more info.
+- `to-atom` now return a cancellable variant of atom (a wrapper that
+  implements the atom interface and ICancellable protocol).
 - Remove deprecated `bus?` predicate.
 - Remove deprecated `bus` function (subject constructor).
 - Remove deprecated second arity of `publish` function.
 - Remove deprecated `from-exception` function.
 - Remove deprecated `with-latest-from` (replaced by `with-latest`).
 - Remove `.close` method on disposable on clojurescript.
-
-- Scheduler vars are removed in favor to `scheduler` function.
-- The functions `subscribe-on` and `observe-on` now accept keywords
-  as argument that automatically resolves to proper scheduler or raises
-  an exception if no scheduler found for the provided keyword).
-- Add `cancel!` function for cancel subscriptions more conciselly.
-- Introduce backpressure support with rxjava2 flowables through the
-  new `generate` function, see documentation for more info.
-- `to-atom` now return a cancellable variant of atom (a wrapper that
-  implements the atom interface and ICancellable protocol).
 
 
 ## Version 2.9.0 ##
