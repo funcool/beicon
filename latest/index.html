@@ -111,6 +111,7 @@
 <li><a href="#consume-values">Consume values</a></li>
 <li><a href="#consume-successful-termination">Consume successful termination</a></li>
 <li><a href="#consume-error-termination">Consume error termination</a></li>
+<li><a href="#backpressure-aware-consimption">Backpressure-aware consimption</a></li>
 </ul>
 </li>
 <li><a href="#transformations">Transformations</a>
@@ -190,7 +191,7 @@ dependency vector on your <strong><em>project.clj</em></strong> file:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">funcool/beicon</span> <span class="tok-s">&quot;2.8.0&quot;</span><span class="tok-p">]</span></code></pre>
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">[</span><span class="tok-nv">funcool/beicon</span> <span class="tok-s">&quot;3.0.0&quot;</span><span class="tok-p">]</span></code></pre>
 </div>
 </div>
 </div>
@@ -339,9 +340,9 @@ for build other kinds of constructors.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span>
-  <span class="tok-p">(</span><span class="tok-nf">rx/create</span> <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[</span><span class="tok-nv">sick</span><span class="tok-p">]</span>
-               <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-mi">1</span><span class="tok-p">)</span>          <span class="tok-c1">;; next with `1` as value</span>
-               <span class="tok-p">(</span><span class="tok-nf">sick</span> <span class="tok-p">(</span><span class="tok-nf">rx/end</span> <span class="tok-mi">2</span><span class="tok-p">))</span> <span class="tok-c1">;; next with `2` as value and end the stream</span>
+  <span class="tok-p">(</span><span class="tok-nf">rx/create</span> <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[</span><span class="tok-nv">sink</span><span class="tok-p">]</span>
+               <span class="tok-p">(</span><span class="tok-nf">sink</span> <span class="tok-mi">1</span><span class="tok-p">)</span>          <span class="tok-c1">;; next with `1` as value</span>
+               <span class="tok-p">(</span><span class="tok-nf">sink</span> <span class="tok-p">(</span><span class="tok-nf">rx/end</span> <span class="tok-mi">2</span><span class="tok-p">))</span> <span class="tok-c1">;; next with `2` as value and end the stream</span>
                <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[]</span>
                  <span class="tok-c1">;; function called on unsubscription</span>
                  <span class="tok-p">))))</span>
@@ -358,7 +359,7 @@ by the user. This is how the default impl behaves:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>js/Error</code> or <code>ExceptionInfo</code> instances triggers the error termination of stream.</p>
+<p>Exceptions or exception instances triggers the error termination of stream.</p>
 </li>
 <li>
 <p><code>(rx/end value)</code> sends the unwrapped value to the stream, then terminate stream.</p>
@@ -367,7 +368,72 @@ by the user. This is how the default impl behaves:</p>
 <p><code>rx/end</code> as value triggers the stream termination.</p>
 </li>
 <li>
+<p><code>nil</code> triggers stream validation.</p>
+</li>
+<li>
 <p>any other value are valid values for send to the stream.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>On the JVM, there are other factory method that allow create backpressure-aware
+observables:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span>
+  <span class="tok-p">(</span><span class="tok-nf">rx/generate</span> <span class="tok-p">(</span><span class="tok-k">fn </span><span class="tok-p">[</span><span class="tok-nv">state</span> <span class="tok-nv">sink</span><span class="tok-p">]</span>
+                 <span class="tok-p">(</span><span class="tok-k">let </span><span class="tok-p">[</span><span class="tok-nv">nextval</span> <span class="tok-p">(</span><span class="tok-nb">inc </span><span class="tok-nv">state</span><span class="tok-p">)]</span>
+                   <span class="tok-p">(</span><span class="tok-nf">sink</span> <span class="tok-nv">nextval</span><span class="tok-p">)</span>
+                   <span class="tok-nv">nextval</span><span class="tok-p">))</span>
+               <span class="tok-p">(</span><span class="tok-nb">constantly </span><span class="tok-mi">0</span><span class="tok-p">)))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The difference with the <code>create</code> function, the <code>generate</code> executes the
+factory function multiple and you need to call sink <strong>once</strong> for each
+execution. Additionally, you can maintain state between executions
+retuning the desired value, that value will passed as first argument
+on the next execution. You can provide an initial state using the
+second argument and dispose callback as third argument.</p>
+</div>
+<div class="paragraph">
+<p>Many simple observables can be converted to be backpressure-aware using
+the <code>to-flowable</code> function. Take cara that there are no magic, the buffering
+strategy is used by default for handle backpressure (over production).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+     <span class="tok-p">(</span><span class="tok-nf">rx/to-flowable</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Optionally, you can specify the strategy to use for handle backpressure
+using the first argument:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+     <span class="tok-p">(</span><span class="tok-nf">rx/to-flowable</span> <span class="tok-ss">:error</span><span class="tok-p">))</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is a list of available strategies:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>:buffer</code> - Buffers all values until the downstream consumes it.</p>
+</li>
+<li>
+<p><code>:error</code> - Signals a <code>MissingBackpressureException</code> in case the downstream can&#8217;t keep up.</p>
+</li>
+<li>
+<p><code>:drop</code> - Drops the most recent value if the downstream can&#8217;t keep up.</p>
+</li>
+<li>
+<p><code>:latest</code> - Keeps only the latest value, overwriting any previous value if the downstream can&#8217;t keep up.</p>
 </li>
 </ul>
 </div>
@@ -404,8 +470,8 @@ that watches all the different possible states of an observable sequence:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The return value of <code>subscribe</code> function is a funcition that can be called for
-dispose the subscription.</p>
+<p>The return value of <code>subscribe</code> function is a subscription object that identifies
+the current subscription. It can be cancelled executing <code>(rx/cancel! sub)</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -430,9 +496,9 @@ when is called will dispose the created subscription.</p>
 <div class="title">Note</div>
 </td>
 <td class="content">
-take care that calling any one of that helper functions creates a separated
-subscription and it can behave unexpectly if you do not aware if you are using
-<a href="#hot or cold observables">hot-vs-cold-observales</a>.
+take care that calling any one of that helper functions creates a
+separated subscription and it can behave unexpectly if you do not aware if you
+are using <a href="#hot or cold observables">hot-vs-cold-observales</a>.
 </td>
 </tr>
 </table>
@@ -460,6 +526,43 @@ sequence:</p>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">sub</span> <span class="tok-p">(</span><span class="tok-nf">rx/on-end</span> <span class="tok-nv">sub</span> <span class="tok-o">#</span><span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;error:&quot;</span> <span class="tok-nv">%</span><span class="tok-p">)))</span></code></pre>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="backpressure-aware-consimption"><a class="link" href="#backpressure-aware-consimption">Backpressure-aware consimption</a></h3>
+<div class="paragraph">
+<p>The streams created using the <code>generate</code> function, are backpressure-aware
+streams and can be consumed in backpressure-aware way. For this you need to pass
+object that implements the <code>ISubscriber</code> protocol. Let see an example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="clojure"><span class="tok-p">(</span><span class="tok-k">def </span><span class="tok-nv">stream</span>
+  <span class="tok-p">(</span><span class="tok-nf">-&gt;&gt;</span> <span class="tok-p">(</span><span class="tok-nf">rx/from-coll</span> <span class="tok-p">[</span><span class="tok-mi">1</span> <span class="tok-mi">2</span> <span class="tok-mi">3</span><span class="tok-p">])</span>
+       <span class="tok-p">(</span><span class="tok-nf">rx/to-flowable</span> <span class="tok-ss">:buffer</span><span class="tok-p">)))</span>
+
+<span class="tok-p">(</span><span class="tok-nf">rx/subscribe-with</span> <span class="tok-nv">stream</span> <span class="tok-p">(</span><span class="tok-nf">reify</span> <span class="tok-nv">rx/ISubscriber</span>
+                            <span class="tok-p">(</span><span class="tok-nf">-on-init</span> <span class="tok-p">[</span><span class="tok-nv">_</span> <span class="tok-nv">s</span><span class="tok-p">]</span>
+                              <span class="tok-p">(</span><span class="tok-nf">s/request!</span> <span class="tok-nv">s</span> <span class="tok-mi">1</span><span class="tok-p">))</span>
+
+                            <span class="tok-p">(</span><span class="tok-nf">-on-next</span> <span class="tok-p">[</span><span class="tok-nv">_</span> <span class="tok-nv">s</span> <span class="tok-nv">v</span><span class="tok-p">]</span>
+                              <span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-next:&quot;</span> <span class="tok-nv">v</span><span class="tok-p">)</span>
+                              <span class="tok-p">(</span><span class="tok-nf">s/request!</span> <span class="tok-nv">s</span> <span class="tok-mi">1</span><span class="tok-p">))</span>
+
+                            <span class="tok-p">(</span><span class="tok-nf">-on-error</span> <span class="tok-p">[</span><span class="tok-nv">_</span> <span class="tok-nv">e</span><span class="tok-p">]</span>
+                              <span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-error&quot;</span><span class="tok-p">))</span>
+
+                            <span class="tok-p">(</span><span class="tok-nf">-on-end</span> <span class="tok-p">[</span><span class="tok-nv">_</span><span class="tok-p">]</span>
+                              <span class="tok-p">(</span><span class="tok-nb">println </span><span class="tok-s">&quot;on-end&quot;</span><span class="tok-p">))))</span>
+<span class="tok-c1">;; =&gt; on-next: 1</span>
+<span class="tok-c1">;; =&gt; on-next: 2</span>
+<span class="tok-c1">;; =&gt; on-next: 3</span>
+<span class="tok-c1">;; =&gt; on-end</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the same way as <code>subscribe</code> function, the <code>subscribe-with</code> returns
+a cancellable subscription object.</p>
 </div>
 </div>
 </div>
@@ -1001,7 +1104,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-12-18 21:13:36 CET
+Last updated 2017-02-13 18:37:36 CET
 </div>
 </div>
 </body>
