@@ -604,7 +604,8 @@
      [coll]
      (s/generate (fn [state sink]
                    (sink (first state))
-                   (rest state)))))
+                   (rest state))
+                 coll)))
 
 #?(:clj
    (t/deftest flowable-filter-with-predicate

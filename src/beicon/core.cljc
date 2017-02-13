@@ -254,6 +254,7 @@
      "Returns a cold, synchronous, stateful and backpressure-aware
      generator of values."
      ([next] (generate next nil nil))
+     ([next setup] (generate next setup nil))
      ([next setup dispose]
       (let [setup (if (fn? setup) setup (constantly setup))
             dispose (if (fn? dispose) (as-consumer dispose) noop-consumer)
