@@ -777,6 +777,26 @@
    (let [disposable (on-value ob #(swap! a f %))]
      (disposable-atom a disposable))))
 
+#?(:clj
+   (defn- as-backpressure-strategy
+     [strategy]
+     (if (instance? BackpressureStrategy strategy)
+       strategy
+       (case strategy
+         :buffer BackpressureStrategy/BUFFER
+         :drop BackpressureStrategy/DROP
+         :missing BackpressureStrategy/MISSING
+         :error BackpressureStrategy/ERROR
+         (throw (ex-info "Unexpected option" {:strategy strategy}))))))
+
+#?(:clj
+   (defn to-flowable
+     "Convert an observable into backpressure-aware Flowable instance."
+     ([ob]
+      (to-flowable :buffer ob))
+     ([strategy ^Observable ob]
+      (.toFlowable ob ^BackpressureStrategy (as-backpressure-strategy strategy)))))
+
 ;; --- Observable Transformations
 
 (defn race
