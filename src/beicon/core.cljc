@@ -248,25 +248,30 @@
                 (.onError emitter e)))))))))
 
 
-(defn generate
-  "Returns a cold, synchronous, stateful and backpressure-aware
-  generator of values."
-  ([init next] (generate init next nil))
-  ([init next dispose]
-   (let [init (if (fn? init) init (constantly init))
-         next (as-bifunction (fn sink [state ^Emitter emitter]
-                               (let [sink (fn sink [v]
-                                            (cond
-                                              (identical? end v) (.onComplete emitter)
-                                              (-next? v) (.onNext emitter v)
-                                              (-error? v) (.onError emitter v)
-                                              (-end? v) (.onComplete emitter)
-                                              (reduced? v) (do
-                                                             (sink @v)
-                                                             (.onComplete emitter))))]
-                                 (next state sink))))
-         dispose (if (fn? dispose) (as-consumer dispose) noop-consumer)]
-     (Flowable/generate ^Callable init next ^Consumer dispose))))
+#?(:clj
+   (defn generate
+     "Returns a cold, synchronous, stateful and backpressure-aware
+     generator of values."
+     ([next] (generate next nil nil))
+     ([next setup dispose]
+      (let [setup (if (fn? setup) setup (constantly setup))
+            dispose (if (fn? dispose) (as-consumer dispose) noop-consumer)
+            next (as-bifunction
+                  (fn [state ^Emitter emitter]
+                    (let [sink (fn sink [v]
+                                 (cond
+                                   (identical? end v) (.onComplete emitter)
+                                   (-next? v) (.onNext emitter v)
+                                   (-error? v) (.onError emitter v)
+                                   (-end? v) (.onComplete emitter)
+                                   (reduced? v) (do
+                                                  (sink @v)
+                                                  (.onComplete emitter)))
+                                 v)]
+                      (next state sink))))]
+        (Flowable/generate ^Callable setup
+                           ^BiFunction next
+                           ^Consumer dispose)))))
 
 
 ;; --- Observable Subscription
