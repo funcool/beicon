@@ -4,6 +4,6 @@
   '[cljs.repl.node :as node])
 
 (cljs.repl/repl
- (cljs.repl.node/repl-env)
+ (node/repl-env)
  :output-dir "out"
  :cache-analysis true)
