@@ -122,7 +122,8 @@
 (defn scheduler?
   "Check if the provided value is Scheduler instance."
   [v]
-  (instance? Scheduler v))
+  #?(:clj (instance? Scheduler v)
+     :cljs (and v (fn? (.-schedule v)))))
 
 (defn subject?
   "Check if the provided value is Subject instance."
