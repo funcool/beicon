@@ -602,8 +602,7 @@
 #?(:clj
    (defn- flowable-from-coll
      [coll]
-     (s/generate (constantly coll)
-                 (fn [state sink]
+     (s/generate (fn [state sink]
                    (sink (first state))
                    (rest state)))))
 
@@ -611,8 +610,8 @@
    (t/deftest flowable-filter-with-predicate
      (let [s (flowable-from-coll [1 2 3 4 5])
            fs (s/filter #{3 5} s)]
-       (flowable-drain! fs #(t/is (= % [3 5]))))))
-
+       (flowable-drain! fs #(t/is (= % [3 5])))
+       (drain! fs #(t/is (= % [3 5]))))))
 
 ;; --- CLJS Tests Entry-Point
 

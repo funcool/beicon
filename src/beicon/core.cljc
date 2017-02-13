@@ -22,6 +22,7 @@
                     io.reactivex.functions.Predicate
                     io.reactivex.internal.functions.Functions
                     io.reactivex.internal.observers.LambdaObserver
+                    io.reactivex.internal.subscribers.LambdaSubscriber
                     io.reactivex.observers.ResourceObserver
                     io.reactivex.schedulers.Schedulers
                     io.reactivex.subjects.BehaviorSubject
@@ -276,8 +277,22 @@
 
 ;; --- Observable Subscription
 
+(defprotocol ISubscriber
+  "Backpressure aware subscriber abstraction."
+  (-on-init [_ s] "Subscription initialization hook.")
+  (-on-next [_ s value] "Subscription data notification hook.")
+  (-on-error [_ error] "Subscription error notification hook.")
+  (-on-end [_] "Subscription termination notification hook."))
+
+(defprotocol ISubscription
+  (-request [_ n] "request 1 or n items to the subscription."))
+
 (defprotocol ICancellable
   (-cancel [_] "dispose resources."))
+
+(defn request!
+  [s n]
+  (-request s n))
 
 (defn cancel!
   "Dispose resources acquired by the subscription."
@@ -290,11 +305,8 @@
      (specify! disposable
        ICancellable
        (-cancel [this]
-         (.unsubscribe this)))
+         (.unsubscribe this))))
 
-       cljs.core/IFn
-       (-invoke [this]
-         (.unsubscribe this)))
    :clj
    (defn- wrap-disposable
      [^Disposable disposable]
@@ -309,81 +321,155 @@
 
        java.lang.AutoCloseable
        (close [_]
-         (.dispose disposable))
-
-       clojure.lang.IFn
-       (invoke [_]
          (.dispose disposable)))))
 
-(defprotocol ISubscriber
-  "Backpressure aware subscriber abstraction."
-  (-on-init [_ s] "Subscription initialization hook.")
-  (-on-next [_ s value] "Subscription data notification hook.")
-  (-on-error [_ s error] "Subscription error notification hook.")
-  (-on-end [_ s] "Subscription termination notification hook."))
+#?(:clj
+   (defn- aref->subscription
+     [^AtomicReference ref]
+     (reify
+       ISubscription
+       (-request [_ n]
+         (when-let [^Subscription sub (.get ref)]
+           (.request sub ^long n)))
 
-(defprotocol ISubscription
-  (-request [_ n] "request 1 or n items to the subscription."))
+       ICancellable
+       (-cancel [_]
+         (when-let [^Subscription sub (.get ref)]
+           (.cancel sub)))
 
-(defn request!
-  [s n]
-  {:pre [(satisfies? ISubscription s)]}
-  (-request s n))
+       Disposable
+       (dispose [_]
+         (when-let [^Subscription sub (.get ref)]
+           (.cancel sub)))
+
+       AutoCloseable
+       (close [_]
+         (when-let [^Subscription sub (.get ref)]
+           (.cancel sub))))))
 
 #?(:clj
-   (defn subscribe-with
-     "Subscribes an backpressure aware observer to the flowable sequence."
-     [^Flowable ob subscriber]
-     {:pre [(satisfies? ISubscriber subscriber) (flowable? ob)]}
+   (defn- aref->disposable
+     [^AtomicReference ref]
+     (reify
+       ICancellable
+       (-cancel [_]
+         (when-let [^Disposable disp (.get ref)]
+           (.dispose disp)))
+
+       Disposable
+       (dispose [_]
+         (when-let [^Disposable disp (.get ref)]
+           (.dispose disp)))
+
+       AutoCloseable
+       (close [_]
+         (when-let [^Disposable disp (.get ref)]
+           (.dispose disp))))))
+
+#?(:clj
+   (defn- subscribe-flowable-with-isubscriber
+     [ob subscriber]
      (let [subref (AtomicReference. nil)
-           subs (reify
-                  ISubscription
-                  (-request [_ n]
-                    (when-let [^Subscription sub (.get subref)]
-                      (.request sub ^long n)))
-
-                  ICancellable
-                  (-cancel [_]
-                    (when-let [^Subscription sub (.get subref)]
-                      (.cancel sub)))
-
-                  Disposable
-                  (dispose [_]
-                    (when-let [^Subscription sub (.get subref)]
-                      (.cancel sub)))
-
-                  AutoCloseable
-                  (close [_]
-                    (when-let [^Subscription sub (.get subref)]
-                      (.cancel sub)))
-
-                  clojure.lang.IFn
-                  (invoke [_]
-                    (when-let [^Subscription sub (.get subref)]
-                      (.cancel sub))))]
+           subs (aref->subscription subref)]
        (.subscribe ob (reify Subscriber
                         (onSubscribe [_ subscription]
                           (.compareAndSet subref nil subscription)
                           (-on-init subscriber subs))
-
                         (onNext [_ value]
                           (-on-next subscriber subs value))
-
                         (onError [_ error]
-                          (-on-error subscriber subs error))
-
+                          (-on-error subscriber error))
                         (onComplete [_]
-                          (-on-end subscriber subs))))
+                          (-on-end subscriber))))
        subs)))
+
+#?(:clj
+   (defn- subscribe-observable-with-isubscriber
+     [ob subscriber]
+     (let [dispref (AtomicReference. nil)
+           disp (aref->disposable dispref)]
+       (.subscribe ob (reify Subscriber
+                        (onSubscribe [_ subscription]
+                          (.compareAndSet dispref nil subscription)
+                          (-on-init subscriber disp))
+                        (onNext [_ value]
+                          (-on-next subscriber disp value))
+                        (onError [_ error]
+                          (-on-error subscriber error))
+                        (onComplete [_]
+                          (-on-end subscriber))))
+       disp)))
+
+#?(:clj
+   (defn- subscribe-with-observer
+     [ob ^Observer observer]
+     (let [dispref (AtomicReference. nil)
+           disp (aref->disposable dispref)]
+       (.subscribe ob (reify Observer
+                        (onSubscribe [_ disposable]
+                          (.compareAndSet dispref nil disposable)
+                          (.onSubscribe observer disp))
+                        (onNext [_ value]
+                          (.onNext observer value))
+                        (onError [_ error]
+                          (.onError observer ^Throwable error))
+                        (onComplete [_]
+                          (.onComplete observer))))
+       disp)))
+
+#?(:clj
+   (defn subscribe-with
+     "Subscribes an observer or subscriber to the observable/flowable sequence."
+     [ob subscriber]
+     (cond
+       (satisfies? ISubscriber subscriber)
+       (if (flowable? ob)
+         (subscribe-flowable-with-isubscriber ob subscriber)
+         (subscribe-observable-with-isubscriber ob subscriber))
+
+       (and (observable? ob)
+            (observer? subscriber))
+       (subscribe-with-observer ob subscriber)
+
+       :else
+       (throw (ex-info "Invalid arguments." {}))))
+
+   :cljs
+   (defn subscribe-with
+     "Subscribes an observer or subscriber to the observable sequence."
+     [ob observer]
+     {:pre [(or (observer? observer)
+                (subject? observer))]}
+     (wrap-disposable (.subscribe ob observer))))
+
+#?(:clj
+   (defn- subscribe-to-observable
+     [ob nf ef cf sf]
+     (let [observer (LambdaObserver.
+                     (if (fn? nf) (as-consumer nf) noop-consumer)
+                     (if (fn? ef) (as-consumer ef) noop-consumer)
+                     (if (fn? cf) (as-action cf) noop-action)
+                     (if (fn? sf) (as-consumer sf) noop-consumer))]
+       (wrap-disposable (.subscribeWith ^Observable ob
+                                        ^Observer observer)))))
+
+#?(:clj
+   (defn- subscribe-to-flowable
+     [ob nf ef cf sf]
+     (let [on-subscribe (as-consumer #(.request % Long/MAX_VALUE))
+           subscriber (LambdaSubscriber.
+                       (if (fn? nf) (as-consumer nf) noop-consumer)
+                       (if (fn? ef) (as-consumer ef) noop-consumer)
+                       (if (fn? cf) (as-action cf) noop-action)
+                       (if (fn? sf) (as-consumer sf) on-subscribe))]
+       (wrap-disposable (.subscribeWith ^Flowable ob
+                                        ^Subscriber subscriber)))))
 
 #?(:cljs
    (defn subscribe
      "Subscribes an observer to the observable sequence."
      ([ob nf]
-      (if (or (observer? nf)
-              (subject? nf))
-        (wrap-disposable (.subscribe ob nf))
-        (subscribe ob nf nil nil)))
+      (subscribe ob nf nil nil))
      ([ob nf ef]
       (subscribe ob nf ef nil))
      ([ob nf ef cf]
@@ -391,32 +477,25 @@
                                   (if (fn? ef) ef noop)
                                   (if (fn? cf) cf noop))]
         (wrap-disposable (.subscribe ob observer)))))
-
    :clj
    (defn subscribe
      "Subscribes an observer to the observable sequence."
      ([ob nf]
-      (if (and (disposable? nf)
-               (observer? nf))
-        (wrap-disposable (.subscribeWith ^Observable ob ^Observer nf))
-        (subscribe ob nf nil nil nil)))
+      (subscribe ob nf nil nil nil))
      ([ob nf ef]
       (subscribe ob nf ef nil nil))
      ([ob nf ef cf]
       (subscribe ob nf ef cf nil))
      ([ob nf ef cf sf]
-      (let [observer (LambdaObserver.
-                      (if (fn? nf) (as-consumer nf) noop-consumer)
-                      (if (fn? ef) (as-consumer ef) noop-consumer)
-                      (if (fn? cf) (as-action cf) noop-action)
-                      (if (fn? sf) (as-consumer sf) noop-consumer))]
-        (wrap-disposable (.subscribeWith ^Observable ob observer))))))
+      (if (flowable? ob)
+        (subscribe-to-flowable ob nf ef cf sf)
+        (subscribe-to-observable ob nf ef cf sf)))))
 
 (defn on-value
   "Subscribes a function to invoke for each element
   in the observable sequence."
   [ob f]
-  (subscribe ob f nil nil nil))
+  (subscribe ob f nil nil))
 
 (def on-next
   "A semantic alias for `on-value`."
@@ -426,17 +505,17 @@
   "Subscribes a function to invoke upon exceptional termination
   of the observable sequence."
   [ob f]
-  (subscribe ob nil f nil nil))
+  (subscribe ob nil f nil))
 
-(defn on-complete
+(defn on-end
   "Subscribes a function to invoke upon graceful termination
   of the observable sequence."
   [ob f]
-  (subscribe ob nil nil f nil))
+  (subscribe ob nil nil f))
 
-(def on-end
-  "A semantic alias for `on-complete`."
-  on-complete)
+(def on-complete
+  "A semantic alias for `on-end`."
+  on-end)
 
 ;; --- Bus / Subject
 
@@ -639,8 +718,12 @@
 
 #?(:clj
    (defn- disposable-atom
-     [^clojure.lang.IAtom ref disposable]
+     [^clojure.lang.IAtom ref ^Disposable disposable]
      (reify
+       ICancellable
+       (-cancel [_]
+         (.dispose disposable))
+
        clojure.lang.IDeref
        (deref [_] (deref ref))
 
@@ -673,10 +756,6 @@
      (specify! ref
        ICancellable
        (-cancel [_]
-         (.unsubscribe disposable))
-
-       cljs.core/IFn
-       (-invoke [this]
          (.unsubscribe disposable)))))
 
 (defn to-atom

@@ -56,11 +56,11 @@
                                  (vswap! values conj v)
                                  (s/request! s 1))
 
-                               (-on-error [_ s e]
+                               (-on-error [_ e]
                                  (errb e)
                                  (.countDown latch))
 
-                               (-on-end [_ s]
+                               (-on-end [_]
                                  (cb @values)
                                  (.countDown latch))))
         (.await latch)))))
