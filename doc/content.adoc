@@ -33,7 +33,7 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "2.8.0"]
+[funcool/beicon "3.0.0"]
 ----
 
 
@@ -58,6 +58,7 @@ and convert it in an observable sequence:
 ;; ==> v: 2
 ;; ==> v: 3
 ----
+
 
 === From range
 
@@ -159,9 +160,9 @@ for build other kinds of constructors.
 [source, clojure]
 ----
 (def stream
-  (rx/create (fn [sick]
-               (sick 1)          ;; next with `1` as value
-               (sick (rx/end 2)) ;; next with `2` as value and end the stream
+  (rx/create (fn [sink]
+               (sink 1)          ;; next with `1` as value
+               (sink (rx/end 2)) ;; next with `2` as value and end the stream
                (fn []
                  ;; function called on unsubscription
                  ))))
@@ -174,10 +175,57 @@ for build other kinds of constructors.
 This is implemented using protocols for make it flexible and easy extensible
 by the user. This is how the default impl behaves:
 
-- `js/Error` or `ExceptionInfo` instances triggers the error termination of stream.
+- Exceptions or exception instances triggers the error termination of stream.
 - `(rx/end value)` sends the unwrapped value to the stream, then terminate stream.
 - `rx/end` as value triggers the stream termination.
+- `nil` triggers stream validation.
 - any other value are valid values for send to the stream.
+
+On the JVM, there are other factory method that allow create backpressure-aware
+observables:
+
+[source, clojure]
+----
+(def stream
+  (rx/generate (fn [state sink]
+                 (let [nextval (inc state)]
+                   (sink nextval)
+                   nextval))
+               (constantly 0)))
+----
+
+The difference with the `create` function, the `generate` executes the
+factory function multiple and you need to call sink *once* for each
+execution. Additionally, you can maintain state between executions
+retuning the desired value, that value will passed as first argument
+on the next execution. You can provide an initial state using the
+second argument and dispose callback as third argument.
+
+Many simple observables can be converted to be backpressure-aware using
+the `to-flowable` function. Take cara that there are no magic, the buffering
+strategy is used by default for handle backpressure (over production).
+
+[source, clojure]
+----
+(->> (rx/from-coll [1 2 3])
+     (rx/to-flowable))
+----
+
+Optionally, you can specify the strategy to use for handle backpressure
+using the first argument:
+
+[source, clojure]
+----
+(->> (rx/from-coll [1 2 3])
+     (rx/to-flowable :error))
+----
+
+This is a list of available strategies:
+
+- `:buffer` - Buffers all values until the downstream consumes it.
+- `:error` - Signals a `MissingBackpressureException` in case the downstream can't keep up.
+- `:drop` - Drops the most recent value if the downstream can't keep up.
+- `:latest` - Keeps only the latest value, overwriting any previous value if the downstream can't keep up.
 
 
 == Consuming streams
@@ -190,6 +238,7 @@ So error or end states can be considered termination states.
 
 And is convenient you can subscribe to any of that states of an observable
 sequence.
+
 
 === General purpose
 
@@ -204,8 +253,8 @@ that watches all the different possible states of an observable sequence:
                        #(println "on-end:")))
 ----
 
-The return value of `subscribe` function is a funcition that can be called for
-dispose the subscription.
+The return value of `subscribe` function is a subscription object that identifies
+the current subscription. It can be cancelled executing `(rx/cancel! sub)`.
 
 
 === Consume values
@@ -221,9 +270,9 @@ or termination. For this purposes is there the `on-value` function:
 Like with `subscribe` function, `on-value` function also return a callable that
 when is called will dispose the created subscription.
 
-NOTE: take care that calling any one of that helper functions creates a separated
-subscription and it can behave unexpectly if you do not aware if you are using
-<<hot or cold observables, hot-vs-cold-observales>>.
+NOTE: take care that calling any one of that helper functions creates a
+separated subscription and it can behave unexpectly if you do not aware if you
+are using <<hot or cold observables, hot-vs-cold-observales>>.
 
 
 === Consume successful termination
@@ -236,6 +285,7 @@ sequence:
 (def sub (rx/on-end sub #(println "end!")))
 ----
 
+
 === Consume error termination
 
 With `on-error` function you can watch the error termination of an observable
@@ -245,6 +295,41 @@ sequence:
 ----
 (def sub (rx/on-end sub #(println "error:" %)))
 ----
+
+
+=== Backpressure-aware consimption
+
+The streams created using the `generate` function, are backpressure-aware
+streams and can be consumed in backpressure-aware way. For this you need to pass
+object that implements the `ISubscriber` protocol. Let see an example:
+
+[source, clojure]
+----
+(def stream
+  (->> (rx/from-coll [1 2 3])
+       (rx/to-flowable :buffer)))
+
+(rx/subscribe-with stream (reify rx/ISubscriber
+                            (-on-init [_ s]
+                              (s/request! s 1))
+
+                            (-on-next [_ s v]
+                              (println "on-next:" v)
+                              (s/request! s 1))
+
+                            (-on-error [_ e]
+                              (println "on-error"))
+
+                            (-on-end [_]
+                              (println "on-end"))))
+;; => on-next: 1
+;; => on-next: 2
+;; => on-next: 3
+;; => on-end
+----
+
+In the same way as `subscribe` function, the `subscribe-with` returns
+a cancellable subscription object.
 
 
 == Transformations
@@ -268,6 +353,7 @@ normal sequence, and in this case filter them with a predicate:
 ;; ==> on-value: 5
 ;; ==> on-end
 ----
+
 
 === Map
 
@@ -506,6 +592,7 @@ This kind if combinator works very well with operations that can timeout:
 ;; ==> on-end
 ----
 
+
 === Zip
 
 This combinator combines two observable sequences in one.
@@ -549,6 +636,7 @@ This cobinator concatenates two or more observable sequences.
 ;; ==> on-value: 4
 ;; ==> on-end
 ----
+
 
 === Merge
 
