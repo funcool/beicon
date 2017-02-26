@@ -935,10 +935,10 @@
   sequence, returning the result of the aggregation as a
   single element in the result sequence."
   ([f ob]
-   #?(:cljs (.reduce ob f)
+   #?(:cljs (.reduce ob #(f %1 %2))
       :clj  (.reduce ob (as-bifunction f))))
   ([f seed ob]
-   #?(:cljs (.reduce ob f seed)
+   #?(:cljs (.reduce ob #(f %1 %2) seed)
       :clj  (.reduce ob seed (as-bifunction f)))))
 
 (defn scan
@@ -946,10 +946,10 @@
   sequence and returns each intermediate result.
   Same as reduce but with intermediate results"
   ([f ob]
-   #?(:cljs (.scan ob f)
+   #?(:cljs (.scan ob #(f %1 %2))
       :clj  (.scan ob (as-bifunction f))))
   ([f seed ob]
-   #?(:cljs (.scan ob f seed)
+   #?(:cljs (.scan ob #(f %1 %2) seed)
       :clj  (.scan ob seed (as-bifunction f)))))
 
 (defn with-latest

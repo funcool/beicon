@@ -337,6 +337,19 @@
          (s/end! b))
        (drain! b #(t/is (= % [-1 1 2 3]))))))
 
+(t/deftest observable-reduce
+  #?(:cljs
+     (t/async done
+       (let [s (->> (s/from-coll [4 5 6])
+                    (s/reduce conj [1 2])
+                    #_(s/reduce (fn [acc item]
+                                (println  acc "|" item)
+                                (conj acc item))
+                              [1 2]))]
+         (drain! s #(do (t/is (= % [[1 2 4 5 6]]))
+                        (done)))))))
+
+
 (t/deftest observable-filter-with-predicate
   #?(:cljs
      (t/async done
