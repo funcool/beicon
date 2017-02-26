@@ -1,11 +1,11 @@
-(defproject funcool/beicon "3.1.0"
+(defproject funcool/beicon "3.1.1"
   :description "Reactive Streams for Clojure(Script)"
   :url "https://github.com/funcool/beicon"
   :license {:name "BSD (2-Clause)"
             :url "http://opensource.org/licenses/BSD-2-Clause"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.473" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.293" :scope "provided"]
                  [io.reactivex.rxjava2/rxjava "2.0.6"]]
 
   :deploy-repositories {"releases" :clojars
@@ -24,6 +24,6 @@
   {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]
                         [funcool/promesa "1.8.0"]]
 
-         :global-vars {*warn-on-reflection* true}
+         :global-vars {*warn-on-reflection* false}
          :plugins [[funcool/codeina "0.5.0"]
                    [lein-ancient "0.6.10"]]}})

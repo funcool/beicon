@@ -1,5 +1,14 @@
 # Changelog #
 
+## Version 3.1.1 ##
+
+Date: 2017-02-26
+
+- Wrap function on `reduce` and `scan` because some functions
+  such as conj does not works if they are passed as is (and
+  produces wrong results).
+
+
 ## Version 3.1.0 ##
 
 Date: 2017-02-22
