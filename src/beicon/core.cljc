@@ -541,6 +541,14 @@
   #?(:cljs (BehaviorSubject. v)
      :clj  (BehaviorSubject/createDefault v)))
 
+#?(:clj
+  (defn to-serialized
+    "Converts an Subject into a Serialized Subject if not
+    already Serialized."
+    [s]
+    {:pre [(subject? s)]}
+    (.toSerialized s)))
+
 (defn push!
   "Pushes the given value to the bus stream."
   [b v]
