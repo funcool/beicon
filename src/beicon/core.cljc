@@ -120,6 +120,12 @@
      [o]
      (instance? Flowable o)))
 
+#?(:clj
+   (defn single?
+     "Check if the provided value is Single instance."
+     [o]
+     (instance? Single o)))
+
 (defn scheduler?
   "Check if the provided value is Scheduler instance."
   [v]
@@ -488,9 +494,10 @@
      ([ob nf ef cf]
       (subscribe ob nf ef cf nil))
      ([ob nf ef cf sf]
-      (if (flowable? ob)
-        (subscribe-to-flowable ob nf ef cf sf)
-        (subscribe-to-observable ob nf ef cf sf)))))
+      (cond
+        (flowable? ob) (subscribe-to-flowable ob nf ef cf sf)
+        (single? ob) (subscribe-to-observable (.toObservable ob) nf ef cf sf)
+        :else (subscribe-to-observable ob nf ef cf sf)))))
 
 (defn on-value
   "Subscribes a function to invoke for each element
