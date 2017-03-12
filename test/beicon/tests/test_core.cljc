@@ -8,7 +8,6 @@
                       :refer (noop drain!)
                       :refer-macros (with-timeout)])))
 
-#?(:clj (set! *warn-on-reflection* true))
 #?(:clj (defn ex-message [^Exception e] (.getMessage e)))
 
 ;; event stream
@@ -18,8 +17,9 @@
      (t/async done
        (let [s (s/of 1 2 3 4 5 6 7 8 9)]
          (t/is (s/observable? s))
-         (drain! s #(t/is (= % [1 2 3 4 5 6 7 8 9])))
-         (s/on-end s done)))
+         (drain! s #(do
+                      (t/is (= % [1 2 3 4 5 6 7 8 9]))
+                      (done)))))
      :clj
      (let [s (s/of 1 2 3 4 5 6 7 8 9)]
        (t/is (s/observable? s))
@@ -30,8 +30,9 @@
      (t/async done
        (let [s (s/of 1 nil 2)]
          (t/is (s/observable? s))
-         (drain! s #(t/is (= % [1 nil 2])))
-         (s/on-end s done)))))
+         (drain! s #(do
+                      (t/is (= % [1 nil 2]))
+                      (done)))))))
 
 (t/deftest observable-from-vector
   #?(:cljs
@@ -39,8 +40,9 @@
        (let [coll [1 2 3]
              s (s/from-coll coll)]
          (t/is (s/observable? s))
-         (drain! s #(t/is (= % coll)))
-         (s/on-end s done)))
+         (drain! s #(do
+                      (t/is (= % coll))
+                      (done)))))
      :clj
      (let [coll [1 2 3]
            s (s/from-coll coll)]
