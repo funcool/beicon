@@ -1,5 +1,14 @@
 # Changelog #
 
+## Version 3.2.0 ##
+
+Date: 2017-03-12
+
+- Add `to-serialized` function(jvm).
+- Add `single?` predicate (jvm).
+- Fix unexpected exception when subscribing to Single (jvm).
+
+
 ## Version 3.1.1 ##
 
 Date: 2017-02-26
