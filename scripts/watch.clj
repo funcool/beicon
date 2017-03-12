@@ -4,7 +4,7 @@
   {:main 'beicon.tests.test_core
    :target :nodejs
    :output-to "out/tests.js"
-   :output-dir "out"
+   :output-dir "out/tests"
    :optimizations :none
    :pretty-print true
    :language-in  :ecmascript6

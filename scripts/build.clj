@@ -3,12 +3,10 @@
 (def options
   {:main 'beicon.tests.test_core
    :output-to "out/tests.js"
-   :output-dir "out"
+   :output-dir "out/tests"
    :target :nodejs
    :optimizations :advanced
    :pretty-print true
-   :language-in  :ecmascript5
-   :language-out :ecmascript5
    :verbose true})
 
 (let [start (System/nanoTime)]
