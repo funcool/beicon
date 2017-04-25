@@ -5,8 +5,8 @@
             :url "http://opensource.org/licenses/BSD-2-Clause"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.495" :scope "provided"]
-                 [io.reactivex.rxjava2/rxjava "2.0.7"]]
+                 [org.clojure/clojurescript "1.9.521" :scope "provided"]
+                 [io.reactivex.rxjava2/rxjava "2.0.9"]]
 
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
@@ -22,7 +22,7 @@
 
   :profiles
   {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]
-                        [funcool/promesa "1.8.0"]]
+                        [funcool/promesa "1.8.1"]]
 
          :global-vars {*warn-on-reflection* false}
          :plugins [[funcool/codeina "0.5.0"]
