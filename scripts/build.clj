@@ -6,6 +6,7 @@
    :output-dir "out/tests"
    :target :nodejs
    :optimizations :advanced
+   :language-in :es5
    :pretty-print true
    :verbose true})
 
