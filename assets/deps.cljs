@@ -1,5 +1,5 @@
 {:foreign-libs
- [{:file "_rxjs/rx.js"
-   :file-min "_rxjs/rx.min.js"
+ [{:file "rxjs/rx.js"
+   :file-min "rxjs/rx.min.js"
    :provides ["beicon.extern.rxjs"]}]
- :externs ["_rxjs/externs.js"]}
+ :externs ["rxjs/externs.js"]}
