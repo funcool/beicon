@@ -1,5 +1,13 @@
 # Changelog #
 
+## Version 3.3.0 ##
+
+Date: 2017-04-25
+
+- Update RxJS to 5.3.0
+- Update RxJava to 2.0.9
+
+
 ## Version 3.2.0 ##
 
 Date: 2017-03-12
