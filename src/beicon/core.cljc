@@ -661,7 +661,7 @@
       :clj  (Observable/timer ^long delay TimeUnit/MILLISECONDS)))
   ([delay period]
    #?(:cljs (.timer Observable delay period)
-      :clj  (Observable/interval ^long delay ^long period))))
+      :clj  (Observable/interval ^long delay ^long period TimeUnit/MILLISECONDS))))
 
 (defn timeout
   "Returns the source observable sequence or the other

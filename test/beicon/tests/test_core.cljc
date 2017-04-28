@@ -139,9 +139,36 @@
      :clj
      (let [s (->> (s/timer 200)
                   (s/timeout 100 (s/just :timeout)))]
-
        (t/is (s/observable? s))
        (drain! s #(t/is (= % [:timeout]))))))
+
+(t/deftest observable-pause-from-timer
+  #?(:cljs
+     (t/async done
+      (let [s (s/timer 100)]
+        (t/is (s/observable? s))
+        (drain! s #(do
+                     (t/is (= % [0]))
+                     (s/on-end s done)))))
+     :clj
+     (let [s (s/timer 100)]
+       (t/is (s/observable? s))
+       (drain! s #(t/is (= % [0]))))))
+
+(t/deftest observable-interval-from-timer
+  #?(:cljs
+     (t/async done
+      (let [s (->> (s/timer 100 100)
+                   (s/take 2))]
+        (t/is (s/observable? s))
+        (drain! s #(do
+                     (t/is (= % [0 1]))
+                     (s/on-end s done)))))
+     :clj
+     (let [s (->> (s/timer 100 100)
+                  (s/take 2))]
+       (t/is (s/observable? s))
+       (drain! s #(t/is (= % [0 1]))))))
 
 (t/deftest observable-errors-from-create
   #?(:cljs
