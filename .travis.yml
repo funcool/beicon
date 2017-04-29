@@ -3,7 +3,9 @@ lein: lein2
 
 script:
   - ./scripts/build
+  - nvm install
   - node out/tests.js
+  - lein test-all
 
 jdk:
   - oraclejdk8
