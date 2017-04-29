@@ -23,7 +23,10 @@
   :profiles
   {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]
                         [funcool/promesa "1.8.1"]]
-
+         :aliases {"test-all" ["with-profile" "dev,1.9:dev,1.7:dev" "test"]}
          :global-vars {*warn-on-reflection* false}
          :plugins [[funcool/codeina "0.5.0"]
-                   [lein-ancient "0.6.10"]]}})
+                   [lein-ancient "0.6.10"]]}
+   :1.9 {:dependencies [[org.clojure/clojure "1.9.0-alpha16"]]}
+   :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}})
+
