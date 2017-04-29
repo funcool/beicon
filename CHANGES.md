@@ -1,5 +1,13 @@
 # Changelog #
 
+## Version 3.4.0 ##
+
+Date: 2017-04-29
+
+- Upgrade RxJava to 2.1.0
+- Fix unexpected exception on two-arity version of `timer` function.
+
+
 ## Version 3.3.0 ##
 
 Date: 2017-04-25

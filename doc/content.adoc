@@ -33,7 +33,7 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "3.3.0"]
+[funcool/beicon "3.4.0"]
 ----
 
 
