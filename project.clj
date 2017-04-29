@@ -6,7 +6,7 @@
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.9.521" :scope "provided"]
-                 [io.reactivex.rxjava2/rxjava "2.0.9"]]
+                 [io.reactivex.rxjava2/rxjava "2.1.0"]]
 
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
