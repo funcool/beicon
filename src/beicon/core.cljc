@@ -1169,12 +1169,14 @@
 #?(:cljs
    (defn scheduler
      "Get the scheduler instance by type.
-     The posible types are: `:asap`, `:async`, `:queue`."
+     The posible types are: `:asap`, `:async`, `:queue`.
+     Old `:trampoline` type is renamed as `:queue` and is deprecated."
      [type]
      (case type
        :asap (.-asap Scheduler)
        :async (.-async Scheduler)
-       :queue (.-queue Scheduler)))
+       :queue (.-queue Scheduler)
+       :trampoline (.-queue Scheduler)))
    :clj
    (defn scheduler
      "Get the scheduler instance by type. The possible
