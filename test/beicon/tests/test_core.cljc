@@ -630,7 +630,7 @@
   #?(:cljs
      (t/async done
        (let [coll [1 2 3]
-             s (s/subscribe-on :trampoline (s/from-coll coll))]
+             s (s/subscribe-on :queue (s/from-coll coll))]
          (t/is (s/observable? s))
          (drain! s #(t/is (= % coll)))
          (s/on-end s done)))
