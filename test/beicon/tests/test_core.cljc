@@ -126,6 +126,19 @@
        (t/is (s/observable? s))
        (drain! s #(t/is (= % [1 2 3]))))))
 
+#?(:cljs
+   (t/deftest observable-from-event
+     (t/async done
+       (let [target #js {:addEventListener #(do
+                                             (t/is (= %1 "poked"))
+                                             (%2 "once"))
+                         :removeEventListener #()}
+             s (s/from-event target "poked")]
+         (t/is (s/observable? s))
+         (s/end! (drain! s #(do
+                              (t/is (= % ["once"]))
+                              (done)))))))) 
+
 (t/deftest observable-with-timeout
   #?(:cljs
      (t/async done
