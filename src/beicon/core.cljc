@@ -625,6 +625,12 @@
      [v]
      (Flowable/fromPublisher ^Publisher v)))
 
+#?(:cljs
+   (defn from-event
+     "Creates an Observable by attaching an event listener to an event target"
+     [et ev]
+     (.fromEvent Observable et ev)))
+
 (defn just
   "Returns an observable sequence that contains
   a single element."

@@ -78,6 +78,12 @@ Rx.Observable.fromPromise = function() {};
  * @this {null}
  * @return {Rx.Observable}
  */
+Rx.Observable.fromEvent = function() {};
+
+/**
+ * @this {null}
+ * @return {Rx.Observable}
+ */
 Rx.Observable.throw = function() {};
 
 /**
