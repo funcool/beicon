@@ -1,5 +1,16 @@
 # Changelog #
 
+## Version 3.5.0 ##
+
+Date: 2017-05-28
+
+- The `:trampoline` scheduler is renamed to `:queue` for consistency
+  (backward compatibility preserved, but `:trampoline` is deprected
+  for now).
+- Add `from-event` function to the cljs.
+- Update RxJS to 5.4.0
+
+
 ## Version 3.4.0 ##
 
 Date: 2017-04-29
