@@ -44,7 +44,7 @@ This section will give you the available methods for create observable streams.
 
 === From a collection
 
-The most basic way to create a streamm is just take a collection
+The most basic way to create a stream is just take a collection
 and convert it in an observable sequence:
 
 [source, clojure]
