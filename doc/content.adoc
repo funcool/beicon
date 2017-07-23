@@ -110,7 +110,7 @@ NOTE: `just` or `once` are simple aliases to `of` function.
 
 === From multiple values
 
-It there is a way for create an observable seequence from
+There is a way for create an observable seequence from
 multiple values, using the `of` consturctor:
 
 [source, clojure]
