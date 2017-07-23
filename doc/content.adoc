@@ -133,7 +133,7 @@ Some times you also want just a terminated stream:
 (def stream (rx/empty))
 ----
 
-This stream not yelds any value and just terminates.
+This stream does not yield any value and just terminates.
 
 
 === With timeout
