@@ -110,8 +110,9 @@ NOTE: `just` or `once` are simple aliases to `of` function.
 
 === From multiple values
 
+
 There is a way for create an observable seequence from
-multiple values, using the `of` consturctor:
+multiple values, using the `of` constructor:
 
 [source, clojure]
 ----
@@ -133,7 +134,7 @@ Some times you also want just a terminated stream:
 (def stream (rx/empty))
 ----
 
-This stream not yelds any value and just terminates.
+This stream does not yield any value and just terminates.
 
 
 === With timeout
