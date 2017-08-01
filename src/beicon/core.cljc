@@ -612,11 +612,16 @@
               (fn []
                 (remove-watch atm key))))))
 
-(defn from-promise
-  "Creates an observable from a promise."
-  [p]
-  #?(:cljs (.fromPromise Observable p)
-     :clj (Observable/fromFuture ^Future p)))
+#?(:cljs
+   (defn from-promise
+    "Creates an observable from a promise."
+     [p]
+     (.fromPromise Observable p))
+   :clj
+   (defn from-future
+     "Creates an observable from a future."
+     [p]
+     (Observable/fromFuture ^Future p)))
 
 #?(:clj
    (defn from-publisher

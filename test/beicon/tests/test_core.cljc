@@ -214,7 +214,7 @@
          (s/on-end s done)))
      :clj
      (let [p (p/resolved 42)
-           s (s/from-promise p)]
+           s (s/from-future p)]
        (t/is (s/observable? s))
        (drain! s #(t/is (= % [42]))))))
 
@@ -230,7 +230,7 @@
          (s/on-error s done)))
      :clj
      (let [p (p/rejected (ex-info "oh noes" {}))
-           s (s/from-promise p)]
+           s (s/from-future p)]
        (t/is (s/observable? s))
        (drain! s
                #(t/is (= % []))
