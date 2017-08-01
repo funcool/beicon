@@ -1,5 +1,16 @@
 # Changelog #
 
+## Version 4.0.0 ##
+
+Date: 2017-08-01
+
+- Update cljs compiler to the latest version.
+- Update RxJS bundle to 5.4.2
+- Update RxJava dependency to 2.1.2.
+- Fix `concat` operator with flowables.
+- Fix `from-promise` is renamed to `from-future` in jvm (BREAKING CHANGE).
+
+
 ## Version 3.5.0 ##
 
 Date: 2017-05-28
