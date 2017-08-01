@@ -5,8 +5,8 @@
             :url "http://opensource.org/licenses/BSD-2-Clause"}
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
-                 [org.clojure/clojurescript "1.9.521" :scope "provided"]
-                 [io.reactivex.rxjava2/rxjava "2.1.0"]]
+                 [org.clojure/clojurescript "1.9.854" :scope "provided"]
+                 [io.reactivex.rxjava2/rxjava "2.1.2"]]
 
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
