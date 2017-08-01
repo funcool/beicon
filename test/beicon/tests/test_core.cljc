@@ -137,7 +137,7 @@
          (t/is (s/observable? s))
          (s/end! (drain! s #(do
                               (t/is (= % ["once"]))
-                              (done)))))))) 
+                              (done))))))))
 
 (t/deftest observable-with-timeout
   #?(:cljs
@@ -668,6 +668,13 @@
            fs (s/filter #{3 5} s)]
        (flowable-drain! fs #(t/is (= % [3 5])))
        (drain! fs #(t/is (= % [3 5]))))))
+
+#?(:clj
+   (t/deftest flowable-concat
+     (let [s1 (flowable-from-coll [1 2 3])
+           s2 (flowable-from-coll [4 5 6])
+           cs (s/concat s1 s2)]
+       (drain! cs #(t/is (= % [1 2 3 4 5 6]))))))
 
 ;; --- CLJS Tests Entry-Point
 

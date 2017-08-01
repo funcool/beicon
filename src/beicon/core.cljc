@@ -851,9 +851,15 @@
   #?(:cljs (let [more (cljs.core/filter identity more)]
              (cljs.core/reduce #(.concat %1 %2) more))
      :clj  (let [more (clojure.core/filter identity more)]
-             (clojure.core/reduce (fn [a b]
-                                    (Observable/concat a b))
-                                  more))))
+             (cond
+               (every? observable? more)
+               (clojure.core/reduce #(Observable/concat %1 %2) more)
+
+               (every? flowable? more)
+               (clojure.core/reduce #(Flowable/concat %1 %2) more)
+
+               :else
+               (throw (ex-info "Invalid arguments." {}))))))
 
 (defn merge
   "Merges all the observable sequences and Promises
