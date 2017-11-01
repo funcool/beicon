@@ -10,12 +10,12 @@
 
 == Introduction
 
-_beicon_ is a small and concise library that provides reactive streams api for
-clojure and clojurescript.
+_beicon_ is a small and concise library that provides reactive streams API for
+Clojure and ClojureScript.
 
 [WARNING]
 ====
-This documentation does not covers all api, so if you miss
+This documentation does not cover the whole API, so if you miss
 some function, contributions are very welcome. You can see the full
 link:api/index.html#id[API documentation here].
 ====
@@ -28,7 +28,7 @@ Since _beicon_ is a young project there can be some API breakage.
 
 === Install
 
-The simplest way to use _beicon_ in a clojure project, is by including it in the
+The simplest way to use _beicon_ in a Clojure project, is by including it in the
 dependency vector on your *_project.clj_* file:
 
 [source,clojure]
@@ -44,8 +44,8 @@ This section will give you the available methods for create observable streams.
 
 === From a collection
 
-The most basic way to create a stream is just take a collection
-and convert it in an observable sequence:
+The most basic way to create a stream is to just take a collection
+and convert it into an observable sequence:
 
 [source, clojure]
 ----
@@ -62,8 +62,8 @@ and convert it in an observable sequence:
 
 === From range
 
-An other way to create an observable stream is using the `range` constructor
-that is pretty analogous to the clojure's one:
+An other way to create an observable stream is using the `range` constructor,
+which is pretty analogous to the Clojures one:
 
 [source, clojure]
 ----
@@ -78,8 +78,8 @@ that is pretty analogous to the clojure's one:
 
 === From Atom
 
-Atoms in clojure are watchable, so you can listen its changes. This method convert
-that changes in an infinite observable sequence of atom changes:
+Atoms in Clojure are watchable, so you can listen for their changes. This method converts
+that changes into an infinite observable sequence of atom changes:
 
 [source, clojure]
 ----
@@ -110,7 +110,7 @@ NOTE: `just` or `once` are simple aliases to `of` function.
 
 === From multiple values
 
-There is a way for create an observable seequence from
+There is a way to create an observable sequence from
 multiple values, using the `of` constructor:
 
 [source, clojure]
@@ -138,8 +138,8 @@ This stream does not yield any value and just terminates.
 
 === With timeout
 
-This allow create an observable seequence of one unique value that will be emited
-after specified amount of time:
+This allows to create an observable sequence of one unique value, that will be emitted
+after a specified amount of time:
 
 [source, clojure]
 ----
@@ -154,8 +154,8 @@ after specified amount of time:
 === From factory
 
 This is the most advanced and flexible way to create an observable sequence. It
-allows to have control about termination and errors and intended to be used
-for build other kinds of constructors.
+allows to have control about termination and errors, and is intended to be used
+for building other kinds of constructors.
 
 [source, clojure]
 ----
@@ -172,16 +172,16 @@ for build other kinds of constructors.
 ;; ==> v: 2
 ----
 
-This is implemented using protocols for make it flexible and easy extensible
-by the user. This is how the default impl behaves:
+This is implemented using protocols to make it flexible and easily extensible
+by the user. This is how the default implementation behaves:
 
-- Exceptions or exception instances triggers the error termination of stream.
-- `(rx/end value)` sends the unwrapped value to the stream, then terminate stream.
+- Exceptions or exception instances trigger the error termination of stream.
+- `(rx/end value)` sends the unwrapped value to the stream, then terminates stream.
 - `rx/end` as value triggers the stream termination.
 - `nil` triggers stream validation.
-- any other value are valid values for send to the stream.
+- any other values are valid values for sending to the stream.
 
-On the JVM, there are other factory method that allow create backpressure-aware
+On the JVM, there are other factory methods, that allow creation of backpressure-aware
 observables:
 
 [source, clojure]
@@ -194,16 +194,16 @@ observables:
                (constantly 0)))
 ----
 
-The difference with the `create` function, the `generate` executes the
-factory function multiple and you need to call sink *once* for each
+The difference to the `create` function, the `generate` executes the
+factory function multiple times and you need to call sink *once* for each
 execution. Additionally, you can maintain state between executions
-retuning the desired value, that value will passed as first argument
-on the next execution. You can provide an initial state using the
-second argument and dispose callback as third argument.
+retuning the desired value and that value will passed as first argument
+on the next execution. You can optionally provide an initial state using the
+second argument `setup` and a third `dispose` callback.
 
 Many simple observables can be converted to be backpressure-aware using
-the `to-flowable` function. Take cara that there are no magic, the buffering
-strategy is used by default for handle backpressure (over production).
+the `to-flowable` function. Be aware, that the default strategy `:buffer` (see below)
+is used by default to handle backpressure (over production).
 
 [source, clojure]
 ----
@@ -211,8 +211,8 @@ strategy is used by default for handle backpressure (over production).
      (rx/to-flowable))
 ----
 
-Optionally, you can specify the strategy to use for handle backpressure
-using the first argument:
+Optionally, you can specify the strategy to use for handling backpressure
+by the first argument:
 
 [source, clojure]
 ----
@@ -224,25 +224,25 @@ This is a list of available strategies:
 
 - `:buffer` - Buffers all values until the downstream consumes it.
 - `:error` - Signals a `MissingBackpressureException` in case the downstream can't keep up.
-- `:drop` - Drops the most recent value if the downstream can't keep up.
-- `:latest` - Keeps only the latest value, overwriting any previous value if the downstream can't keep up.
+- `:drop` - Drops the most recent value, if the downstream can't keep up.
+- `:latest` - Keeps only the latest value, overwriting any previous value, if the downstream can't keep up.
 
 
 == Consuming streams
 
 === The stream states
 
-The observable sequence can be in 3 different kind of states: alive, errored or
-ended. I an error is emited the stream can be considered ended with an error.
-So error or end states can be considered termination states.
+The observable sequence can be in three different kind of states: *alive*, *"errored"* or
+*ended*. If an error is emitted the stream can be considered ended with an error.
+So *error* or *end* states are considered termination states.
 
-And is convenient you can subscribe to any of that states of an observable
+And for convenience you can subscribe to any of that states of an observable
 sequence.
 
 
 === General purpose
 
-A general purpose subscription is one that allows you create one subscription
+A general purpose subscription is one that allows you to create one subscription,
 that watches all the different possible states of an observable sequence:
 
 [source, clojure]
@@ -253,31 +253,31 @@ that watches all the different possible states of an observable sequence:
                        #(println "on-end:")))
 ----
 
-The return value of `subscribe` function is a subscription object that identifies
-the current subscription. It can be cancelled executing `(rx/cancel! sub)`.
+The return value of the `subscribe` function is a subscription object, that identifies
+the current subscription. It can be cancelled by executing `(rx/cancel! sub)`.
 
 
 === Consume values
 
-But in most circumstances you only want consume values regardless of any error
-or termination. For this purposes is there the `on-value` function:
+But in most circumstances you only want to consume values regardless of any error
+or termination. For this purposes there is the `on-value` function:
 
 [source, clojure]
 ----
 (def sub (rx/on-value sub #(println "val:" %)))
 ----
 
-Like with `subscribe` function, `on-value` function also return a callable that
-when is called will dispose the created subscription.
+Like with the `subscribe` function, the `on-value` function also returns a callable, that,
+when called, will dispose the created subscription.
 
-NOTE: take care that calling any one of that helper functions creates a
-separated subscription and it can behave unexpectly if you do not aware if you
+NOTE: take care, that calling any one of those helper functions creates a
+separated subscription and it can behave unexpectedly, if you are not aware whether you
 are using <<hot or cold observables, hot-vs-cold-observales>>.
 
 
 === Consume successful termination
 
-With `on-end` function you can watch the successful termination of an observable
+With the `on-end` function you can watch the successful termination of an observable
 sequence:
 
 [source, clojure]
@@ -288,7 +288,7 @@ sequence:
 
 === Consume error termination
 
-With `on-error` function you can watch the error termination of an observable
+With the `on-error` function you can watch the error termination of an observable
 sequence:
 
 [source, clojure]
@@ -300,8 +300,8 @@ sequence:
 === Backpressure-aware consimption
 
 The streams created using the `generate` function, are backpressure-aware
-streams and can be consumed in backpressure-aware way. For this you need to pass
-object that implements the `ISubscriber` protocol. Let see an example:
+streams and can be consumed in an backpressure-aware way. For this you need to pass
+an object, that implements the `ISubscriber` protocol. Lets see an example:
 
 [source, clojure]
 ----
@@ -328,7 +328,7 @@ object that implements the `ISubscriber` protocol. Let see an example:
 ;; => on-end
 ----
 
-In the same way as `subscribe` function, the `subscribe-with` returns
+In the same way as the `subscribe` function, the `subscribe-with` returns
 a cancellable subscription object.
 
 
@@ -337,7 +337,7 @@ a cancellable subscription object.
 === Filter
 
 The main advantage of using reactive streams is that you may treat them like
-normal sequence, and in this case filter them with a predicate:
+normal sequences, and in this case filter them with a predicate:
 
 [source, clojure]
 ----
@@ -377,10 +377,10 @@ Also, you can apply a function over each value in the stream:
 
 === Flat Map
 
-Convets an observable sequence that can contain other observable sequences in
-an other observable sequences that emits just plain values.
+Converts an observable sequence, that can contain other observable sequences, into a
+new observable sequence, that emits just plain values.
 
-The result is similar to concatenate all the underlying sequences.
+The result is similar to concatenating all the underlying sequences.
 
 [source, clojure]
 ----
@@ -403,7 +403,7 @@ The result is similar to concatenate all the underlying sequences.
 
 === Skip
 
-Also, sometimes you just want to skip values from stream under different criteria.
+Also, sometimes you just want to skip values from stream by different criteria.
 
 You can skip the first N values:
 
@@ -422,7 +422,7 @@ You can skip the first N values:
 ;; ==> on-end
 ----
 
-Skip while some condition evalutates to true:
+Skip while some predicate evaluates to `true`:
 
 [source, clojure]
 ----
@@ -439,13 +439,13 @@ Skip while some condition evalutates to true:
 ;; ==> on-end
 ----
 
-Or skip until an other observable yelds a value using `skip-until` (no example at
+Or skip until another observable yields a value with `skip-until` (no example at
 this moment).
 
 
 === Take
 
-You also can limit the observale sequence to an specified number of elements:
+You can also limit the observable sequence to an specified number of elements:
 
 [source, clojure]
 ----
@@ -462,7 +462,7 @@ You also can limit the observale sequence to an specified number of elements:
 ;; ==> on-end
 ----
 
-Or an condition expression evaluates to true:
+Or a predicate evaluates to `true`:
 
 [source, clojure]
 ----
@@ -484,8 +484,8 @@ Or an condition expression evaluates to true:
 
 === Slice
 
-This is a some kind of combination of `skip` and `take`, and returns an observable
-sequence that represents a portion delimited by start and end of the source
+This is a combination of `skip` and `take`, and returns an observable
+sequence, that represents the portion between start and end of the source
 observable sequence.
 
 [source, clojure]
@@ -506,8 +506,8 @@ observable sequence.
 
 === Reduce
 
-Allows combine all results of an observable sequence using a combining function
-also called (reducing function):
+Allows combining all results of an observable sequence using a combining function
+(also called *reducing* function):
 
 [source, clojure]
 ----
@@ -525,9 +525,8 @@ also called (reducing function):
 
 === Scan
 
-Allows combine all results of an observable sequence using a combining function
-also called (reducing function). Returns a stream of each intermediate result
-instead of:
+Like `reduce` (see above), but returns a stream of each intermediate result
+instead (similar to `reductions` in Clojure):
 
 [source, clojure]
 ----
@@ -549,8 +548,8 @@ instead of:
 
 === Buffer
 
-This transformer functions allow accomulate N specified values in a buffer and then
-emits them as one value.
+This transformer function allows to accumulate N values in a buffer and then
+emits them as one value (similar to `partition` in Clojure)
 
 [source, clojure]
 ----
@@ -572,10 +571,10 @@ emits them as one value.
 
 === Choice
 
-Perform an arbitrary choice between two or more observable sequences and return the
+Performs an arbitrary choice between two or more observable sequences and returns the
 first value available from any provided observables.
 
-This kind if combinator works very well with operations that can timeout:
+This kind of combinator works very well with operations that can timeout:
 
 [source, clojure]
 ----
@@ -617,7 +616,7 @@ This combinator combines two observable sequences in one.
 
 === Concat
 
-This cobinator concatenates two or more observable sequences.
+This combinator concatenates two or more observable sequences *in order*.
 
 [source, clojure]
 ----
@@ -640,11 +639,12 @@ This cobinator concatenates two or more observable sequences.
 
 === Merge
 
-This combinator merges two or more observable sequences.
+This combinator merges two or more observable sequences *at random* (see
+`concat` for ordered).
 
 [source, clojure]
 ----
-(def stream (rx/concat
+(def stream (rx/merge
               (rx/from-coll [1 2])
               (rx/from-coll [3 4])))
 
@@ -660,8 +660,6 @@ This combinator merges two or more observable sequences.
 ;; ==> on-end
 ----
 
-NOTE: the order is not required to be the same always.
-
 
 == Subject
 
@@ -671,8 +669,10 @@ sequence.
 
 === Creating a subject.
 
-You can create a subject instance using `subject` constructor function. There is an
-example of using subject for the both operations: push values and subscribe to it.
+You can create a subject instance using the `subject` constructor function. 
+
+This is an example of using `subject` for two things: push values and subscribe
+to it.
 
 [source, clojure]
 ----
@@ -700,7 +700,7 @@ example of using subject for the both operations: push values and subscribe to i
 
 === Ending a subject
 
-You can end subject in any moment just executing `end!` function:
+You can end a subject at any moment just by executing the `end!` function:
 
 [source, clojure]
 ----
