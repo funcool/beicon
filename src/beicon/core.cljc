@@ -1110,7 +1110,8 @@
   "Ignores all elements in an observable sequence leaving
   only the termination messages."
   [ob]
-  (.ignoreElements ob))
+  #?(:cljs (.ignoreElements ob)
+     :clj  (.. ob ignoreElements toObservable)))
 
 (defn dedupe
   "Returns an observable sequence that contains only
