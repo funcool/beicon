@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [true? map filter reduce merge repeat mapcat
                             repeatedly zip dedupe drop take take-while
                             concat empty delay range throw do trampoline])
-  #?(:cljs (:require [beicon.extern.rxjs]))
+  #?(:cljs (:require [beicon.impl.rxjs]))
   #?(:clj  (:import io.reactivex.BackpressureStrategy
                     io.reactivex.Emitter
                     io.reactivex.Flowable
