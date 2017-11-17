@@ -1,5 +1,14 @@
 # Changelog #
 
+## Version 4.1.0 ##
+
+Date: 2017-11-17
+
+- Update cljs compiler to the latest version.
+- Update RxJS bundle to 5.5.2
+- Update RxJava dependency to 2.1.6
+- Make `ignore` return an instance of `Observable`.
+
 ## Version 4.0.0 ##
 
 Date: 2017-08-01
