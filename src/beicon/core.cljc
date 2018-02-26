@@ -112,7 +112,7 @@
   "Check if the provided object is disposable (jvm) or subscription (js)."
   [v]
   #?(:clj (instance? Disposable v)
-     :clj (instance? Subscription v)))
+     :cljs (instance? Subscription v)))
 
 #?(:clj
    (defn flowable?
