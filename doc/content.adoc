@@ -297,7 +297,7 @@ sequence:
 ----
 
 
-=== Backpressure-aware consimption
+=== Backpressure-aware consumption
 
 The streams created using the `generate` function, are backpressure-aware
 streams and can be consumed in an backpressure-aware way. For this you need to pass
