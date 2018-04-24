@@ -6,7 +6,7 @@
 
   :dependencies [[org.clojure/clojure "1.8.0" :scope "provided"]
                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
-                 [io.reactivex.rxjava2/rxjava "2.1.6"]]
+                 [io.reactivex.rxjava2/rxjava "2.1.12"]]
 
   :deploy-repositories {"releases" :clojars
                         "snapshots" :clojars}
@@ -26,7 +26,7 @@
          :aliases {"test-all" ["with-profile" "dev,1.9:dev,1.7:dev" "test"]}
          :global-vars {*warn-on-reflection* false}
          :plugins [[funcool/codeina "0.5.0"]
-                   [lein-ancient "0.6.10"]]}
-   :1.9 {:dependencies [[org.clojure/clojure "1.9.0-rc1"]]}
+                   [lein-ancient "0.6.15"]]}
+   :1.9 {:dependencies [[org.clojure/clojure "1.9.0"]]}
    :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}})
 
