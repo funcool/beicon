@@ -6,6 +6,8 @@
   #?(:clj  (:import io.reactivex.BackpressureStrategy
                     io.reactivex.Emitter
                     io.reactivex.Flowable
+                    io.reactivex.Completable
+                    io.reactivex.Maybe
                     io.reactivex.Observable
                     io.reactivex.ObservableOnSubscribe
                     io.reactivex.Observer
@@ -39,7 +41,7 @@
 ;; --- Interop Helpers
 
 #?(:clj
-   (defn as-consumer
+   (defn- as-consumer
      "Wrap the provided function into a Consumer instance."
      ^Consumer
      [f]
@@ -48,7 +50,7 @@
          (f v)))))
 
 #?(:clj
-   (defn as-action
+   (defn- as-action
      "Wrap the provided function into a Action instance."
      ^Action
      [f]
@@ -57,7 +59,7 @@
          (f)))))
 
 #?(:clj
-   (defn as-predicate
+   (defn- as-predicate
      "Wrap the provided function into a Predicate instance."
      ^Predicate
      [f]
@@ -66,7 +68,7 @@
          (boolean (f v))))))
 
 #?(:clj
-   (defn as-function
+   (defn- as-function
      "Wrap the provided function into a Function instance."
      ^Function
      [f]
@@ -75,13 +77,41 @@
          (f v)))))
 
 #?(:clj
-   (defn as-bifunction
+   (defn- as-bifunction
      "Wrap the provided function into a Function instance."
      ^BiFunction
      [f]
      (reify BiFunction
        (apply [_ v b]
          (f v b)))))
+
+#?(:clj
+   (defn- as-observable
+     "Coerce a object to an observable instance."
+     [ob]
+     (cond
+       (instance? Observable ob) ob
+       (or (instance? Flowable ob)
+           (instance? Single ob)
+           (instance? Maybe ob)
+           (instance? Completable ob)) (.toObservable ob)
+
+       :else
+       (throw (IllegalArgumentException. "object can not be coerced to observable")))))
+
+#?(:clj
+   (defn- as-flowable
+     "Coerce a object to an flowable instance."
+     [ob]
+     (cond
+       (instance? Flowable ob) ob
+       (instance? Observable ob) (.toFlowable ob BackpressureStrategy/BUFFER)
+       (or (instance? Single ob)
+           (instance? Maybe ob)
+           (instance? Completable ob)) (.toFlowable ob)
+
+       :else
+       (throw (IllegalArgumentException. "object can not be coerced to flowable")))))
 
 (def ^:private noop (constantly nil))
 
@@ -106,7 +136,11 @@
   "Return true if `ob` is a instance
   of Rx.Observable."
   [ob]
-  (instance? Observable ob))
+  #?(:clj (or (instance? Observable ob)
+              (instance? Single ob)
+              (instance? Maybe ob)
+              (instance? Completable ob))
+     :cljs (instance? Observable ob)))
 
 (defn disposable?
   "Check if the provided object is disposable (jvm) or subscription (js)."
@@ -117,8 +151,11 @@
 #?(:clj
    (defn flowable?
      "Check if the provided value is Flowable instance."
-     [o]
-     (instance? Flowable o)))
+     [ob]
+     (or (instance? Flowable ob)
+         (instance? Single ob)
+         (instance? Maybe ob)
+         (instance? Completable ob))))
 
 #?(:clj
    (defn single?
@@ -838,15 +875,28 @@
               (Observable/amb ^Iterable values)))))
 
 (defn zip
-  "Merges the specified observable sequences or Promises
-  into one observable sequence."
+  "Merges the specified observable sequences or Promises (cljs) into one
+  observable sequence."
   [& items]
   (let [[selector items] (if (ifn? (first items))
                            [(first items) (rest items)]
                            [vector items])
         items (if (vector? items) items (vec items))]
     #?(:cljs (apply Observable.zip (conj items selector))
-       :clj  (Observable/zip ^Iterable items (as-function #(apply selector (seq %)))))))
+       :clj  (let [items (clojure.core/filter identity items)]
+               (cond
+                 (every? observable? items)
+                 (as-> items $
+                   (clojure.core/map as-observable items)
+                   (Observable/zip ^Iterable $ (as-function #(apply selector (seq %)))))
+
+                 (every? flowable? items)
+                 (as-> items $
+                   (clojure.core/map as-flowable items)
+                   (Flowable/zip ^Iterable $ (as-function #(apply selector (seq %)))))
+
+                 :else
+                 (throw (IllegalArgumentException. "items should be a list of observables or flowables")))))))
 
 (defn concat
   "Concatenates all of the specified observable
@@ -858,13 +908,15 @@
      :clj  (let [more (clojure.core/filter identity more)]
              (cond
                (every? observable? more)
-               (clojure.core/reduce #(Observable/concat %1 %2) more)
+               (->> (clojure.core/map as-observable more)
+                    (clojure.core/reduce #(Observable/concat %1 %2)))
 
                (every? flowable? more)
-               (clojure.core/reduce #(Flowable/concat %1 %2) more)
+               (->> (clojure.core/map as-flowable more)
+                    (clojure.core/reduce #(Flowable/concat %1 %2)))
 
                :else
-               (throw (ex-info "Invalid arguments." {}))))))
+               (throw (IllegalArgumentException. "items should be a list of observables or flowables"))))))
 
 (defn merge
   "Merges all the observable sequences and Promises
@@ -873,9 +925,18 @@
   #?(:cljs (let [more (cljs.core/filter identity more)]
              (cljs.core/reduce #(.merge %1 %2) more))
      :clj  (let [more (clojure.core/filter identity more)]
-             (clojure.core/reduce (fn [a b]
-                                    (Observable/merge a b))
-                                  more))))
+
+             (cond
+               (every? observable? more)
+               (->> (clojure.core/map as-observable more)
+                    (clojure.core/reduce #(Observable/merge %1 %2)))
+
+               (every? flowable? more)
+               (->> (clojure.core/map as-flowable more)
+                    (clojure.core/reduce #(Flowable/merge %1 %2)))
+
+               :else
+               (throw (IllegalArgumentException. "items should be a list of observables or flowables"))))))
 
 #?(:cljs
    (defn merge-all
@@ -968,10 +1029,29 @@
   single element in the result sequence."
   ([f ob]
    #?(:cljs (.reduce ob #(f %1 %2))
-      :clj  (.reduce ob (as-bifunction f))))
+      :clj  (cond
+              (observable? ob)
+              (-> (.reduce ob (as-bifunction f))
+                  (as-observable))
+
+              (flowable? ob)
+              (-> (.reduce ob (as-bifunction f))
+                  (as-flowable))
+
+              :else (throw (IllegalArgumentException. "`ob` should be observable or flowable")))))
+
   ([f seed ob]
    #?(:cljs (.reduce ob #(f %1 %2) seed)
-      :clj  (.reduce ob seed (as-bifunction f)))))
+      :clj  (cond
+              (observable? ob)
+              (-> (.reduce ob seed (as-bifunction f))
+                  (as-observable))
+
+              (flowable? ob)
+              (-> (.reduce ob seed (as-bifunction f))
+                  (as-flowable))
+
+              :else (throw (IllegalArgumentException. "`ob` should be observable or flowable"))))))
 
 (defn scan
   "Applies an accumulator function over an observable
@@ -1003,7 +1083,14 @@
    #?(:cljs (.combineLatest ob other f)
       :clj  (let [^Iterable sources (list ob other)
                   ^Function combiner (as-function #(apply f (seq %)))]
-              (Observable/combineLatest sources combiner)))))
+              (cond
+                (every? observable? sources)
+                (Observable/combineLatest sources combiner)
+
+                (every? flowable? sources)
+                (Flowable/combineLatest sources combiner)
+
+                :else (throw (IllegalArgumentException. "only observable or flowable are allowed")))))))
 
 (defn- unwrap-composite-exception
   [exc]
@@ -1165,7 +1252,9 @@
 
 (defn transform
   "Transform the observable sequence using transducers."
-  [xform stream]
+  [xform ob]
+  (when-not (observable? ob)
+    (throw (IllegalArgumentException. "Only observables are supported")))
   (letfn [(sink-step [sink]
             (fn
               ([r] (sink end) r)
@@ -1176,9 +1265,9 @@
                            (let [v (xsink nil input)]
                              (when (reduced? v)
                                (xsink @v))))
-                    disposable (on-value stream step)]
-                (on-complete stream #(do (xsink nil)
-                                         (sink end)))
+                    disposable (on-value ob step)]
+                (on-complete ob #(do (xsink nil)
+                                     (sink end)))
                 (fn []
                   (cancel! disposable)))))))
 
