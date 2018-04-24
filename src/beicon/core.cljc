@@ -887,12 +887,12 @@
                (cond
                  (every? observable? items)
                  (as-> items $
-                   (clojure.core/map as-observable items)
+                   (clojure.core/map as-observable $)
                    (Observable/zip ^Iterable $ (as-function #(apply selector (seq %)))))
 
                  (every? flowable? items)
                  (as-> items $
-                   (clojure.core/map as-flowable items)
+                   (clojure.core/map as-flowable $)
                    (Flowable/zip ^Iterable $ (as-function #(apply selector (seq %)))))
 
                  :else
