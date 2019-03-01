@@ -1,5 +1,17 @@
 # Changelog #
 
+## Version 5.0.0 ##
+
+Date: 2019-03-01
+
+- Update to RxJS 6.4.0
+- Update ro RxJava 2.2.7
+
+This release reduces the rxjs bundle size including only the rxjs core
+and all operators (excluding all tests, ajax, websockets and other
+unrelated and not exposted api).
+
+
 ## Version 4.1.0 ##
 
 Date: 2017-11-17

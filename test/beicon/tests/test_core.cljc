@@ -198,11 +198,14 @@
          (s/on-error s done)))
      :clj
      (let [s (s/create (fn [sink]
-                         (sink (ex-info "oh noes" {}))))]
+                         (future (sink (ex-info "oh noes" {})))))]
        (t/is (s/observable? s))
        (drain! s
-               noop
-               #(t/is (= (ex-message %) "oh noes"))))))
+               (fn [x]
+                 (println "onNext" x))
+               #(do
+                  (println %)
+                  (t/is (= (ex-message %) "oh noes")))))))
 
 (t/deftest observable-from-promise
   #?(:cljs
@@ -262,8 +265,8 @@
        (t/is (s/observable? s))
        (drain! s #(t/is (= % [1]))))))
 
-(t/deftest observable-never
-  #?(:cljs
+#?(:cljs
+   (t/deftest observable-never
      (t/async done
        (let [n (s/never)]
          (s/on-end n done)))))
@@ -298,8 +301,8 @@
            cs (s/zip s1 s2 s3)]
        (drain! cs #(t/is (= % [[1 4 7] [2 5 8]]))))))
 
-(t/deftest observable-fjoin
-  #?(:cljs
+#?(:cljs
+   (t/deftest observable-fjoin
      (t/async done
        (let [s1 (s/from-coll [1 2])
              s2 (s/from-coll [4 5])
@@ -380,8 +383,8 @@
          (s/end! b))
        (drain! b #(t/is (= % [-1 1 2 3]))))))
 
-(t/deftest observable-reduce
-  #?(:cljs
+#?(:cljs
+   (t/deftest observable-reduce
      (t/async done
        (let [s (->> (s/from-coll [4 5 6])
                     (s/reduce conj [1 2])

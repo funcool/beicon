@@ -279,8 +279,8 @@
                (cond
                  (identical? end v) (.onComplete emitter)
                  (-next? v) (.onNext emitter v)
-                 (-error? v) (.onEr emitter v)
-                 (-end? v) (.onplete emitter)
+                 (-error? v) (.onError emitter v)
+                 (-end? v) (.onComplete emitter)
               (reduced? v) (do
                              (sink emitter @v)
                                 (.onComplete emitter))))]

@@ -1,0 +1,8 @@
+#kaocha/v1
+{:tests [{:id :unit
+          :test-paths ["test/beicon/tests"]
+          :source-paths ["src"]
+          :ns-patterns ["test-"]}]
+ ;; :reporter kaocha.report.progress/progress
+ ;; :plugins [:profiling :notifier]
+ }
