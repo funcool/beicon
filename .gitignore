@@ -13,3 +13,5 @@ pom.xml.asc
 /repl
 /node_modules
 /nashorn_code_cache
+/.cpcache
+/.rebel*

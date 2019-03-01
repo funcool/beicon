@@ -1,467 +1,440 @@
 /**
  * @const
  */
-var Rx = function() {};
+var rxjs = function() {};
 
 /**
  * @constructor
  */
-Rx.Observable = function() {};
+rxjs.Observable = function() {};
 
 /**
  * @constructor
- * @extends {Rx.Observable}
+ * @extends {rxjs.Observable}
  */
-Rx.Subject = function() {};
+rxjs.Subject = function() {};
 
 /**
  * @constructor
- * @extends {Rx.Subject}
+ * @extends {rxjs.Subject}
  */
-Rx.BehaviorSubject = function() {};
-
-/**
- * @constructor
- */
-Rx.Subscriber = function() {};
+rxjs.BehaviorSubject = function() {};
 
 /**
  * @constructor
  */
-Rx.Scheduler = function() {};
+rxjs.Subscriber = function() {};
 
 /**
  * @constructor
  */
-Rx.Subscription = function() {};
+rxjs.Scheduler = function() {};
+
+/**
+ * @constructor
+ */
+rxjs.Subscription = function() {};
 
 /**
  * @const
  */
-Rx.Scheduler.asap;
+rxjs.asapScheduler;
 
 /**
  * @const
  */
-Rx.Scheduler.queue;
+rxjs.asyncScheduler;
 
 /**
  * @const
  */
-Rx.Scheduler.async;
+rxjs.queueScheduler;
+
+/**
+ * @const
+ */
+rxjs.animationFrameScheduler;
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.from = function() {};
+rxjs.Observable.from = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.fromArray = function() {};
+rxjs.Observable.fromArray = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.of = function() {};
+rxjs.of = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.fromPromise = function() {};
+rxjs.fromPromise = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.fromEvent = function() {};
+rxjs.fromEvent = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.throw = function() {};
+rxjs.throwError = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.timer = function() {};
+rxjs.Observable.timer = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.interval = function() {};
+rxjs.interval = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.range = function() {};
+rxjs.range = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.forkJoin = function() {};
-
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Subscription}
- */
-Rx.Observable.prototype.subscribe = function() {};
+rxjs.forkJoin = function() {};
 
 /**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
+ * @this {rxjs.Observable}
+ * @return {rxjs.Subscription}
  */
-Rx.Observable.prototype.race = function() {};
+rxjs.Observable.prototype.subscribe = function() {};
 
 /**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
+ * @this {rxjs.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.prototype.zip = function() {};
+rxjs.Observable.prototype.pipe = function() {};
 
 /**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
+ * @this {rxjs.Observable}
+ * @return {rxjs.Observable}
  */
-Rx.Observable.prototype.zipAll = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.publish = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.concat = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.concatAll = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.concatMap = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.concatMapTo = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.scan = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.merge = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.mergeAll = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.mergeMap = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.mergeMapTo = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.filter = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.map = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.mapTo = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.flatMap = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.skip = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.skipWhile = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.skipUntil = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.take = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.takeWhile = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.takeUntil = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.reduce = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.do = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.throttle = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.throttleTime = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.debounce = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.debounceTime = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.sample = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.sampleTime = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.delay = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.delayWhen = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.timeout = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.timeoutWith = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.distinctUntilChanged = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.bufferCount = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.bufferTime = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.bufferWhen = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.buffer = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.retry = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.retryWhen = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.withLatestFrom = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.combineLatest = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.catch = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.partition = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.repeat = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.share = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.ignoreElements = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.subscribeOn = function() {};
-
-/**
- * @this {Rx.Observable}
- * @return {Rx.Observable}
- */
-Rx.Observable.prototype.observeOn = function() {};
+rxjs.Observable.prototype.toPromise = function() {};
 
 /**
  * @this {null}
- * @return {Rx.Subscriber}
+ * @return {rxjs.Observable}
  */
-Rx.Subscriber.create = function() {};
+rxjs.operators.race = function() {};
 
 /**
- * @this {Rx.Subscriber}
- * @return {null}
+ * @this {null}
+ * @return {rxjs.Observable}
  */
-Rx.Subscriber.prototype.next = function() {};
+rxjs.operators.zip = function() {};
 
 /**
- * @this {Rx.Subscriber}
- * @return {null}
+ * @this {null}
+ * @return {rxjs.Observable}
  */
-Rx.Subscriber.prototype.error = function() {};
+rxjs.operators.zipAll = function() {};
 
 /**
- * @this {Rx.Subscriber}
- * @return {null}
+ * @this {null}
+ * @return {rxjs.Observable}
  */
-Rx.Subscriber.prototype.complete = function() {};
-
-
-/**
- * @this {Rx.Subscription}
- * @return {null}
- */
-Rx.Subscription.prototype.unsubscribe = function() {};
+rxjs.operators.publish = function() {};
 
 /**
- * @this {Rx.Subscription}
- * @return {null}
+ * @this {null}
+ * @return {rxjs.Observable}
  */
-Rx.Subscription.prototype.add = function() {};
+rxjs.operators.concat = function() {};
 
 /**
- * @this {Rx.Subscription}
- * @return {null}
+ * @this {null}
+ * @return {rxjs.Observable}
  */
-Rx.Subscription.prototype.remove = function() {};
+rxjs.operators.concatAll = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.concatMap = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.concatMapTo = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.scan = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.merge = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.mergeAll = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.mergeMap = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.mergeMapTo = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.filter = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.map = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.mapTo = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.flatMap = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.skip = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.skipWhile = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.skipUntil = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.take = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.takeWhile = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.takeUntil = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.reduce = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.tap = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.throttle = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.throttleTime = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.debounce = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.debounceTime = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.sample = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.sampleTime = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.delay = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.delayWhen = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.timeout = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.timeoutWith = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.distinctUntilChanged = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.bufferCount = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.bufferTime = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.bufferWhen = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.buffer = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.retry = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.retryWhen = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.withLatestFrom = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.combineLatest = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.catchError = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.partition = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.repeat = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.share = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.ignoreElements = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.subscribeOn = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.observeOn = function() {};

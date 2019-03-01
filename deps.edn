@@ -1,0 +1,23 @@
+{:deps {org.clojure/clojurescript {:mvn/version "1.10.516"}
+        org.clojure/clojure {:mvn/version "1.10.0"}
+        org.clojure/core.async {:mvn/version "0.3.443"}
+        io.reactivex.rxjava2/rxjava {:mvn/version "2.1.12"}}
+ :paths ["src" "assets"]
+ :aliases
+ {:dev
+  {:extra-deps {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
+                com.bhauman/rebel-readline {:mvn/version "0.1.4"}
+                com.bhauman/figwheel-main {:mvn/version "0.1.9"}
+                org.clojure/tools.namespace {:mvn/version "0.2.11"}
+                funcool/promesa {:mvn/version "2.0.0"}}
+
+   :extra-paths ["test" "dev-resources"]}
+
+  :jar
+  {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
+   :main-opts ["-m" "hf.depstar.jar"]}
+
+  :test
+  {:extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                           :sha "028a6d41ac9ac5d5c405dfc38e4da6b4cc1255d5"}}
+   :main-opts ["-m" "cognitect.test-runner"]}}}

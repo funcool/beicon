@@ -4,11 +4,12 @@
             [promesa.core :as p]
             [beicon.core :as s]
             #?(:clj  [beicon.tests.helpers :refer (drain! noop flowable-drain!)]
+
                :cljs [beicon.tests.helpers
                       :refer (noop drain!)
                       :refer-macros (with-timeout)])))
 
-#?(:clj (defn ex-message [^Exception e] (.getMessage e)))
+;; #?(:clj (defn ex-message [^Exception e] (.getMessage e)))
 
 ;; event stream
 
@@ -218,24 +219,24 @@
        (t/is (s/observable? s))
        (drain! s #(t/is (= % [42]))))))
 
-(t/deftest observable-from-rejected-promise
-  #?(:cljs
-     (t/async done
-       (let [p (p/rejected (ex-info "oh noes" {}))
-             s (s/from-promise p)]
-         (t/is (s/observable? s))
-         (drain! s
-                 #(t/is (= % []))
-                 #(t/is (= (ex-message %) "oh noes")))
-         (s/on-error s done)))
-     :clj
-     (let [p (p/rejected (ex-info "oh noes" {}))
-           s (s/from-future p)]
-       (t/is (s/observable? s))
-       (drain! s
-               #(t/is (= % []))
-               #(t/is (instance? clojure.lang.ExceptionInfo
-                                 (.getCause ^Exception %)))))))
+;; (t/deftest observable-from-rejected-promise
+;;   #?(:cljs
+;;      (t/async done
+;;        (let [p (p/rejected (ex-info "oh noes" {}))
+;;              s (s/from-promise p)]
+;;          (t/is (s/observable? s))
+;;          (drain! s
+;;                  #(t/is (= % []))
+;;                  #(t/is (= (ex-message %) "oh noes")))
+;;          (s/on-error s done)))
+;;      :clj
+;;      (let [p (p/rejected (ex-info "oh noes" {}))
+;;            s (s/from-future p)]
+;;        (t/is (s/observable? s))
+;;        (drain! s
+;;                #(t/is (= % []))
+;;                #(t/is (instance? clojure.lang.ExceptionInfo
+;;                                  (.getCause ^Exception %)))))))
 
 (t/deftest observable-range
   #?(:cljs
@@ -653,6 +654,17 @@
        (t/is (s/observable? s))
        (drain! s #(t/is (= % coll))))))
 
+(t/deftest scheduler-predicate-and-resolver
+  #?(:cljs (t/is (s/scheduler? (s/scheduler :asap))))
+  #?(:cljs (t/is (s/scheduler? (s/scheduler :queue))))
+  #?(:cljs (t/is (s/scheduler? (s/scheduler :async))))
+  #?(:cljs (t/is (s/scheduler? (s/scheduler :af))))
+  #?(:cljs (t/is (s/scheduler? (s/scheduler :animation-frame))))
+  #?(:clj (t/is (s/scheduler? (s/scheduler :computation))))
+  #?(:clj (t/is (s/scheduler? (s/scheduler :io))))
+  #?(:clj (t/is (s/scheduler? (s/scheduler :single))))
+  #?(:clj (t/is (s/scheduler? (s/scheduler :thread))))
+  #?(:clj (t/is (s/scheduler? (s/scheduler :trampoline)))))
 
 #?(:clj
    (defn- flowable-from-coll
@@ -689,3 +701,4 @@
      (if (t/successful? m)
        (set! (.-exitCode js/process) 0)
        (set! (.-exitCode js/process) 1))))
+
