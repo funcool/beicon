@@ -9,7 +9,7 @@ Date: 2019-03-01
 
 This release reduces the rxjs bundle size including only the rxjs core
 and all operators (excluding all tests, ajax, websockets and other
-unrelated and not exposted api).
+unrelated and not exposted api). Now it is 23k minified and gziped.
 
 
 ## Version 4.1.0 ##

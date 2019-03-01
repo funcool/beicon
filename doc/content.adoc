@@ -13,13 +13,6 @@
 _beicon_ is a small and concise library that provides reactive streams API for
 Clojure and ClojureScript.
 
-[WARNING]
-====
-This documentation does not cover the whole API, so if you miss
-some function, contributions are very welcome. You can see the full
-link:api/index.html#id[API documentation here].
-====
-
 
 === Project Maturity
 
@@ -33,7 +26,7 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "4.1.0"]
+[funcool/beicon "5.0.0"]
 ----
 
 
