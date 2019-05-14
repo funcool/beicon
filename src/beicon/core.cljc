@@ -44,7 +44,7 @@
 ;; --- Interop Helpers
 
 #?(:clj
-   (defn- as-consumer
+   (defn as-consumer
      "Wrap the provided function into a Consumer instance."
      ^Consumer
      [f]
@@ -53,7 +53,7 @@
          (f v)))))
 
 #?(:clj
-   (defn- as-action
+   (defn as-action
      "Wrap the provided function into a Action instance."
      ^Action
      [f]
@@ -62,7 +62,7 @@
          (f)))))
 
 #?(:clj
-   (defn- as-predicate
+   (defn as-predicate
      "Wrap the provided function into a Predicate instance."
      ^Predicate
      [f]
@@ -71,7 +71,7 @@
          (boolean (f v))))))
 
 #?(:clj
-   (defn- as-function
+   (defn as-function
      "Wrap the provided function into a Function instance."
      ^Function
      [f]
@@ -80,7 +80,7 @@
          (f v)))))
 
 #?(:clj
-   (defn- as-bifunction
+   (defn as-bifunction
      "Wrap the provided function into a Function instance."
      ^BiFunction
      [f]
@@ -89,7 +89,7 @@
          (f v b)))))
 
 #?(:clj
-   (defn- as-observable
+   (defn as-observable
      "Coerce a object to an observable instance."
      [ob]
      (cond
@@ -103,7 +103,7 @@
        (throw (IllegalArgumentException. "object can not be coerced to observable")))))
 
 #?(:clj
-   (defn- as-flowable
+   (defn as-flowable
      "Coerce a object to an flowable instance."
      [ob]
      (cond
