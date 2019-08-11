@@ -51,7 +51,7 @@
                                 :watch-fn run-tests
                                 :cache-analysis false
                                 :optimizations :none
-                                :source-map false))
+                                :source-map true))
               (catch Exception e
                 (println "ERROR:" e)
                 (Thread/sleep 2000)

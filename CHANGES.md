@@ -6,8 +6,7 @@ Date: ---
 
 - Update to RxJS 6.5.2
 - Update to RxJava 2.2.11
-- Make the `map` function argument to receive the `index` as second
-  parameter (only on cljs).
+- Add `map-indexed` operator.
 - Make the `observer?` predicate clj only (rxjs does not have a type
   defined for it).
 

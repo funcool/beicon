@@ -1,7 +1,8 @@
 (ns beicon.core
-  (:refer-clojure :exclude [true? map filter reduce merge repeat mapcat
-                            repeatedly zip dedupe drop take take-while
-                            concat empty delay range throw do trampoline])
+  (:refer-clojure :exclude [true? map filter reduce merge repeat
+                            mapcat repeatedly zip dedupe drop take
+                            take-while map-indexed concat empty delay
+                            range throw do trampoline])
   #?(:cljs (:require [beicon.impl.rxjs]))
   #?(:clj  (:import io.reactivex.BackpressureStrategy
                     io.reactivex.Emitter
@@ -34,6 +35,7 @@
                     java.util.concurrent.Callable
                     java.util.concurrent.Future
                     java.util.concurrent.TimeUnit
+                    java.util.concurrent.atomic.AtomicLong
                     java.util.concurrent.atomic.AtomicReference
                     org.reactivestreams.Subscriber
                     org.reactivestreams.Subscription)))
@@ -489,8 +491,7 @@
    (defn subscribe-with
      "Subscribes an observer or subscriber to the observable sequence."
      [ob observer]
-     {:pre [(or (observer? observer)
-                (subject? observer))]}
+     {:pre [(subject? observer)]}
      (wrap-disposable (.subscribe ob observer))))
 
 #?(:clj
@@ -964,8 +965,16 @@
   "Apply a function to each element of an observable
   sequence."
   [f ob]
-  #?(:cljs (pipe ob (.map rxop #(f %1 %2)))
+  #?(:cljs (pipe ob (.map rxop #(f %)))
      :clj  (.map ob (as-function f))))
+
+(defn map-indexed
+  [f ob]
+  #?(:cljs (pipe ob (.map rxop #(f %2 %1)))
+     :clj  (let [counter (AtomicLong. 0)]
+             (.map ob (reify Function
+                        (apply [_ v]
+                          (f (.getAndIncrement counter) v)))))))
 
 (defn flat-map
   "Projects each element of an observable sequence to

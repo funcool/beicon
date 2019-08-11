@@ -420,6 +420,19 @@
            fs (s/map :foo s)]
        (drain! fs #(t/is (= % [1 2]))))))
 
+
+(t/deftest observable-map-indexed
+  #?(:cljs
+     (t/async done
+       (let [s (s/from-coll [:a :b :c])
+             fs (s/map-indexed vector s)]
+         (drain! fs #(t/is (= % [[0 :a] [1 :b] [2 :c]])))
+         (s/on-end fs done)))
+     :clj
+     (let [s (s/from-coll [:a :b :c])
+           fs (s/map-indexed vector s)]
+       (drain! fs #(t/is (= [[0 :a] [1 :b] [2 :c]] %))))))
+
 (t/deftest observable-retry
   #?(:cljs
      (t/async done
