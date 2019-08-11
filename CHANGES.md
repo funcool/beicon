@@ -8,6 +8,8 @@ Date: ---
 - Update to RxJava 2.2.11
 - Make the `map` function argument to receive the `index` as second
   parameter (only on cljs).
+- Make the `observer?` predicate clj only (rxjs does not have a type
+  defined for it).
 
 On this release we pass to use a local rollup based process for
 generate the bundle from the npm installed dependency (that will

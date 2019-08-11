@@ -180,10 +180,11 @@
   [b]
   (instance? Subject b))
 
-(defn observer?
-  "Check if the provided value is Observer instance."
-  [o]
-  (instance? Observer o))
+#?(:clj
+   (defn observer?
+     "Check if the provided value is Observer instance."
+     [o]
+     (instance? Observer o)))
 
 ;; --- Observables Constructor
 
