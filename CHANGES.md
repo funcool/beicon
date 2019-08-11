@@ -1,5 +1,19 @@
 # Changelog #
 
+## Version 5.1.0-SNAPSHOT ##
+
+Date: ---
+
+- Update to RxJS 6.5.2
+- Update to RxJava 2.2.11
+- Make the `map` function argument to receive the `index` as second
+  parameter (only on cljs).
+
+On this release we pass to use a local rollup based process for
+generate the bundle from the npm installed dependency (that will
+simplify upgrading the RxJS for the next versions).
+
+
 ## Version 5.0.0 ##
 
 Date: 2019-03-01
