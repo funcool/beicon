@@ -1,6 +1,6 @@
 {:foreign-libs
- [{:file "rxjs/rx.js"
-   :file-min "rxjs/rx.min.js"
+ [{:file "rxjs/rxjs.bundle.js"
+   :file-min "rxjs/rxjs.bundle.min.js"
    :provides ["beicon.impl.rxjs"]}]
  :externs ["rxjs/externs.js"]
  }

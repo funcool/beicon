@@ -1,6 +1,8 @@
 (require '[clojure.java.shell :as shell])
 (require '[figwheel.main.api :as figwheel])
 (require '[cljs.build.api :as api])
+(require '[badigeon.jar])
+(require '[badigeon.deploy])
 
 (defmulti task first)
 
@@ -19,7 +21,6 @@
    :language-in  :ecmascript5
    :language-out :ecmascript5
    :target :nodejs
-   :optimizations :simple
    :pretty-print true
    :pseudo-names true
    :verbose true})
@@ -77,6 +78,31 @@
     :config {:open-url false
              :auto-testing false
              :watch-dirs ["src" "test"]}}))
+
+(defmethod task "jar"
+  [args]
+  (badigeon.jar/jar 'funcool/beicon
+                    {:mvn/version "5.1.0-SNAPSHOT"}
+                    {:out-path "target/beicon.jar"
+                     :mvn/repos '{"clojars" {:url "https://repo.clojars.org/"}}
+                     :allow-all-dependencies? false}))
+
+(defmethod task "deploy"
+  [args]
+  (let [artifacts [{:file-path "target/beicon.jar" :extension "jar"}
+                   {:file-path "pom.xml" :extension "pom"}]]
+    (badigeon.deploy/deploy
+     'funcool/beicon "5.1.0-SNAPSHOT"
+     artifacts
+     {:id "clojars" :url "https://repo.clojars.org/"}
+     {:allow-unsigned? true})))
+
+(defmethod task "build-and-deploy"
+  [args]
+  (task ["jar"])
+  (task ["deploy"]))
+
+
 
 ;;; Build script entrypoint. This should be the last expression.
 
