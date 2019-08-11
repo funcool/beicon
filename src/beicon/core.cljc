@@ -963,7 +963,7 @@
   "Apply a function to each element of an observable
   sequence."
   [f ob]
-  #?(:cljs (pipe ob (.map rxop #(f %)))
+  #?(:cljs (pipe ob (.map rxop #(f %1 %2)))
      :clj  (.map ob (as-function f))))
 
 (defn flat-map
