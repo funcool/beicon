@@ -9,8 +9,9 @@ Date: ---
 - Add `map-indexed` operator.
 - Make the `observer?` predicate clj only (rxjs does not have a type
   defined for it).
+- Implement `IDeref` protocol for `BehaviorSubject` (only cljs).
 
-On this release we pass to use a local rollup based process for
+On this release we start to use a local rollup based process for
 generate the bundle from the npm installed dependency (that will
 simplify upgrading the RxJS for the next versions).
 

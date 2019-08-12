@@ -338,6 +338,15 @@
            sample (s/skip-while odd? nums)]
        (drain! sample #(t/is (= % [2 3 4 5]))))))
 
+#?(:cljs
+   (t/deftest subject-as-ideref
+     (t/async done
+       (let [nums (s/from-coll [1 1 1 2 3 4 5])
+             sub (s/behavior-subject nil)]
+         (s/on-end sub #(t/is (= @sub 5)
+                              (done)))
+         (s/subscribe-with nums sub)))))
+
 (t/deftest subject-push
   #?(:cljs
      (t/async done

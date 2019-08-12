@@ -142,6 +142,14 @@
      (def ^:const Disposable (.-Subscription rx))
      (def ^:const Scheduler (.-Scheduler rx))))
 
+#?(:cljs
+   (extend-type BehaviorSubject
+     IDeref
+     (-deref [self]
+       (.getValue ^js/rxjs.BehaviorSubject self))))
+
+
+
 (defn observable?
   "Return true if `ob` is a instance
   of Rx.Observable."

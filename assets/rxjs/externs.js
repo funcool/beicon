@@ -19,6 +19,7 @@ rxjs.Subject = function() {};
  * @extends {rxjs.Subject}
  */
 rxjs.BehaviorSubject = function() {};
+rxjs.BehaviorSubject.prototype.getValue = function() {};
 
 /**
  * @constructor
