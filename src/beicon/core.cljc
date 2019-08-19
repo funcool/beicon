@@ -1138,10 +1138,11 @@
   by an exception with the next observable sequence."
   ([handler ob]
    #?(:cljs (pipe ob (.catchError rxop
-                      (fn [value]
-                        (let [value (handler value)]
+                      (fn [error source]
+                        (let [value (handler error source)]
                           (cond
                             (observable? value) value
+                            (nil? value) (empty)
                             (-end? value) (empty)
                             (-error? value) (throw value)
                             (-next? value) (just value))))))
@@ -1179,7 +1180,6 @@
                 (.doOnNext (as-consumer f))
                 (.doOnError (as-consumer g))
                 (.doOnComplete (as-action e))))))
-
 (def do
   "An idiomatic alias for `tap`."
   tap)
