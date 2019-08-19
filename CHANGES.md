@@ -10,6 +10,7 @@ Date: ---
 - Make the `observer?` predicate clj only (rxjs does not have a type
   defined for it).
 - Implement `IDeref` protocol for `BehaviorSubject` (only cljs).
+- Add `as-observable` helper cljs.
 
 On this release we start to use a local rollup based process for
 generate the bundle from the npm installed dependency (that will

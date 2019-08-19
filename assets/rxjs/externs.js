@@ -15,6 +15,11 @@ rxjs.Observable = function() {};
 rxjs.Subject = function() {};
 
 /**
+ * @return {rxjs.Observable}
+ */
+rxjs.Subject.prototype.asObservable = function() {};
+
+/**
  * @constructor
  * @extends {rxjs.Subject}
  */

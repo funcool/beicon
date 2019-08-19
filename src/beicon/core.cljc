@@ -90,10 +90,12 @@
        (apply [_ v b]
          (f v b)))))
 
-#?(:clj
-   (defn as-observable
-     "Coerce a object to an observable instance."
-     [ob]
+(declare subject?)
+
+(defn as-observable
+  "Coerce a object to an observable instance."
+  [ob]
+  #?(:clj
      (cond
        (instance? Observable ob) ob
        (or (instance? Flowable ob)
@@ -102,7 +104,11 @@
            (instance? Completable ob)) (.toObservable ob)
 
        :else
-       (throw (IllegalArgumentException. "object can not be coerced to observable")))))
+       (throw (IllegalArgumentException. "object can not be coerced to observable")))
+     :cljs
+     (do
+       (assert (subject? ob) "`ob` should be a Subject instance")
+       (.asObservable ^js/Subject ob))))
 
 #?(:clj
    (defn as-flowable
@@ -147,8 +153,6 @@
      IDeref
      (-deref [self]
        (.getValue ^js/rxjs.BehaviorSubject self))))
-
-
 
 (defn observable?
   "Return true if `ob` is a instance
