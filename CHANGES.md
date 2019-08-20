@@ -1,8 +1,8 @@
 # Changelog #
 
-## Version 5.1.0-SNAPSHOT ##
+## Version 5.1.0 ##
 
-Date: ---
+Date: 2019-08-20
 
 - Update to RxJS 6.5.2
 - Update to RxJava 2.2.11

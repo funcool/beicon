@@ -26,7 +26,7 @@ dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "5.0.0"]
+[funcool/beicon "5.1.0"]
 ----
 
 
@@ -71,8 +71,9 @@ which is pretty analogous to the Clojures one:
 
 === From Atom
 
-Atoms in Clojure are watchable, so you can listen for their changes. This method converts
-that changes into an infinite observable sequence of atom changes:
+Atoms in Clojure are watchable, so you can listen for their
+changes. This method converts that changes into an infinite observable
+sequence of atom changes:
 
 [source, clojure]
 ----
@@ -131,8 +132,8 @@ This stream does not yield any value and just terminates.
 
 === With timeout
 
-This allows to create an observable sequence of one unique value, that will be emitted
-after a specified amount of time:
+This allows to create an observable sequence of one unique value, that
+will be emitted after a specified amount of time:
 
 [source, clojure]
 ----
@@ -146,9 +147,9 @@ after a specified amount of time:
 
 === From factory
 
-This is the most advanced and flexible way to create an observable sequence. It
-allows to have control about termination and errors, and is intended to be used
-for building other kinds of constructors.
+This is the most advanced and flexible way to create an observable
+sequence. It allows to have control about termination and errors, and
+is intended to be used for building other kinds of constructors.
 
 [source, clojure]
 ----
@@ -165,8 +166,9 @@ for building other kinds of constructors.
 ;; ==> v: 2
 ----
 
-This is implemented using protocols to make it flexible and easily extensible
-by the user. This is how the default implementation behaves:
+This is implemented using protocols to make it flexible and easily
+extensible by the user. This is how the default implementation
+behaves:
 
 - Exceptions or exception instances trigger the error termination of stream.
 - `(rx/end value)` sends the unwrapped value to the stream, then terminates stream.
@@ -174,8 +176,8 @@ by the user. This is how the default implementation behaves:
 - `nil` triggers stream validation.
 - any other values are valid values for sending to the stream.
 
-On the JVM, there are other factory methods, that allow creation of backpressure-aware
-observables:
+On the JVM, there are other factory methods, that allow creation of
+backpressure-aware observables:
 
 [source, clojure]
 ----
@@ -188,15 +190,17 @@ observables:
 ----
 
 The difference to the `create` function, the `generate` executes the
-factory function multiple times and you need to call sink *once* for each
-execution. Additionally, you can maintain state between executions
-retuning the desired value and that value will passed as first argument
-on the next execution. You can optionally provide an initial state using the
-second argument `setup` and a third `dispose` callback.
+factory function multiple times and you need to call sink *once* for
+each execution. Additionally, you can maintain state between
+executions retuning the desired value and that value will passed as
+first argument on the next execution. You can optionally provide an
+initial state using the second argument `setup` and a third `dispose`
+callback.
 
-Many simple observables can be converted to be backpressure-aware using
-the `to-flowable` function. Be aware, that the default strategy `:buffer` (see below)
-is used by default to handle backpressure (over production).
+Many simple observables can be converted to be backpressure-aware
+using the `to-flowable` function. Be aware, that the default strategy
+`:buffer` (see below) is used by default to handle backpressure (over
+production).
 
 [source, clojure]
 ----
@@ -204,8 +208,8 @@ is used by default to handle backpressure (over production).
      (rx/to-flowable))
 ----
 
-Optionally, you can specify the strategy to use for handling backpressure
-by the first argument:
+Optionally, you can specify the strategy to use for handling
+backpressure by the first argument:
 
 [source, clojure]
 ----
@@ -225,18 +229,20 @@ This is a list of available strategies:
 
 === The stream states
 
-The observable sequence can be in three different kind of states: *alive*, *"errored"* or
-*ended*. If an error is emitted the stream can be considered ended with an error.
-So *error* or *end* states are considered termination states.
+The observable sequence can be in three different kind of states:
+*alive*, *"errored"* or *ended*. If an error is emitted the stream can
+be considered ended with an error.  So *error* or *end* states are
+considered termination states.
 
-And for convenience you can subscribe to any of that states of an observable
-sequence.
+And for convenience you can subscribe to any of that states of an
+observable sequence.
 
 
 === General purpose
 
-A general purpose subscription is one that allows you to create one subscription,
-that watches all the different possible states of an observable sequence:
+A general purpose subscription is one that allows you to create one
+subscription, that watches all the different possible states of an
+observable sequence:
 
 [source, clojure]
 ----
@@ -246,32 +252,36 @@ that watches all the different possible states of an observable sequence:
                        #(println "on-end:")))
 ----
 
-The return value of the `subscribe` function is a subscription object, that identifies
-the current subscription. It can be cancelled by executing `(rx/cancel! sub)`.
+The return value of the `subscribe` function is a subscription object,
+that identifies the current subscription. It can be cancelled by
+executing `(rx/cancel! sub)`.
 
 
 === Consume values
 
-But in most circumstances you only want to consume values regardless of any error
-or termination. For this purposes there is the `on-value` function:
+But in most circumstances you only want to consume values regardless
+of any error or termination. For this purposes there is the `on-value`
+function:
 
 [source, clojure]
 ----
 (def sub (rx/on-value sub #(println "val:" %)))
 ----
 
-Like with the `subscribe` function, the `on-value` function also returns a callable, that,
-when called, will dispose the created subscription.
+Like with the `subscribe` function, the `on-value` function also
+returns a callable, that, when called, will dispose the created
+subscription.
 
-NOTE: take care, that calling any one of those helper functions creates a
-separated subscription and it can behave unexpectedly, if you are not aware whether you
-are using <<hot or cold observables, hot-vs-cold-observales>>.
+NOTE: take care, that calling any one of those helper functions
+creates a separated subscription and it can behave unexpectedly, if
+you are not aware whether you are using <<hot or cold observables,
+hot-vs-cold-observales>>.
 
 
 === Consume successful termination
 
-With the `on-end` function you can watch the successful termination of an observable
-sequence:
+With the `on-end` function you can watch the successful termination of
+an observable sequence:
 
 [source, clojure]
 ----
@@ -281,8 +291,8 @@ sequence:
 
 === Consume error termination
 
-With the `on-error` function you can watch the error termination of an observable
-sequence:
+With the `on-error` function you can watch the error termination of an
+observable sequence:
 
 [source, clojure]
 ----
@@ -292,9 +302,10 @@ sequence:
 
 === Backpressure-aware consumption
 
-The streams created using the `generate` function, are backpressure-aware
-streams and can be consumed in an backpressure-aware way. For this you need to pass
-an object, that implements the `ISubscriber` protocol. Lets see an example:
+The streams created using the `generate` function, are
+backpressure-aware streams and can be consumed in an
+backpressure-aware way. For this you need to pass an object, that
+implements the `ISubscriber` protocol. Lets see an example:
 
 [source, clojure]
 ----
@@ -321,8 +332,8 @@ an object, that implements the `ISubscriber` protocol. Lets see an example:
 ;; => on-end
 ----
 
-In the same way as the `subscribe` function, the `subscribe-with` returns
-a cancellable subscription object.
+In the same way as the `subscribe` function, the `subscribe-with`
+returns a cancellable subscription object.
 
 
 == Transformations
@@ -432,13 +443,14 @@ Skip while some predicate evaluates to `true`:
 ;; ==> on-end
 ----
 
-Or skip until another observable yields a value with `skip-until` (no example at
-this moment).
+Or skip until another observable yields a value with `skip-until` (no
+example at this moment).
 
 
 === Take
 
-You can also limit the observable sequence to an specified number of elements:
+You can also limit the observable sequence to an specified number of
+elements:
 
 [source, clojure]
 ----
@@ -478,8 +490,8 @@ Or a predicate evaluates to `true`:
 === Slice
 
 This is a combination of `skip` and `take`, and returns an observable
-sequence, that represents the portion between start and end of the source
-observable sequence.
+sequence, that represents the portion between start and end of the
+source observable sequence.
 
 [source, clojure]
 ----
@@ -499,8 +511,8 @@ observable sequence.
 
 === Reduce
 
-Allows combining all results of an observable sequence using a combining function
-(also called *reducing* function):
+Allows combining all results of an observable sequence using a
+combining function (also called *reducing* function):
 
 [source, clojure]
 ----
@@ -518,8 +530,8 @@ Allows combining all results of an observable sequence using a combining functio
 
 === Scan
 
-Like `reduce` (see above), but returns a stream of each intermediate result
-instead (similar to `reductions` in Clojure):
+Like `reduce` (see above), but returns a stream of each intermediate
+result instead (similar to `reductions` in Clojure):
 
 [source, clojure]
 ----
@@ -541,8 +553,8 @@ instead (similar to `reductions` in Clojure):
 
 === Buffer
 
-This transformer function allows to accumulate N values in a buffer and then
-emits them as one value (similar to `partition` in Clojure)
+This transformer function allows to accumulate N values in a buffer
+and then emits them as one value (similar to `partition` in Clojure)
 
 [source, clojure]
 ----
@@ -564,10 +576,11 @@ emits them as one value (similar to `partition` in Clojure)
 
 === Choice
 
-Performs an arbitrary choice between two or more observable sequences and returns the
-first value available from any provided observables.
+Performs an arbitrary choice between two or more observable sequences
+and returns the first value available from any provided observables.
 
-This kind of combinator works very well with operations that can timeout:
+This kind of combinator works very well with operations that can
+timeout:
 
 [source, clojure]
 ----
@@ -609,7 +622,8 @@ This combinator combines two observable sequences in one.
 
 === Concat
 
-This combinator concatenates two or more observable sequences *in order*.
+This combinator concatenates two or more observable sequences *in
+order*.
 
 [source, clojure]
 ----
@@ -656,16 +670,17 @@ This combinator merges two or more observable sequences *at random* (see
 
 == Subject
 
-This is an abstraction that combines observable sequence with the observer. So
-you can push values into it and transform and subscribe to it like any other
-sequence.
+This is an abstraction that combines observable sequence with the
+observer. So you can push values into it and transform and subscribe
+to it like any other sequence.
 
 === Creating a subject.
 
-You can create a subject instance using the `subject` constructor function. 
+You can create a subject instance using the `subject` constructor
+function.
 
-This is an example of using `subject` for two things: push values and subscribe
-to it.
+This is an example of using `subject` for two things: push values and
+subscribe to it.
 
 [source, clojure]
 ----
@@ -726,8 +741,9 @@ All contributions to _beicon_ should keep these important rules in mind.
 
 === Contributing
 
-Unlike Clojure and other Clojure contributed libraries _beicon_ does not have many
-restrictions for contributions. Just open an issue or pull request.
+Unlike Clojure and other Clojure contributed libraries _beicon_ does
+not have many restrictions for contributions. Just open an issue or
+pull request.
 
 
 === Source Code
@@ -767,7 +783,7 @@ lein test
 _beicon_ is licensed under BSD (2-Clause) license:
 
 ----
-Copyright (c) 2015-2016 Andrey Antukh <niwi@niwi.nz>
+Copyright (c) 2015-2019 Andrey Antukh <niwi@niwi.nz>
 
 All rights reserved.
 

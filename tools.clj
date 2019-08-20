@@ -82,7 +82,7 @@
 (defmethod task "jar"
   [args]
   (badigeon.jar/jar 'funcool/beicon
-                    {:mvn/version "5.1.0-SNAPSHOT"}
+                    {:mvn/version "5.1.0"}
                     {:out-path "target/beicon.jar"
                      :mvn/repos '{"clojars" {:url "https://repo.clojars.org/"}}
                      :allow-all-dependencies? false}))
@@ -92,7 +92,7 @@
   (let [artifacts [{:file-path "target/beicon.jar" :extension "jar"}
                    {:file-path "pom.xml" :extension "pom"}]]
     (badigeon.deploy/deploy
-     'funcool/beicon "5.1.0-SNAPSHOT"
+     'funcool/beicon "5.1.0"
      artifacts
      {:id "clojars" :url "https://repo.clojars.org/"}
      {:allow-unsigned? true})))
