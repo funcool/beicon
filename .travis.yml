@@ -1,11 +1,31 @@
-language: clojure
-lein: lein
+dist: xenial
+
+language: generic
+sudo: required
+
+cache:
+  directories:
+    - $HOME/.m2
+
+services:
+  - docker
+
+branches:
+  only:
+    - master
+    - develop
+
+install:
+  - curl -O https://download.clojure.org/install/linux-install-1.10.1.447.sh
+  - chmod +x linux-install-1.10.1.447.sh
+  - sudo ./linux-install-1.10.1.447.sh
+
+before_script:
+  - env | sort
+  - node --version
+  - java -version
 
 script:
-  - ./scripts/build
-  - nvm install
+  - clojure -Adev tools.clj build:test
   - node out/tests.js
-  - lein test-all
-
-jdk:
-  - oraclejdk8
+  - clojure -Adev:test
