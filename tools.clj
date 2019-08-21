@@ -27,7 +27,7 @@
 
 (defmethod task "build:tests"
   [args]
-  (api/build (api/inputs "src" "test") build-options))
+  (api/build (api/inputs "src" "test") options))
 
 (defmethod task "jar"
   [args]
