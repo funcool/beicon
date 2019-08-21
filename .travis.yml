@@ -26,6 +26,6 @@ before_script:
   - java -version
 
 script:
-  - clojure -Adev tools.clj build:test
+  - clojure -Adev -m promesa.tests.main
+  - clojure -Adev tools.clj build:tests
   - node out/tests.js
-  - clojure -Adev:test

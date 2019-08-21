@@ -712,18 +712,3 @@
            s2 (flowable-from-coll [4 5 6])
            cs (s/concat s1 s2)]
        (drain! cs #(t/is (= % [1 2 3 4 5 6]))))))
-
-;; --- CLJS Tests Entry-Point
-
-#?(:cljs
-   (do
-     (enable-console-print!)
-     (set! *main-cli-fn* #(t/run-tests))))
-
-#?(:cljs
-   (defmethod t/report [:cljs.test/default :end-run-tests]
-     [m]
-     (if (t/successful? m)
-       (set! (.-exitCode js/process) 0)
-       (set! (.-exitCode js/process) 1))))
-
