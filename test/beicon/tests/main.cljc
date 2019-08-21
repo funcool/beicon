@@ -5,7 +5,7 @@
 #?(:cljs
    (do
      (enable-console-print!)
-     (set! *main-cli-fn* #(t/run-tests 'promesa.tests.test-core)))
+     (set! *main-cli-fn* #(t/run-tests 'beicon.tests.test-core)))
    :clj
    (defn -main
      [& args]
