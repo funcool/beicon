@@ -1,4 +1,4 @@
-= beicon - reactive streams for Clojure(Script)
+= beicon - Reactive Streams for ClojureScript (based on RxJS)
 :toc: left
 :!numbered:
 :idseparator: -
@@ -10,8 +10,8 @@
 
 == Introduction
 
-_beicon_ is a small and concise library that provides reactive streams API for
-Clojure and ClojureScript.
+_beicon_ is a small and concise library that provides reactive streams
+API for ClojureScript.
 
 
 === Project Maturity
@@ -21,12 +21,12 @@ Since _beicon_ is a young project there can be some API breakage.
 
 === Install
 
-The simplest way to use _beicon_ in a Clojure project, is by including it in the
-dependency vector on your *_project.clj_* file:
+The simplest way to use _beicon_ in a Clojure project, is by including
+it in the dependency vector on your *_project.clj_* file:
 
 [source,clojure]
 ----
-[funcool/beicon "5.1.0"]
+[funcool/beicon "6.0.0"]
 ----
 
 
@@ -44,9 +44,9 @@ and convert it into an observable sequence:
 ----
 (require '[beicon.core :as rx])
 
-(def stream (rx/from-coll [1 2 3]))
+(def stream (rx/from [1 2 3]))
 
-(rx/on-value stream #(println "v:" %))
+(rx/sub! stream #(println "v:" %))
 ;; ==> v: 1
 ;; ==> v: 2
 ;; ==> v: 3
@@ -62,7 +62,7 @@ which is pretty analogous to the Clojures one:
 ----
 (def stream (rx/range 3))
 
-(rx/on-value stream #(println "v:" %))
+(rx/sub! stream #(println "v:" %))
 ;; ==> v: 0
 ;; ==> v: 1
 ;; ==> v: 2
@@ -81,28 +81,13 @@ sequence of atom changes:
 
 (def stream (rx/from-atom a))
 
-(rx/on-value stream #(println "v:" %))
+(rx/sub! stream #(println "v:" %))
 (swap! a inc)
 ;; ==> v: 2
 ----
 
 
-=== From Value
-
-It creates an observable sequence of one unique value:
-
-[source, clojure]
-----
-(def stream (rx/just 10)
-
-(rx/on-value stream #(println "v:" %))
-;; ==> v: 10
-----
-
-NOTE: `just` or `once` are simple aliases to `of` function.
-
-
-=== From multiple values
+=== From values.
 
 There is a way to create an observable sequence from
 multiple values, using the `of` constructor:
@@ -111,7 +96,7 @@ multiple values, using the `of` constructor:
 ----
 (def stream (rx/of 1 2 3))
 
-(rx/on-value stream #(println "v:" %))
+(rx/sub! stream #(println "v:" %))
 ;; ==> v: 1
 ;; ==> v: 2
 ;; ==> v: 3
@@ -139,7 +124,7 @@ will be emitted after a specified amount of time:
 ----
 (def stream (rx/timeout 1000 10))
 
-(rx/on-value stream #(println "v:" %))
+(rx/sub! stream #(println "v:" %))
 ;; After 1 sec...
 ;; ==> v: 10
 ----
@@ -161,7 +146,7 @@ is intended to be used for building other kinds of constructors.
                  ;; function called on unsubscription
                  ))))
 
-(rx/on-value stream #(println "v:" %))
+(rx/sub! stream #(println "v:" %))
 ;; ==> v: 1
 ;; ==> v: 2
 ----
@@ -175,54 +160,6 @@ behaves:
 - `rx/end` as value triggers the stream termination.
 - `nil` triggers stream validation.
 - any other values are valid values for sending to the stream.
-
-On the JVM, there are other factory methods, that allow creation of
-backpressure-aware observables:
-
-[source, clojure]
-----
-(def stream
-  (rx/generate (fn [state sink]
-                 (let [nextval (inc state)]
-                   (sink nextval)
-                   nextval))
-               (constantly 0)))
-----
-
-The difference to the `create` function, the `generate` executes the
-factory function multiple times and you need to call sink *once* for
-each execution. Additionally, you can maintain state between
-executions retuning the desired value and that value will passed as
-first argument on the next execution. You can optionally provide an
-initial state using the second argument `setup` and a third `dispose`
-callback.
-
-Many simple observables can be converted to be backpressure-aware
-using the `to-flowable` function. Be aware, that the default strategy
-`:buffer` (see below) is used by default to handle backpressure (over
-production).
-
-[source, clojure]
-----
-(->> (rx/from-coll [1 2 3])
-     (rx/to-flowable))
-----
-
-Optionally, you can specify the strategy to use for handling
-backpressure by the first argument:
-
-[source, clojure]
-----
-(->> (rx/from-coll [1 2 3])
-     (rx/to-flowable :error))
-----
-
-This is a list of available strategies:
-
-- `:buffer` - Buffers all values until the downstream consumes it.
-- `:error` - Signals a `MissingBackpressureException` in case the downstream can't keep up.
-- `:drop` - Drops the most recent value, if the downstream can't keep up.
-- `:latest` - Keeps only the latest value, overwriting any previous value, if the downstream can't keep up.
 
 
 == Consuming streams
@@ -246,94 +183,15 @@ observable sequence:
 
 [source, clojure]
 ----
-(def sub (rx/subscribe stream
-                       #(println "on-value:" %)
-                       #(println "on-error:" %)
-                       #(println "on-end:")))
+(def sub (rx/sub! stream
+                  #(println "on-value:" %)
+                  #(println "on-error:" %)
+                  #(println "on-end:")))
 ----
 
 The return value of the `subscribe` function is a subscription object,
 that identifies the current subscription. It can be cancelled by
 executing `(rx/cancel! sub)`.
-
-
-=== Consume values
-
-But in most circumstances you only want to consume values regardless
-of any error or termination. For this purposes there is the `on-value`
-function:
-
-[source, clojure]
-----
-(def sub (rx/on-value sub #(println "val:" %)))
-----
-
-Like with the `subscribe` function, the `on-value` function also
-returns a callable, that, when called, will dispose the created
-subscription.
-
-NOTE: take care, that calling any one of those helper functions
-creates a separated subscription and it can behave unexpectedly, if
-you are not aware whether you are using <<hot or cold observables,
-hot-vs-cold-observales>>.
-
-
-=== Consume successful termination
-
-With the `on-end` function you can watch the successful termination of
-an observable sequence:
-
-[source, clojure]
-----
-(def sub (rx/on-end sub #(println "end!")))
-----
-
-
-=== Consume error termination
-
-With the `on-error` function you can watch the error termination of an
-observable sequence:
-
-[source, clojure]
-----
-(def sub (rx/on-end sub #(println "error:" %)))
-----
-
-
-=== Backpressure-aware consumption
-
-The streams created using the `generate` function, are
-backpressure-aware streams and can be consumed in an
-backpressure-aware way. For this you need to pass an object, that
-implements the `ISubscriber` protocol. Lets see an example:
-
-[source, clojure]
-----
-(def stream
-  (->> (rx/from-coll [1 2 3])
-       (rx/to-flowable :buffer)))
-
-(rx/subscribe-with stream (reify rx/ISubscriber
-                            (-on-init [_ s]
-                              (s/request! s 1))
-
-                            (-on-next [_ s v]
-                              (println "on-next:" v)
-                              (s/request! s 1))
-
-                            (-on-error [_ e]
-                              (println "on-error"))
-
-                            (-on-end [_]
-                              (println "on-end"))))
-;; => on-next: 1
-;; => on-next: 2
-;; => on-next: 3
-;; => on-end
-----
-
-In the same way as the `subscribe` function, the `subscribe-with`
-returns a cancellable subscription object.
 
 
 == Transformations
@@ -345,13 +203,13 @@ normal sequences, and in this case filter them with a predicate:
 
 [source, clojure]
 ----
-(def stream (->> (rx/from-coll [1 2 3 4 5])
+(def stream (->> (rx/from [1 2 3 4 5])
                  (rx/filter #(> % 3))))
 
-(rx/subscribe stream
-              #(println "on-value:" %)
-              #(println "on-error:" %)
-              #(println "on-end"))
+(rx/sub! stream
+         #(println "on-value:" %)
+         #(println "on-error:" %)
+         #(println "on-end"))
 
 ;; ==> on-value: 4
 ;; ==> on-value: 5
@@ -365,13 +223,13 @@ Also, you can apply a function over each value in the stream:
 
 [source, clojure]
 ----
-(def stream (->> (rx/from-coll [1 2])
+(def stream (->> (rx/from [1 2])
                  (rx/map inc)))
 
-(rx/subscribe stream
-              #(println "on-value:" %)
-              #(println "on-error:" %)
-              #(println "on-end"))
+(rx/sub! stream
+         #(println "on-value:" %)
+         #(println "on-error:" %)
+         #(println "on-end"))
 
 ;; ==> on-value: 2
 ;; ==> on-value: 3
@@ -379,7 +237,7 @@ Also, you can apply a function over each value in the stream:
 ----
 
 
-=== Flat Map
+=== Merge Map
 
 Converts an observable sequence, that can contain other observable sequences, into a
 new observable sequence, that emits just plain values.
@@ -388,14 +246,13 @@ The result is similar to concatenating all the underlying sequences.
 
 [source, clojure]
 ----
-(def stream (->> (rx/from-coll [1 2])
-                 (rx/map #(sfrom-coll (range % (+ % 2))))
-                 (rx/flat-map))
+(def stream (->> (rx/from [1 2])
+                 (rx/merge-map #(rx/from (range % (+ % 2))))))
 
-(rx/subscribe stream
-              #(println "on-value:" %)
-              #(println "on-error:" %)
-              #(println "on-end"))
+(rx/sub! stream
+         #(println "on-value:" %)
+         #(println "on-error:" %)
+         #(println "on-end"))
 
 ;; ==> on-value: 1
 ;; ==> on-value: 2
@@ -403,6 +260,8 @@ The result is similar to concatenating all the underlying sequences.
 ;; ==> on-value: 3
 ;; ==> on-end
 ----
+
+Aliases: `fmap`, `flat-map`.
 
 
 === Skip
@@ -413,13 +272,13 @@ You can skip the first N values:
 
 [source, clojure]
 ----
-(def stream (->> (rx/from-coll [1 2 3 4 5 6])
+(def stream (->> (rx/from [1 2 3 4 5 6])
                  (rx/skip 4)))
 
-(rx/subscribe stream
-              #(println "on-value:" %)
-              #(println "on-error:" %)
-              #(println "on-end"))
+(rx/sub! stream
+         #(println "on-value:" %)
+         #(println "on-error:" %)
+         #(println "on-end"))
 
 ;; ==> on-value: 5
 ;; ==> on-value: 6
@@ -430,13 +289,13 @@ Skip while some predicate evaluates to `true`:
 
 [source, clojure]
 ----
-(def stream (->> (rx/from-coll [1 1 1 1 2 3])
+(def stream (->> (rx/from [1 1 1 1 2 3])
                  (rx/skip-while odd?)))
 
-(rx/subscribe stream
-              #(println "on-value:" %)
-              #(println "on-error:" %)
-              #(println "on-end"))
+(rx/sub! stream
+         #(println "on-value:" %)
+         #(println "on-error:" %)
+         #(println "on-end"))
 
 ;; ==> on-value: 2
 ;; ==> on-value: 3
@@ -454,7 +313,7 @@ elements:
 
 [source, clojure]
 ----
-(def stream (->> (rx/from-coll [1 1 1 1 2 3])
+(def stream (->> (rx/from [1 1 1 1 2 3])
                  (rx/take 2)))
 
 (rx/subscribe stream

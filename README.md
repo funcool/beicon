@@ -1,6 +1,6 @@
 # beicon #
 
-Reactive Streams for Clojure(Script)
+Reactive Streams for ClojureScript.
 
 [![Travis Badge](https://img.shields.io/travis/funcool/beicon/master.svg)](https://travis-ci.org/funcool/beicon "Travis Badge")
 
