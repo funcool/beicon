@@ -1,5 +1,38 @@
 # Changelog #
 
+## Version 6.0.0 ##
+
+Date: unreleased
+
+This a list of posible **breaking changes**:
+
+- Rename `from-coll` to `from`.
+- Remove `from-promise` (replaced by `from`).
+- Remove `just` and `once` (`of` already handles it).
+- Remove `never` (alias of `empty`).
+- Remove `map-indexed` (already covered by the `map`).
+- Changed comparator from `=` to `identical?` in `dedupe` and `dedupe'`.
+- Remove arity/1 from `mapcat` and `merge-map`/`flat-map`.
+- Replace `ICancellable` protocol with `IDisposable` (and the method
+  is now `-dispose` instead of `-cancel`).
+
+Other relevant but backward compatible changes:
+
+- Update to RxJS 6.5.3
+- Add `merge-all` operator.
+- Add `concat-all` operator.
+- Add `first` operator.
+- Add `last` operator.
+- The `merge-map` becomes the main operator name and `flat-name` an alias.
+- Add `fmap` alias to `merge-map` operator.
+- Add `finalize` operator.
+- Add `dispose!` function for finalize a subscription.
+- Add `cancel!` as alias to `dispose!` (for backward compatibility).
+- Add `sub!` alias to `subscribe`.
+- A disposable returned by `sub!`/`subscribe` is now a callable (you
+  can call it for dispose the subscription).
+
+
 ## Version 5.1.0 ##
 
 Date: 2019-08-20
