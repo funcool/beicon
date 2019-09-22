@@ -1,7 +1,13 @@
 (require '[clojure.java.shell :as shell])
-(require '[cljs.build.api :as api])
-(require '[badigeon.jar])
-(require '[badigeon.deploy])
+(require '[rebel-readline.core]
+         '[rebel-readline.clojure.main]
+         '[rebel-readline.clojure.line-reader]
+         '[rebel-readline.clojure.service.local]
+         '[rebel-readline.cljs.service.local]
+         '[rebel-readline.cljs.repl])
+(require '[cljs.build.api :as api]
+         '[cljs.repl :as repl]
+         '[cljs.repl.node :as node])
 
 (defmulti task first)
 
@@ -12,7 +18,28 @@
     (println "Unknown or missing task. Choose one of:" interposed)
     (System/exit 1)))
 
-(def options
+(defmethod task "repl:jvm"
+  [args]
+  (rebel-readline.core/with-line-reader
+    (rebel-readline.clojure.line-reader/create
+     (rebel-readline.clojure.service.local/create))
+    (clojure.main/repl
+     :prompt (fn []) ;; prompt is handled by line-reader
+     :read (rebel-readline.clojure.main/create-repl-read))))
+
+(defmethod task "repl:node"
+  [args]
+  (rebel-readline.core/with-line-reader
+    (rebel-readline.clojure.line-reader/create
+     (rebel-readline.cljs.service.local/create))
+    (cljs.repl/repl
+     (node/repl-env)
+     :prompt (fn []) ;; prompt is handled by line-reader
+     :read (rebel-readline.cljs.repl/create-repl-read)
+     :output-dir "out"
+     :cache-analysis false)))
+
+(def build-options
   {:main 'beicon.tests.main
    :output-to "out/tests.js"
    :output-dir "out/tests"
@@ -27,31 +54,26 @@
 
 (defmethod task "build:tests"
   [args]
-  (api/build (api/inputs "src" "test") options))
+  (api/build (api/inputs "src" "test") build-options))
 
-(defmethod task "jar"
+(defmethod task "watch:tests"
   [args]
-  (badigeon.jar/jar 'funcool/beicon
-                    {:mvn/version "5.1.0"}
-                    {:out-path "target/beicon.jar"
-                     :mvn/repos '{"clojars" {:url "https://repo.clojars.org/"}}
-                     :allow-all-dependencies? false}))
-
-(defmethod task "deploy"
-  [args]
-  (let [artifacts [{:file-path "target/beicon.jar" :extension "jar"}
-                   {:file-path "pom.xml" :extension "pom"}]]
-    (badigeon.deploy/deploy
-     'funcool/beicon "5.1.0"
-     artifacts
-     {:id "clojars" :url "https://repo.clojars.org/"}
-     {:allow-unsigned? true})))
-
-(defmethod task "build-and-deploy"
-  [args]
-  (task ["jar"])
-  (task ["deploy"]))
-
+  (println "Start watch loop...")
+  (letfn [(run-tests []
+            (let [{:keys [out err]} (shell/sh "node" "out/tests.js")]
+              (println out err)))
+          (start-watch []
+            (try
+              (api/watch (api/inputs "src" "test")
+                         (assoc build-options
+                                :watch-fn run-tests
+                                :source-map true
+                                :optimizations :none))
+              (catch Exception e
+                (println "ERROR:" e)
+                (Thread/sleep 2000)
+                start-watch)))]
+    (trampoline start-watch)))
 
 
 ;;; Build script entrypoint. This should be the last expression.

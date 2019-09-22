@@ -1,23 +1,19 @@
-{:deps {io.reactivex.rxjava2/rxjava {:mvn/version "2.2.11"}}
- :paths ["src" "assets"]
+{:paths ["src" "assets"]
  :aliases
  {:dev
   {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}
                 org.clojure/clojure {:mvn/version "1.10.1"}
                 com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
                 com.bhauman/rebel-readline {:mvn/version "0.1.4"}
-                org.clojure/tools.namespace {:mvn/version "0.3.1"}
-                funcool/promesa {:mvn/version "3.0.0"}
-                badigeon/badigeon {:git/url "https://github.com/EwenG/badigeon.git"
-                                   :sha "db25a8f7053dec65afeb7fb0d1a5351dcdbe78bd"
-                                   :tag "0.0.8"}}
+                funcool/promesa {:mvn/version "4.0.0-SNAPSHOT"}}
    :extra-paths ["test" "dev-resources"]}
 
   :ancient {:main-opts ["-m" "deps-ancient.deps-ancient"]
             :extra-deps {deps-ancient {:mvn/version "RELEASE"}}}
 
-  :test
-  {:extra-deps {lambdaisland/kaocha {:mvn/version "0.0-529"}}
-   :main-opts ["-m" "kaocha.runner" "unit"]
-   }}}
+  :deploy {:extra-deps {badigeon/badigeon {:git/url "https://github.com/EwenG/badigeon.git"
+                                           :sha "db25a8f7053dec65afeb7fb0d1a5351dcdbe78bd"
+                                           :tag "0.0.8"}}
+           :main-opts ["deploy.clj"]}}}
+
 

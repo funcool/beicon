@@ -2,7 +2,6 @@ import babel from 'rollup-plugin-babel';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import globals from 'rollup-plugin-node-globals';
-import builtins from 'rollup-plugin-node-builtins';
 import replace from 'rollup-plugin-replace';
 
 const plugins = [
@@ -29,7 +28,6 @@ const plugins = [
   }),
 
   globals(),
-  builtins(),
 ];
 
 export default [{
