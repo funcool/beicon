@@ -136,19 +136,25 @@
   (-on-error [_ error] "Subscription error notification hook.")
   (-on-end [_] "Subscription termination notification hook."))
 
-(defprotocol ICancellable
-  (-cancel [_] "dispose resources."))
+(defprotocol IDisposable
+  (-dispose [_] "dispose resources."))
 
-(defn cancel!
+(defn dispose!
   "Dispose resources acquired by the subscription."
   [v]
-  (-cancel v))
+  (-dispose v))
+
+;; Alias
+(def unsub! dispose!)
+(def cancel! dispose!)
 
 (defn- wrap-disposable
   [disposable]
   (specify! disposable
-    ICancellable
-    (-cancel [this]
+    IFn
+    (-invoke ([this] (-dispose this)))
+    IDisposable
+    (-dispose [this]
       (.unsubscribe this))))
 
 (defn subscribe-with
@@ -280,21 +286,20 @@
   [e]
    (.throwError rx e))
 
+;; Alias
+(def error throw)
+
 (defn timer
   "Returns an observable sequence that produces a value after
   `ms` has elapsed and then after each period."
-  ([delay]
-   (.timer rx delay))
-  ([delay period]
-   (.timer rx delay period)))
+  ([delay] (.timer rx delay))
+  ([delay period] (.timer rx delay period)))
 
 (defn timeout
   "Returns the source observable sequence or the other
   observable sequence if dueTime elapses."
-  ([ms ob]
-   (pipe ob (.timeout rxop ms)))
-  ([ms other ob]
-   (pipe ob (.timeoutWith rxop ms other))))
+  ([ms ob] (pipe ob (.timeout rxop ms)))
+  ([ms other ob] (pipe ob (.timeoutWith rxop ms other))))
 
 (defn delay
   "Time shifts the observable sequence by dueTime. The relative
@@ -305,10 +310,8 @@
 (defn delay-when
   "Time shifts the observable sequence based on a subscription
   delay and a delay selector function for each element."
-  ([sf ob]
-   (pipe ob (.delayWhen rxop sf)))
-  ([sd sf ob]
-   (pipe ob (.delayWhen rxop sf sd))))
+  ([sf ob] (pipe ob (.delayWhen rxop sf)))
+  ([sd sf ob] (pipe ob (.delayWhen rxop sf sd))))
 
 (defn interval
   "Returns an observable sequence that produces a
@@ -342,6 +345,9 @@
 (defn- disposable-atom
   [ref disposable]
   (specify! ref
+    IFn
+    (-invoke [this] (-dispose this))
+
     ICancellable
     (-cancel [_]
       (.unsubscribe disposable))))
@@ -419,8 +425,8 @@
   or array/iterable into one observable sequence.
 
   In other languages is called: flatMap or mergeMap."
-  ([ob] (merge-map identity ob))
-  ([f ob] (pipe ob (.flatMap rxop #(f %)))))
+  [f ob]
+  (pipe ob (.flatMap rxop #(f %))))
 
 ;; Aliases
 (def fmap merge-map)
@@ -430,12 +436,21 @@
   "Projects each element of an observable sequence to an observable
   sequence and concatenates the resulting observable sequences or
   Promises or array/iterable into one observable sequence."
-  ([ob] (mapcat identity ob))
-  ([f ob] (pipe ob (.concatMap rxop #(f %)))))
+  [f ob]
+  (pipe ob (.concatMap rxop #(f %))))
 
 (defn mapcat-indexed
   [f ob]
   (pipe ob (.concatMap rxop #(f %2 %1))))
+
+(defn merge-all
+  ([ob] (pipe ob (.mergeAll rxop)))
+  ([^number concurrency ob]
+   (pipe ob (.mergeAll rxop concurrency))))
+
+(defn concat-all
+  [ob]
+  (pipe ob (.concatAll rxop)))
 
 (defn skip
   "Bypasses a specified number of elements in an
@@ -452,62 +467,69 @@
   (pipe ob (.skipWhile rxop #(boolean (f %)))))
 
 (defn skip-until
-  "Returns the values from the source observable sequence
-  only after the other observable sequence produces a value."
+  "Returns the values from the source observable sequence only after the
+  other observable sequence produces a value."
   [pob ob]
   (pipe ob (.skipUntil rxop pob)))
 
 (defn take
-  "Bypasses a specified number of elements in an
-  observable sequence and then returns the remaining
-  elements."
+  "Bypasses a specified number of elements in an observable sequence and
+  then returns the remaining elements."
   [n ob]
   (pipe ob (.take rxop n)))
 
 (defn first
-  "Return an observable that only has the first value
-  of the provided observable."
+  "Return an observable that only has the first value of the provided
+  observable. You can optionally pass a predicate and default value."
+  ([ob] (pipe ob (.first rxop)))
+  ([f ob] (pipe ob (.first rxop #(boolean (f %)))))
+  ([f default ob] (pipe ob (.first rxop #(boolean (f %)) default))))
+
+(defn last
+  "Return an observable that only has the last value of the provided
+  observable. You can optionally pass a predicate and default value."
   [ob]
-  (take 1 ob))
+  ([ob] (pipe ob (.last rxop)))
+  ([f ob] (pipe ob (.last rxop #(boolean (f %)))))
+  ([f default ob] (pipe ob (.last rxop #(boolean (f %)) default))))
 
 (defn take-while
-  "Returns elements from an observable sequence as long as a
-  specified predicate returns true."
+  "Returns elements from an observable sequence as long as a specified
+  predicate returns true."
   [f ob]
   (pipe ob (.takeWhile rxop #(boolean (f %)))))
 
 (defn take-until
-  "Returns the values from the source observable sequence until
-  the other observable sequence or Promise produces a value."
+  "Returns the values from the source observable sequence until the
+  other observable sequence or Promise produces a value."
   [other ob]
   (pipe ob (.takeUntil rxop other)))
 
 (defn reduce
-  "Applies an accumulator function over an observable
-  sequence, returning the result of the aggregation as a
-  single element in the result sequence."
+  "Applies an accumulator function over an observable sequence,
+  returning the result of the aggregation as a single element in the
+  result sequence."
   ([f ob] (pipe ob (.reduce rxop #(f %1 %2))))
   ([f seed ob] (pipe ob (.reduce rxop #(f %1 %2) seed))))
 
 (defn scan
-  "Applies an accumulator function over an observable
-  sequence and returns each intermediate result.
-  Same as reduce but with intermediate results"
+  "Applies an accumulator function over an observable sequence and
+  returns each intermediate result.  Same as reduce but with
+  intermediate results"
   ([f ob] (pipe ob (.scan rxop #(f %1 %2))))
   ([f seed ob] (pipe ob (.scan rxop #(f %1 %2) seed))))
 
 (defn with-latest
-  "Merges the specified observable sequences into
-  one observable sequence by using the selector
-  function only when the source observable sequence
-  (the instance) produces an element."
+  "Merges the specified observable sequences into one observable
+  sequence by using the selector function only when the source
+  observable sequence (the instance) produces an element."
   [f other source]
   (pipe source (.withLatestFrom rxop other f)))
 
 (defn combine-latest
-  "Combines multiple Observables to create an Observable
-  whose values are calculated from the latest values of
-  each of its input Observables."
+  "Combines multiple Observables to create an Observable whose values
+  are calculated from the latest values of each of its input
+  Observables."
   ([other ob]
    (combine-latest vector other ob))
   ([f other ob]
@@ -584,10 +606,17 @@
   (pipe ob (.sample rxop other)))
 
 (defn ignore
-  "Ignores all elements in an observable sequence leaving
-  only the termination messages."
+  "Ignores all elements in an observable sequence leaving only the
+  termination messages."
   [ob]
   (pipe ob (.ignoreElements rxop)))
+
+(defn finalize
+  "Returns an Observable that mirrors the source Observable, but will
+  call a specified function when the source terminates on complete or
+  error."
+  [f ob]
+  (pipe ob (.finalize rxop #(f))))
 
 (defn dedupe
   "Returns an observable sequence that contains only
