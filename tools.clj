@@ -75,7 +75,6 @@
                 start-watch)))]
     (trampoline start-watch)))
 
-
 ;;; Build script entrypoint. This should be the last expression.
 
 (task *command-line-args*)

@@ -1,9 +1,10 @@
 (ns beicon.core
-  (:refer-clojure :exclude [true? map filter reduce merge repeat
-                            mapcat repeatedly zip dedupe drop take
-                            take-while map-indexed concat empty delay
-                            range throw do trampoline])
-  (:require [beicon.impl.rxjs]))
+  (:refer-clojure :exclude [true? map filter reduce merge repeat first
+                            last mapcat repeatedly zip dedupe drop
+                            take take-while map-indexed concat empty
+                            delay range throw do trampoline])
+  (:require [beicon.impl.rxjs]
+            [cljs.core :as c]))
 
 (def rxop (.-operators js/rxjs))
 (def rx js/rxjs)
@@ -20,7 +21,7 @@
 
 (declare subject?)
 
-(defn ->observable
+(defn to-observable
   "Coerce a object to an observable instance."
   [ob]
   (assert (subject? ob) "`ob` should be a Subject instance")
@@ -323,8 +324,8 @@
   "Runs all observable sequences in parallel and collect their last
   elements."
   [& items]
-  (let [[selector items] (if (ifn? (first items))
-                           [(first items) (rest items)]
+  (let [[selector items] (if (ifn? (c/first items))
+                           [(c/first items) (rest items)]
                            [vector items])
         items (if (vector? items) items (into [] items))]
     (apply (.-forkJoin rx) (conj items selector))))
@@ -346,10 +347,10 @@
   [ref disposable]
   (specify! ref
     IFn
-    (-invoke [this] (-dispose this))
+    (-invoke ([this] (-dispose this)))
 
-    ICancellable
-    (-cancel [_]
+    IDisposable
+    (-dispose [_]
       (.unsubscribe disposable))))
 
 (defn to-atom
@@ -376,8 +377,8 @@
   "Merges the specified observable sequences or Promises (cljs) into one
   observable sequence."
   [& items]
-  (let [[selector items] (if (ifn? (first items))
-                           [(first items) (rest items)]
+  (let [[selector items] (if (ifn? (c/first items))
+                           [(c/first items) (rest items)]
                            [vector items])
         items (if (vector? items) items (vec items))]
     (apply (.-zip rx) (conj items selector))))
@@ -400,8 +401,9 @@
 (defn merge-all
   "Merges an observable sequence of observable sequences into an
   observable sequence."
-  [ob]
-  (pipe ob (.mergeAll rxop)))
+  ([ob] (pipe ob (.mergeAll rxop)))
+  ([^number concurrency ob]
+   (pipe ob (.mergeAll rxop concurrency))))
 
 (defn filter
   "Filters the elements of an observable sequence
@@ -443,11 +445,6 @@
   [f ob]
   (pipe ob (.concatMap rxop #(f %2 %1))))
 
-(defn merge-all
-  ([ob] (pipe ob (.mergeAll rxop)))
-  ([^number concurrency ob]
-   (pipe ob (.mergeAll rxop concurrency))))
-
 (defn concat-all
   [ob]
   (pipe ob (.concatAll rxop)))
@@ -488,7 +485,6 @@
 (defn last
   "Return an observable that only has the last value of the provided
   observable. You can optionally pass a predicate and default value."
-  [ob]
   ([ob] (pipe ob (.last rxop)))
   ([f ob] (pipe ob (.last rxop #(boolean (f %)))))
   ([f default ob] (pipe ob (.last rxop #(boolean (f %)) default))))
