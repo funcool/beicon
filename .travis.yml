@@ -7,9 +7,6 @@ cache:
   directories:
     - $HOME/.m2
 
-services:
-  - docker
-
 branches:
   only:
     - master
@@ -26,6 +23,5 @@ before_script:
   - java -version
 
 script:
-  - clojure -Adev -m beicon.tests.main
   - clojure -Adev tools.clj build:tests
   - node out/tests.js
