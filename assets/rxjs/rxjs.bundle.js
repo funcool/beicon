@@ -27,28 +27,35 @@ function __extends(d, b) {
     extendStatics(d, b);
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function isFunction(x) {
+}
+
+function __spreadArrays() {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+}function isFunction(x) {
     return typeof x === 'function';
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var _enable_super_gross_mode_that_will_cause_bad_things = false;
+}var _enable_super_gross_mode_that_will_cause_bad_things = false;
 var config = {
     Promise: undefined,
     set useDeprecatedSynchronousErrorHandling(value) {
         if (value) {
-            var error = /*@__PURE__*/ new Error();
-            /*@__PURE__*/ console.warn('DEPRECATED! RxJS was set to use deprecated synchronous error handling behavior by code at: \n' + error.stack);
+            var error = new Error();
+            console.warn('DEPRECATED! RxJS was set to use deprecated synchronous error handling behavior by code at: \n' + error.stack);
+        }
+        else if (_enable_super_gross_mode_that_will_cause_bad_things) {
+            console.log('RxJS: Back to a better error behavior. Thank you. <3');
         }
         _enable_super_gross_mode_that_will_cause_bad_things = value;
     },
     get useDeprecatedSynchronousErrorHandling() {
         return _enable_super_gross_mode_that_will_cause_bad_things;
     },
-};/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function hostReportError(err) {
+};function hostReportError(err) {
     setTimeout(function () { throw err; }, 0);
-}/** PURE_IMPORTS_START _config,_util_hostReportError PURE_IMPORTS_END */
-var empty = {
+}var empty = {
     closed: true,
     next: function (value) { },
     error: function (err) {
@@ -60,12 +67,9 @@ var empty = {
         }
     },
     complete: function () { }
-};/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var isArray = /*@__PURE__*/ (function () { return Array.isArray || (function (x) { return x && typeof x.length === 'number'; }); })();/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function isObject(x) {
+};var isArray = (function () { return Array.isArray || (function (x) { return x && typeof x.length === 'number'; }); })();function isObject(x) {
     return x !== null && typeof x === 'object';
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var UnsubscriptionErrorImpl = /*@__PURE__*/ (function () {
+}var UnsubscriptionErrorImpl = (function () {
     function UnsubscriptionErrorImpl(errors) {
         Error.call(this);
         this.message = errors ?
@@ -74,11 +78,10 @@ var UnsubscriptionErrorImpl = /*@__PURE__*/ (function () {
         this.errors = errors;
         return this;
     }
-    UnsubscriptionErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
+    UnsubscriptionErrorImpl.prototype = Object.create(Error.prototype);
     return UnsubscriptionErrorImpl;
 })();
-var UnsubscriptionError = UnsubscriptionErrorImpl;/** PURE_IMPORTS_START _util_isArray,_util_isObject,_util_isFunction,_util_UnsubscriptionError PURE_IMPORTS_END */
-var Subscription = /*@__PURE__*/ (function () {
+var UnsubscriptionError = UnsubscriptionErrorImpl;var Subscription = (function () {
     function Subscription(unsubscribe) {
         this.closed = false;
         this._parentOrParents = null;
@@ -206,13 +209,11 @@ var Subscription = /*@__PURE__*/ (function () {
 }());
 function flattenUnsubscriptionErrors(errors) {
     return errors.reduce(function (errs, err) { return errs.concat((err instanceof UnsubscriptionError) ? err.errors : err); }, []);
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var rxSubscriber = /*@__PURE__*/ (function () {
+}var rxSubscriber = (function () {
     return typeof Symbol === 'function'
-        ? /*@__PURE__*/ Symbol('rxSubscriber')
-        : '@@rxSubscriber_' + /*@__PURE__*/ Math.random();
-})();/** PURE_IMPORTS_START tslib,_util_isFunction,_Observer,_Subscription,_internal_symbol_rxSubscriber,_config,_util_hostReportError PURE_IMPORTS_END */
-var Subscriber = /*@__PURE__*/ (function (_super) {
+        ? Symbol('rxSubscriber')
+        : '@@rxSubscriber_' + Math.random();
+})();var Subscriber = (function (_super) {
     __extends(Subscriber, _super);
     function Subscriber(destinationOrNext, error, complete) {
         var _this = _super.call(this) || this;
@@ -300,7 +301,7 @@ var Subscriber = /*@__PURE__*/ (function (_super) {
     };
     return Subscriber;
 }(Subscription));
-var SafeSubscriber = /*@__PURE__*/ (function (_super) {
+var SafeSubscriber = (function (_super) {
     __extends(SafeSubscriber, _super);
     function SafeSubscriber(_parentSubscriber, observerOrNext, error, complete) {
         var _this = _super.call(this) || this;
@@ -433,8 +434,7 @@ var SafeSubscriber = /*@__PURE__*/ (function (_super) {
         _parentSubscriber.unsubscribe();
     };
     return SafeSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _Subscriber PURE_IMPORTS_END */
-function canReportError(observer) {
+}(Subscriber));function canReportError(observer) {
     while (observer) {
         var _a = observer, closed_1 = _a.closed, destination = _a.destination, isStopped = _a.isStopped;
         if (closed_1 || isStopped) {
@@ -448,8 +448,7 @@ function canReportError(observer) {
         }
     }
     return true;
-}/** PURE_IMPORTS_START _Subscriber,_symbol_rxSubscriber,_Observer PURE_IMPORTS_END */
-function toSubscriber(nextOrObserver, error, complete) {
+}function toSubscriber(nextOrObserver, error, complete) {
     if (nextOrObserver) {
         if (nextOrObserver instanceof Subscriber) {
             return nextOrObserver;
@@ -462,10 +461,7 @@ function toSubscriber(nextOrObserver, error, complete) {
         return new Subscriber(empty);
     }
     return new Subscriber(nextOrObserver, error, complete);
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var observable = /*@__PURE__*/ (function () { return typeof Symbol === 'function' && Symbol.observable || '@@observable'; })();/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function noop() { }/** PURE_IMPORTS_START _noop PURE_IMPORTS_END */
-function pipe() {
+}var observable = (function () { return typeof Symbol === 'function' && Symbol.observable || '@@observable'; })();function noop() { }function pipe() {
     var fns = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         fns[_i] = arguments[_i];
@@ -482,8 +478,7 @@ function pipeFromArray(fns) {
     return function piped(input) {
         return fns.reduce(function (prev, fn) { return fn(prev); }, input);
     };
-}/** PURE_IMPORTS_START _util_canReportError,_util_toSubscriber,_symbol_observable,_util_pipe,_config PURE_IMPORTS_END */
-var Observable = /*@__PURE__*/ (function () {
+}var Observable = (function () {
     function Observable(subscribe) {
         this._isScalar = false;
         if (subscribe) {
@@ -590,19 +585,17 @@ function getPromiseCtor(promiseCtor) {
         throw new Error('no Promise impl found');
     }
     return promiseCtor;
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var ObjectUnsubscribedErrorImpl = /*@__PURE__*/ (function () {
+}var ObjectUnsubscribedErrorImpl = (function () {
     function ObjectUnsubscribedErrorImpl() {
         Error.call(this);
         this.message = 'object unsubscribed';
         this.name = 'ObjectUnsubscribedError';
         return this;
     }
-    ObjectUnsubscribedErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
+    ObjectUnsubscribedErrorImpl.prototype = Object.create(Error.prototype);
     return ObjectUnsubscribedErrorImpl;
 })();
-var ObjectUnsubscribedError = ObjectUnsubscribedErrorImpl;/** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
-var SubjectSubscription = /*@__PURE__*/ (function (_super) {
+var ObjectUnsubscribedError = ObjectUnsubscribedErrorImpl;var SubjectSubscription = (function (_super) {
     __extends(SubjectSubscription, _super);
     function SubjectSubscription(subject, subscriber) {
         var _this = _super.call(this) || this;
@@ -628,8 +621,7 @@ var SubjectSubscription = /*@__PURE__*/ (function (_super) {
         }
     };
     return SubjectSubscription;
-}(Subscription));/** PURE_IMPORTS_START tslib,_Observable,_Subscriber,_Subscription,_util_ObjectUnsubscribedError,_SubjectSubscription,_internal_symbol_rxSubscriber PURE_IMPORTS_END */
-var SubjectSubscriber = /*@__PURE__*/ (function (_super) {
+}(Subscription));var SubjectSubscriber = (function (_super) {
     __extends(SubjectSubscriber, _super);
     function SubjectSubscriber(destination) {
         var _this = _super.call(this, destination) || this;
@@ -638,7 +630,7 @@ var SubjectSubscriber = /*@__PURE__*/ (function (_super) {
     }
     return SubjectSubscriber;
 }(Subscriber));
-var Subject = /*@__PURE__*/ (function (_super) {
+var Subject = (function (_super) {
     __extends(Subject, _super);
     function Subject() {
         var _this = _super.call(this) || this;
@@ -738,7 +730,7 @@ var Subject = /*@__PURE__*/ (function (_super) {
     };
     return Subject;
 }(Observable));
-var AnonymousSubject = /*@__PURE__*/ (function (_super) {
+var AnonymousSubject = (function (_super) {
     __extends(AnonymousSubject, _super);
     function AnonymousSubject(destination, source) {
         var _this = _super.call(this) || this;
@@ -774,13 +766,12 @@ var AnonymousSubject = /*@__PURE__*/ (function (_super) {
         }
     };
     return AnonymousSubject;
-}(Subject));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function refCount() {
+}(Subject));function refCount() {
     return function refCountOperatorFunction(source) {
         return source.lift(new RefCountOperator(source));
     };
 }
-var RefCountOperator = /*@__PURE__*/ (function () {
+var RefCountOperator = (function () {
     function RefCountOperator(connectable) {
         this.connectable = connectable;
     }
@@ -796,7 +787,7 @@ var RefCountOperator = /*@__PURE__*/ (function () {
     };
     return RefCountOperator;
 }());
-var RefCountSubscriber = /*@__PURE__*/ (function (_super) {
+var RefCountSubscriber = (function (_super) {
     __extends(RefCountSubscriber, _super);
     function RefCountSubscriber(destination, connectable) {
         var _this = _super.call(this, destination) || this;
@@ -828,8 +819,7 @@ var RefCountSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return RefCountSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subject,_Observable,_Subscriber,_Subscription,_operators_refCount PURE_IMPORTS_END */
-var ConnectableObservable = /*@__PURE__*/ (function (_super) {
+}(Subscriber));var ConnectableObservable = (function (_super) {
     __extends(ConnectableObservable, _super);
     function ConnectableObservable(source, subjectFactory) {
         var _this = _super.call(this) || this;
@@ -868,7 +858,7 @@ var ConnectableObservable = /*@__PURE__*/ (function (_super) {
     };
     return ConnectableObservable;
 }(Observable));
-var connectableObservableDescriptor = /*@__PURE__*/ (function () {
+var connectableObservableDescriptor = (function () {
     var connectableProto = ConnectableObservable.prototype;
     return {
         operator: { value: null },
@@ -882,7 +872,7 @@ var connectableObservableDescriptor = /*@__PURE__*/ (function () {
         refCount: { value: connectableProto.refCount }
     };
 })();
-var ConnectableSubscriber = /*@__PURE__*/ (function (_super) {
+var ConnectableSubscriber = (function (_super) {
     __extends(ConnectableSubscriber, _super);
     function ConnectableSubscriber(destination, connectable) {
         var _this = _super.call(this, destination) || this;
@@ -912,13 +902,45 @@ var ConnectableSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return ConnectableSubscriber;
-}(SubjectSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_Subscription,_Observable,_Subject PURE_IMPORTS_END */
-function groupBy(keySelector, elementSelector, durationSelector, subjectSelector) {
+}(SubjectSubscriber));
+var RefCountSubscriber$1 = (function (_super) {
+    __extends(RefCountSubscriber, _super);
+    function RefCountSubscriber(destination, connectable) {
+        var _this = _super.call(this, destination) || this;
+        _this.connectable = connectable;
+        return _this;
+    }
+    RefCountSubscriber.prototype._unsubscribe = function () {
+        var connectable = this.connectable;
+        if (!connectable) {
+            this.connection = null;
+            return;
+        }
+        this.connectable = null;
+        var refCount = connectable._refCount;
+        if (refCount <= 0) {
+            this.connection = null;
+            return;
+        }
+        connectable._refCount = refCount - 1;
+        if (refCount > 1) {
+            this.connection = null;
+            return;
+        }
+        var connection = this.connection;
+        var sharedConnection = connectable._connection;
+        this.connection = null;
+        if (sharedConnection && (!connection || sharedConnection === connection)) {
+            sharedConnection.unsubscribe();
+        }
+    };
+    return RefCountSubscriber;
+}(Subscriber));function groupBy(keySelector, elementSelector, durationSelector, subjectSelector) {
     return function (source) {
         return source.lift(new GroupByOperator(keySelector, elementSelector, durationSelector, subjectSelector));
     };
 }
-var GroupByOperator = /*@__PURE__*/ (function () {
+var GroupByOperator = (function () {
     function GroupByOperator(keySelector, elementSelector, durationSelector, subjectSelector) {
         this.keySelector = keySelector;
         this.elementSelector = elementSelector;
@@ -930,7 +952,7 @@ var GroupByOperator = /*@__PURE__*/ (function () {
     };
     return GroupByOperator;
 }());
-var GroupBySubscriber = /*@__PURE__*/ (function (_super) {
+var GroupBySubscriber = (function (_super) {
     __extends(GroupBySubscriber, _super);
     function GroupBySubscriber(destination, keySelector, elementSelector, durationSelector, subjectSelector) {
         var _this = _super.call(this, destination) || this;
@@ -1026,7 +1048,7 @@ var GroupBySubscriber = /*@__PURE__*/ (function (_super) {
     };
     return GroupBySubscriber;
 }(Subscriber));
-var GroupDurationSubscriber = /*@__PURE__*/ (function (_super) {
+var GroupDurationSubscriber = (function (_super) {
     __extends(GroupDurationSubscriber, _super);
     function GroupDurationSubscriber(key, group, parent) {
         var _this = _super.call(this, group) || this;
@@ -1047,7 +1069,7 @@ var GroupDurationSubscriber = /*@__PURE__*/ (function (_super) {
     };
     return GroupDurationSubscriber;
 }(Subscriber));
-var GroupedObservable = /*@__PURE__*/ (function (_super) {
+var GroupedObservable = (function (_super) {
     __extends(GroupedObservable, _super);
     function GroupedObservable(key, groupSubject, refCountSubscription) {
         var _this = _super.call(this) || this;
@@ -1067,7 +1089,7 @@ var GroupedObservable = /*@__PURE__*/ (function (_super) {
     };
     return GroupedObservable;
 }(Observable));
-var InnerRefCountSubscription = /*@__PURE__*/ (function (_super) {
+var InnerRefCountSubscription = (function (_super) {
     __extends(InnerRefCountSubscription, _super);
     function InnerRefCountSubscription(parent) {
         var _this = _super.call(this) || this;
@@ -1086,8 +1108,25 @@ var InnerRefCountSubscription = /*@__PURE__*/ (function (_super) {
         }
     };
     return InnerRefCountSubscription;
-}(Subscription));/** PURE_IMPORTS_START tslib,_Subject,_util_ObjectUnsubscribedError PURE_IMPORTS_END */
-var BehaviorSubject = /*@__PURE__*/ (function (_super) {
+}(Subscription));function animationFrames(timestampProvider) {
+    if (timestampProvider === void 0) { timestampProvider = Date; }
+    return timestampProvider === Date ? DEFAULT_ANIMATION_FRAMES : animationFramesFactory(timestampProvider);
+}
+function animationFramesFactory(timestampProvider) {
+    return new Observable(function (subscriber) {
+        var id;
+        var start = timestampProvider.now();
+        var run = function () {
+            subscriber.next(timestampProvider.now() - start);
+            if (!subscriber.closed) {
+                id = requestAnimationFrame(run);
+            }
+        };
+        id = requestAnimationFrame(run);
+        return function () { return cancelAnimationFrame(id); };
+    });
+}
+var DEFAULT_ANIMATION_FRAMES = animationFramesFactory(Date);var BehaviorSubject = (function (_super) {
     __extends(BehaviorSubject, _super);
     function BehaviorSubject(_value) {
         var _this = _super.call(this) || this;
@@ -1123,8 +1162,7 @@ var BehaviorSubject = /*@__PURE__*/ (function (_super) {
         _super.prototype.next.call(this, this._value = value);
     };
     return BehaviorSubject;
-}(Subject));/** PURE_IMPORTS_START tslib,_Subscription PURE_IMPORTS_END */
-var Action = /*@__PURE__*/ (function (_super) {
+}(Subject));var Action = (function (_super) {
     __extends(Action, _super);
     function Action(scheduler, work) {
         return _super.call(this) || this;
@@ -1133,8 +1171,7 @@ var Action = /*@__PURE__*/ (function (_super) {
         return this;
     };
     return Action;
-}(Subscription));/** PURE_IMPORTS_START tslib,_Action PURE_IMPORTS_END */
-var AsyncAction = /*@__PURE__*/ (function (_super) {
+}(Subscription));var AsyncAction = (function (_super) {
     __extends(AsyncAction, _super);
     function AsyncAction(scheduler, work) {
         var _this = _super.call(this, scheduler, work) || this;
@@ -1144,9 +1181,7 @@ var AsyncAction = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     AsyncAction.prototype.schedule = function (state, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if (this.closed) {
             return this;
         }
@@ -1162,15 +1197,11 @@ var AsyncAction = /*@__PURE__*/ (function (_super) {
         return this;
     };
     AsyncAction.prototype.requestAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         return setInterval(scheduler.flush.bind(scheduler, this), delay);
     };
     AsyncAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if (delay !== null && this.delay === delay && this.pending === false) {
             return id;
         }
@@ -1223,8 +1254,7 @@ var AsyncAction = /*@__PURE__*/ (function (_super) {
         this.delay = null;
     };
     return AsyncAction;
-}(Action));/** PURE_IMPORTS_START tslib,_AsyncAction PURE_IMPORTS_END */
-var QueueAction = /*@__PURE__*/ (function (_super) {
+}(Action));var QueueAction = (function (_super) {
     __extends(QueueAction, _super);
     function QueueAction(scheduler, work) {
         var _this = _super.call(this, scheduler, work) || this;
@@ -1233,9 +1263,7 @@ var QueueAction = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     QueueAction.prototype.schedule = function (state, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if (delay > 0) {
             return _super.prototype.schedule.call(this, state, delay);
         }
@@ -1250,38 +1278,29 @@ var QueueAction = /*@__PURE__*/ (function (_super) {
             this._execute(state, delay);
     };
     QueueAction.prototype.requestAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if ((delay !== null && delay > 0) || (delay === null && this.delay > 0)) {
             return _super.prototype.requestAsyncId.call(this, scheduler, id, delay);
         }
         return scheduler.flush(this);
     };
     return QueueAction;
-}(AsyncAction));var Scheduler = /*@__PURE__*/ (function () {
+}(AsyncAction));var Scheduler = (function () {
     function Scheduler(SchedulerAction, now) {
-        if (now === void 0) {
-            now = Scheduler.now;
-        }
+        if (now === void 0) { now = Scheduler.now; }
         this.SchedulerAction = SchedulerAction;
         this.now = now;
     }
     Scheduler.prototype.schedule = function (work, delay, state) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         return new this.SchedulerAction(this, work).schedule(state, delay);
     };
     Scheduler.now = function () { return Date.now(); };
     return Scheduler;
-}());/** PURE_IMPORTS_START tslib,_Scheduler PURE_IMPORTS_END */
-var AsyncScheduler = /*@__PURE__*/ (function (_super) {
+}());var AsyncScheduler = (function (_super) {
     __extends(AsyncScheduler, _super);
     function AsyncScheduler(SchedulerAction, now) {
-        if (now === void 0) {
-            now = Scheduler.now;
-        }
+        if (now === void 0) { now = Scheduler.now; }
         var _this = _super.call(this, SchedulerAction, function () {
             if (AsyncScheduler.delegate && AsyncScheduler.delegate !== _this) {
                 return AsyncScheduler.delegate.now();
@@ -1296,9 +1315,7 @@ var AsyncScheduler = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     AsyncScheduler.prototype.schedule = function (work, delay, state) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if (AsyncScheduler.delegate && AsyncScheduler.delegate !== this) {
             return AsyncScheduler.delegate.schedule(work, delay, state);
         }
@@ -1328,34 +1345,26 @@ var AsyncScheduler = /*@__PURE__*/ (function (_super) {
         }
     };
     return AsyncScheduler;
-}(Scheduler));/** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
-var QueueScheduler = /*@__PURE__*/ (function (_super) {
+}(Scheduler));var QueueScheduler = (function (_super) {
     __extends(QueueScheduler, _super);
     function QueueScheduler() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     return QueueScheduler;
-}(AsyncScheduler));/** PURE_IMPORTS_START _QueueAction,_QueueScheduler PURE_IMPORTS_END */
-var queue = /*@__PURE__*/ new QueueScheduler(QueueAction);/** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
-var EMPTY = /*@__PURE__*/ new Observable(function (subscriber) { return subscriber.complete(); });
+}(AsyncScheduler));var queue = new QueueScheduler(QueueAction);var EMPTY = new Observable(function (subscriber) { return subscriber.complete(); });
 function empty$1(scheduler) {
     return scheduler ? emptyScheduled(scheduler) : EMPTY;
 }
 function emptyScheduled(scheduler) {
     return new Observable(function (subscriber) { return scheduler.schedule(function () { return subscriber.complete(); }); });
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function isScheduler(value) {
+}function isScheduler(value) {
     return value && typeof value.schedule === 'function';
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var subscribeToArray = function (array) {
-    return function (subscriber) {
-        for (var i = 0, len = array.length; i < len && !subscriber.closed; i++) {
-            subscriber.next(array[i]);
-        }
-        subscriber.complete();
-    };
-};/** PURE_IMPORTS_START _Observable,_Subscription PURE_IMPORTS_END */
-function scheduleArray(input, scheduler) {
+}var subscribeToArray = function (array) { return function (subscriber) {
+    for (var i = 0, len = array.length; i < len && !subscriber.closed; i++) {
+        subscriber.next(array[i]);
+    }
+    subscriber.complete();
+}; };function scheduleArray(input, scheduler) {
     return new Observable(function (subscriber) {
         var sub = new Subscription();
         var i = 0;
@@ -1371,16 +1380,14 @@ function scheduleArray(input, scheduler) {
         }));
         return sub;
     });
-}/** PURE_IMPORTS_START _Observable,_util_subscribeToArray,_scheduled_scheduleArray PURE_IMPORTS_END */
-function fromArray(input, scheduler) {
+}function fromArray(input, scheduler) {
     if (!scheduler) {
         return new Observable(subscribeToArray(input));
     }
     else {
         return scheduleArray(input, scheduler);
     }
-}/** PURE_IMPORTS_START _util_isScheduler,_fromArray,_scheduled_scheduleArray PURE_IMPORTS_END */
-function of() {
+}function of() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         args[_i] = arguments[_i];
@@ -1393,8 +1400,7 @@ function of() {
     else {
         return fromArray(args);
     }
-}/** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
-function throwError(error, scheduler) {
+}function throwError(error, scheduler) {
     if (!scheduler) {
         return new Observable(function (subscriber) { return subscriber.error(error); });
     }
@@ -1405,14 +1411,13 @@ function throwError(error, scheduler) {
 function dispatch(_a) {
     var error = _a.error, subscriber = _a.subscriber;
     subscriber.error(error);
-}/** PURE_IMPORTS_START _observable_empty,_observable_of,_observable_throwError PURE_IMPORTS_END */
-var NotificationKind;
-/*@__PURE__*/ (function (NotificationKind) {
+}var NotificationKind;
+(function (NotificationKind) {
     NotificationKind["NEXT"] = "N";
     NotificationKind["ERROR"] = "E";
     NotificationKind["COMPLETE"] = "C";
 })(NotificationKind || (NotificationKind = {}));
-var Notification = /*@__PURE__*/ (function () {
+var Notification = (function () {
     function Notification(kind, value, error) {
         this.kind = kind;
         this.value = value;
@@ -1475,20 +1480,15 @@ var Notification = /*@__PURE__*/ (function () {
     Notification.completeNotification = new Notification('C');
     Notification.undefinedValueNotification = new Notification('N', undefined);
     return Notification;
-}());/** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
-function observeOn(scheduler, delay) {
-    if (delay === void 0) {
-        delay = 0;
-    }
+}());function observeOn(scheduler, delay) {
+    if (delay === void 0) { delay = 0; }
     return function observeOnOperatorFunction(source) {
         return source.lift(new ObserveOnOperator(scheduler, delay));
     };
 }
-var ObserveOnOperator = /*@__PURE__*/ (function () {
+var ObserveOnOperator = (function () {
     function ObserveOnOperator(scheduler, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         this.scheduler = scheduler;
         this.delay = delay;
     }
@@ -1497,12 +1497,10 @@ var ObserveOnOperator = /*@__PURE__*/ (function () {
     };
     return ObserveOnOperator;
 }());
-var ObserveOnSubscriber = /*@__PURE__*/ (function (_super) {
+var ObserveOnSubscriber = (function (_super) {
     __extends(ObserveOnSubscriber, _super);
     function ObserveOnSubscriber(destination, scheduler, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         var _this = _super.call(this, destination) || this;
         _this.scheduler = scheduler;
         _this.delay = delay;
@@ -1530,22 +1528,17 @@ var ObserveOnSubscriber = /*@__PURE__*/ (function (_super) {
     };
     return ObserveOnSubscriber;
 }(Subscriber));
-var ObserveOnMessage = /*@__PURE__*/ (function () {
+var ObserveOnMessage = (function () {
     function ObserveOnMessage(notification, destination) {
         this.notification = notification;
         this.destination = destination;
     }
     return ObserveOnMessage;
-}());/** PURE_IMPORTS_START tslib,_Subject,_scheduler_queue,_Subscription,_operators_observeOn,_util_ObjectUnsubscribedError,_SubjectSubscription PURE_IMPORTS_END */
-var ReplaySubject = /*@__PURE__*/ (function (_super) {
+}());var ReplaySubject = (function (_super) {
     __extends(ReplaySubject, _super);
     function ReplaySubject(bufferSize, windowTime, scheduler) {
-        if (bufferSize === void 0) {
-            bufferSize = Number.POSITIVE_INFINITY;
-        }
-        if (windowTime === void 0) {
-            windowTime = Number.POSITIVE_INFINITY;
-        }
+        if (bufferSize === void 0) { bufferSize = Number.POSITIVE_INFINITY; }
+        if (windowTime === void 0) { windowTime = Number.POSITIVE_INFINITY; }
         var _this = _super.call(this) || this;
         _this.scheduler = scheduler;
         _this._events = [];
@@ -1637,14 +1630,13 @@ var ReplaySubject = /*@__PURE__*/ (function (_super) {
     };
     return ReplaySubject;
 }(Subject));
-var ReplayEvent = /*@__PURE__*/ (function () {
+var ReplayEvent = (function () {
     function ReplayEvent(time, value) {
         this.time = time;
         this.value = value;
     }
     return ReplayEvent;
-}());/** PURE_IMPORTS_START tslib,_Subject,_Subscription PURE_IMPORTS_END */
-var AsyncSubject = /*@__PURE__*/ (function (_super) {
+}());var AsyncSubject = (function (_super) {
     __extends(AsyncSubject, _super);
     function AsyncSubject() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -1684,27 +1676,30 @@ var AsyncSubject = /*@__PURE__*/ (function (_super) {
         _super.prototype.complete.call(this);
     };
     return AsyncSubject;
-}(Subject));/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var nextHandle = 1;
-var tasksByHandle = {};
-function runIfPresent(handle) {
-    var cb = tasksByHandle[handle];
-    if (cb) {
-        cb();
+}(Subject));var nextHandle = 1;
+var resolved;
+var activeHandles = {};
+function findAndClearHandle(handle) {
+    if (handle in activeHandles) {
+        delete activeHandles[handle];
+        return true;
     }
+    return false;
 }
 var Immediate = {
     setImmediate: function (cb) {
         var handle = nextHandle++;
-        tasksByHandle[handle] = cb;
-        Promise.resolve().then(function () { return runIfPresent(handle); });
+        activeHandles[handle] = true;
+        if (!resolved) {
+            resolved = Promise.resolve();
+        }
+        resolved.then(function () { return findAndClearHandle(handle) && cb(); });
         return handle;
     },
     clearImmediate: function (handle) {
-        delete tasksByHandle[handle];
+        findAndClearHandle(handle);
     },
-};/** PURE_IMPORTS_START tslib,_util_Immediate,_AsyncAction PURE_IMPORTS_END */
-var AsapAction = /*@__PURE__*/ (function (_super) {
+};var AsapAction = (function (_super) {
     __extends(AsapAction, _super);
     function AsapAction(scheduler, work) {
         var _this = _super.call(this, scheduler, work) || this;
@@ -1713,9 +1708,7 @@ var AsapAction = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     AsapAction.prototype.requestAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if (delay !== null && delay > 0) {
             return _super.prototype.requestAsyncId.call(this, scheduler, id, delay);
         }
@@ -1723,9 +1716,7 @@ var AsapAction = /*@__PURE__*/ (function (_super) {
         return scheduler.scheduled || (scheduler.scheduled = Immediate.setImmediate(scheduler.flush.bind(scheduler, null)));
     };
     AsapAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if ((delay !== null && delay > 0) || (delay === null && this.delay > 0)) {
             return _super.prototype.recycleAsyncId.call(this, scheduler, id, delay);
         }
@@ -1736,8 +1727,7 @@ var AsapAction = /*@__PURE__*/ (function (_super) {
         return undefined;
     };
     return AsapAction;
-}(AsyncAction));/** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
-var AsapScheduler = /*@__PURE__*/ (function (_super) {
+}(AsyncAction));var AsapScheduler = (function (_super) {
     __extends(AsapScheduler, _super);
     function AsapScheduler() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1764,10 +1754,7 @@ var AsapScheduler = /*@__PURE__*/ (function (_super) {
         }
     };
     return AsapScheduler;
-}(AsyncScheduler));/** PURE_IMPORTS_START _AsapAction,_AsapScheduler PURE_IMPORTS_END */
-var asap = /*@__PURE__*/ new AsapScheduler(AsapAction);/** PURE_IMPORTS_START _AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
-var async = /*@__PURE__*/ new AsyncScheduler(AsyncAction);/** PURE_IMPORTS_START tslib,_AsyncAction PURE_IMPORTS_END */
-var AnimationFrameAction = /*@__PURE__*/ (function (_super) {
+}(AsyncScheduler));var asap = new AsapScheduler(AsapAction);var async = new AsyncScheduler(AsyncAction);var AnimationFrameAction = (function (_super) {
     __extends(AnimationFrameAction, _super);
     function AnimationFrameAction(scheduler, work) {
         var _this = _super.call(this, scheduler, work) || this;
@@ -1776,9 +1763,7 @@ var AnimationFrameAction = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     AnimationFrameAction.prototype.requestAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if (delay !== null && delay > 0) {
             return _super.prototype.requestAsyncId.call(this, scheduler, id, delay);
         }
@@ -1786,9 +1771,7 @@ var AnimationFrameAction = /*@__PURE__*/ (function (_super) {
         return scheduler.scheduled || (scheduler.scheduled = requestAnimationFrame(function () { return scheduler.flush(null); }));
     };
     AnimationFrameAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if ((delay !== null && delay > 0) || (delay === null && this.delay > 0)) {
             return _super.prototype.recycleAsyncId.call(this, scheduler, id, delay);
         }
@@ -1799,8 +1782,7 @@ var AnimationFrameAction = /*@__PURE__*/ (function (_super) {
         return undefined;
     };
     return AnimationFrameAction;
-}(AsyncAction));/** PURE_IMPORTS_START tslib,_AsyncScheduler PURE_IMPORTS_END */
-var AnimationFrameScheduler = /*@__PURE__*/ (function (_super) {
+}(AsyncAction));var AnimationFrameScheduler = (function (_super) {
     __extends(AnimationFrameScheduler, _super);
     function AnimationFrameScheduler() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -1827,17 +1809,11 @@ var AnimationFrameScheduler = /*@__PURE__*/ (function (_super) {
         }
     };
     return AnimationFrameScheduler;
-}(AsyncScheduler));/** PURE_IMPORTS_START _AnimationFrameAction,_AnimationFrameScheduler PURE_IMPORTS_END */
-var animationFrame = /*@__PURE__*/ new AnimationFrameScheduler(AnimationFrameAction);/** PURE_IMPORTS_START tslib,_AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
-var VirtualTimeScheduler = /*@__PURE__*/ (function (_super) {
+}(AsyncScheduler));var animationFrame = new AnimationFrameScheduler(AnimationFrameAction);var VirtualTimeScheduler = (function (_super) {
     __extends(VirtualTimeScheduler, _super);
     function VirtualTimeScheduler(SchedulerAction, maxFrames) {
-        if (SchedulerAction === void 0) {
-            SchedulerAction = VirtualAction;
-        }
-        if (maxFrames === void 0) {
-            maxFrames = Number.POSITIVE_INFINITY;
-        }
+        if (SchedulerAction === void 0) { SchedulerAction = VirtualAction; }
+        if (maxFrames === void 0) { maxFrames = Number.POSITIVE_INFINITY; }
         var _this = _super.call(this, SchedulerAction, function () { return _this.frame; }) || this;
         _this.maxFrames = maxFrames;
         _this.frame = 0;
@@ -1864,12 +1840,10 @@ var VirtualTimeScheduler = /*@__PURE__*/ (function (_super) {
     VirtualTimeScheduler.frameTimeFactor = 10;
     return VirtualTimeScheduler;
 }(AsyncScheduler));
-var VirtualAction = /*@__PURE__*/ (function (_super) {
+var VirtualAction = (function (_super) {
     __extends(VirtualAction, _super);
     function VirtualAction(scheduler, work, index) {
-        if (index === void 0) {
-            index = scheduler.index += 1;
-        }
+        if (index === void 0) { index = scheduler.index += 1; }
         var _this = _super.call(this, scheduler, work) || this;
         _this.scheduler = scheduler;
         _this.work = work;
@@ -1879,9 +1853,7 @@ var VirtualAction = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     VirtualAction.prototype.schedule = function (state, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         if (!this.id) {
             return _super.prototype.schedule.call(this, state, delay);
         }
@@ -1891,9 +1863,7 @@ var VirtualAction = /*@__PURE__*/ (function (_super) {
         return action.schedule(state, delay);
     };
     VirtualAction.prototype.requestAsyncId = function (scheduler, id, delay) {
-        if (delay === void 0) {
-            delay = 0;
-        }
+        if (delay === void 0) { delay = 0; }
         this.delay = scheduler.frame + delay;
         var actions = scheduler.actions;
         actions.push(this);
@@ -1928,47 +1898,41 @@ var VirtualAction = /*@__PURE__*/ (function (_super) {
         }
     };
     return VirtualAction;
-}(AsyncAction));/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function identity(x) {
+}(AsyncAction));function identity(x) {
     return x;
-}/** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
-function isObservable(obj) {
+}function isObservable(obj) {
     return !!obj && (obj instanceof Observable || (typeof obj.lift === 'function' && typeof obj.subscribe === 'function'));
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var ArgumentOutOfRangeErrorImpl = /*@__PURE__*/ (function () {
+}var ArgumentOutOfRangeErrorImpl = (function () {
     function ArgumentOutOfRangeErrorImpl() {
         Error.call(this);
         this.message = 'argument out of range';
         this.name = 'ArgumentOutOfRangeError';
         return this;
     }
-    ArgumentOutOfRangeErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
+    ArgumentOutOfRangeErrorImpl.prototype = Object.create(Error.prototype);
     return ArgumentOutOfRangeErrorImpl;
 })();
-var ArgumentOutOfRangeError = ArgumentOutOfRangeErrorImpl;/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var EmptyErrorImpl = /*@__PURE__*/ (function () {
+var ArgumentOutOfRangeError = ArgumentOutOfRangeErrorImpl;var EmptyErrorImpl = (function () {
     function EmptyErrorImpl() {
         Error.call(this);
         this.message = 'no elements in sequence';
         this.name = 'EmptyError';
         return this;
     }
-    EmptyErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
+    EmptyErrorImpl.prototype = Object.create(Error.prototype);
     return EmptyErrorImpl;
 })();
-var EmptyError = EmptyErrorImpl;/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var TimeoutErrorImpl = /*@__PURE__*/ (function () {
+var EmptyError = EmptyErrorImpl;var TimeoutErrorImpl = (function () {
     function TimeoutErrorImpl() {
         Error.call(this);
         this.message = 'Timeout has occurred';
         this.name = 'TimeoutError';
         return this;
     }
-    TimeoutErrorImpl.prototype = /*@__PURE__*/ Object.create(Error.prototype);
+    TimeoutErrorImpl.prototype = Object.create(Error.prototype);
     return TimeoutErrorImpl;
 })();
-var TimeoutError = TimeoutErrorImpl;/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function map(project, thisArg) {
+var TimeoutError = TimeoutErrorImpl;function map(project, thisArg) {
     return function mapOperation(source) {
         if (typeof project !== 'function') {
             throw new TypeError('argument is not a function. Are you looking for `mapTo()`?');
@@ -1976,7 +1940,7 @@ function map(project, thisArg) {
         return source.lift(new MapOperator(project, thisArg));
     };
 }
-var MapOperator = /*@__PURE__*/ (function () {
+var MapOperator = (function () {
     function MapOperator(project, thisArg) {
         this.project = project;
         this.thisArg = thisArg;
@@ -1986,7 +1950,7 @@ var MapOperator = /*@__PURE__*/ (function () {
     };
     return MapOperator;
 }());
-var MapSubscriber = /*@__PURE__*/ (function (_super) {
+var MapSubscriber = (function (_super) {
     __extends(MapSubscriber, _super);
     function MapSubscriber(destination, project, thisArg) {
         var _this = _super.call(this, destination) || this;
@@ -2007,8 +1971,7 @@ var MapSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.next(result);
     };
     return MapSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _Observable,_AsyncSubject,_operators_map,_util_canReportError,_util_isArray,_util_isScheduler PURE_IMPORTS_END */
-function bindCallback(callbackFunc, resultSelector, scheduler) {
+}(Subscriber));function bindCallback(callbackFunc, resultSelector, scheduler) {
     if (resultSelector) {
         if (isScheduler(resultSelector)) {
             scheduler = resultSelector;
@@ -2049,7 +2012,7 @@ function bindCallback(callbackFunc, resultSelector, scheduler) {
                         subject.complete();
                     };
                     try {
-                        callbackFunc.apply(context, args.concat([handler]));
+                        callbackFunc.apply(context, __spreadArrays(args, [handler]));
                     }
                     catch (err) {
                         if (canReportError(subject)) {
@@ -2087,7 +2050,7 @@ function dispatch$1(state) {
             _this.add(scheduler.schedule(dispatchNext, 0, { value: value, subject: subject }));
         };
         try {
-            callbackFunc.apply(context, args.concat([handler]));
+            callbackFunc.apply(context, __spreadArrays(args, [handler]));
         }
         catch (err) {
             subject.error(err);
@@ -2099,8 +2062,7 @@ function dispatchNext(state) {
     var value = state.value, subject = state.subject;
     subject.next(value);
     subject.complete();
-}/** PURE_IMPORTS_START _Observable,_AsyncSubject,_operators_map,_util_canReportError,_util_isScheduler,_util_isArray PURE_IMPORTS_END */
-function bindNodeCallback(callbackFunc, resultSelector, scheduler) {
+}function bindNodeCallback(callbackFunc, resultSelector, scheduler) {
     if (resultSelector) {
         if (isScheduler(resultSelector)) {
             scheduler = resultSelector;
@@ -2147,7 +2109,7 @@ function bindNodeCallback(callbackFunc, resultSelector, scheduler) {
                         subject.complete();
                     };
                     try {
-                        callbackFunc.apply(context, args.concat([handler]));
+                        callbackFunc.apply(context, __spreadArrays(args, [handler]));
                     }
                     catch (err) {
                         if (canReportError(subject)) {
@@ -2188,7 +2150,7 @@ function dispatch$2(state) {
             }
         };
         try {
-            callbackFunc.apply(context, args.concat([handler]));
+            callbackFunc.apply(context, __spreadArrays(args, [handler]));
         }
         catch (err) {
             this.add(scheduler.schedule(dispatchError, 0, { err: err, subject: subject }));
@@ -2204,8 +2166,7 @@ function dispatchNext$1(arg) {
 function dispatchError(arg) {
     var err = arg.err, subject = arg.subject;
     subject.error(err);
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-var OuterSubscriber = /*@__PURE__*/ (function (_super) {
+}var OuterSubscriber = (function (_super) {
     __extends(OuterSubscriber, _super);
     function OuterSubscriber() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -2220,8 +2181,7 @@ var OuterSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.complete();
     };
     return OuterSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-var InnerSubscriber = /*@__PURE__*/ (function (_super) {
+}(Subscriber));var InnerSubscriber = (function (_super) {
     __extends(InnerSubscriber, _super);
     function InnerSubscriber(parent, outerValue, outerIndex) {
         var _this = _super.call(this) || this;
@@ -2243,66 +2203,53 @@ var InnerSubscriber = /*@__PURE__*/ (function (_super) {
         this.unsubscribe();
     };
     return InnerSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _hostReportError PURE_IMPORTS_END */
-var subscribeToPromise = function (promise) {
-    return function (subscriber) {
-        promise.then(function (value) {
-            if (!subscriber.closed) {
-                subscriber.next(value);
-                subscriber.complete();
-            }
-        }, function (err) { return subscriber.error(err); })
-            .then(null, hostReportError);
-        return subscriber;
-    };
-};/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function getSymbolIterator() {
+}(Subscriber));var subscribeToPromise = function (promise) { return function (subscriber) {
+    promise.then(function (value) {
+        if (!subscriber.closed) {
+            subscriber.next(value);
+            subscriber.complete();
+        }
+    }, function (err) { return subscriber.error(err); })
+        .then(null, hostReportError);
+    return subscriber;
+}; };function getSymbolIterator() {
     if (typeof Symbol !== 'function' || !Symbol.iterator) {
         return '@@iterator';
     }
     return Symbol.iterator;
 }
-var iterator = /*@__PURE__*/ getSymbolIterator();/** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
-var subscribeToIterable = function (iterable) {
-    return function (subscriber) {
-        var iterator$1 = iterable[iterator]();
-        do {
-            var item = iterator$1.next();
-            if (item.done) {
-                subscriber.complete();
-                break;
+var iterator = getSymbolIterator();var subscribeToIterable = function (iterable) { return function (subscriber) {
+    var iterator$1 = iterable[iterator]();
+    do {
+        var item = iterator$1.next();
+        if (item.done) {
+            subscriber.complete();
+            break;
+        }
+        subscriber.next(item.value);
+        if (subscriber.closed) {
+            break;
+        }
+    } while (true);
+    if (typeof iterator$1.return === 'function') {
+        subscriber.add(function () {
+            if (iterator$1.return) {
+                iterator$1.return();
             }
-            subscriber.next(item.value);
-            if (subscriber.closed) {
-                break;
-            }
-        } while (true);
-        if (typeof iterator$1.return === 'function') {
-            subscriber.add(function () {
-                if (iterator$1.return) {
-                    iterator$1.return();
-                }
-            });
-        }
-        return subscriber;
-    };
-};/** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
-var subscribeToObservable = function (obj) {
-    return function (subscriber) {
-        var obs = obj[observable]();
-        if (typeof obs.subscribe !== 'function') {
-            throw new TypeError('Provided object does not correctly implement Symbol.observable');
-        }
-        else {
-            return obs.subscribe(subscriber);
-        }
-    };
-};/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-var isArrayLike = (function (x) { return x && typeof x.length === 'number' && typeof x !== 'function'; });/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function isPromise(value) {
+        });
+    }
+    return subscriber;
+}; };var subscribeToObservable = function (obj) { return function (subscriber) {
+    var obs = obj[observable]();
+    if (typeof obs.subscribe !== 'function') {
+        throw new TypeError('Provided object does not correctly implement Symbol.observable');
+    }
+    else {
+        return obs.subscribe(subscriber);
+    }
+}; };var isArrayLike = (function (x) { return x && typeof x.length === 'number' && typeof x !== 'function'; });function isPromise(value) {
     return !!value && typeof value.subscribe !== 'function' && typeof value.then === 'function';
-}/** PURE_IMPORTS_START _subscribeToArray,_subscribeToPromise,_subscribeToIterable,_subscribeToObservable,_isArrayLike,_isPromise,_isObject,_symbol_iterator,_symbol_observable PURE_IMPORTS_END */
-var subscribeTo = function (result) {
+}var subscribeTo = function (result) {
     if (!!result && typeof result[observable] === 'function') {
         return subscribeToObservable(result);
     }
@@ -2321,20 +2268,16 @@ var subscribeTo = function (result) {
             + ' You can provide an Observable, Promise, Array, or Iterable.';
         throw new TypeError(msg);
     }
-};/** PURE_IMPORTS_START _InnerSubscriber,_subscribeTo,_Observable PURE_IMPORTS_END */
-function subscribeToResult(outerSubscriber, result, outerValue, outerIndex, destination) {
-    if (destination === void 0) {
-        destination = new InnerSubscriber(outerSubscriber, outerValue, outerIndex);
-    }
-    if (destination.closed) {
+};function subscribeToResult(outerSubscriber, result, outerValue, outerIndex, innerSubscriber) {
+    if (innerSubscriber === void 0) { innerSubscriber = new InnerSubscriber(outerSubscriber, outerValue, outerIndex); }
+    if (innerSubscriber.closed) {
         return undefined;
     }
     if (result instanceof Observable) {
-        return result.subscribe(destination);
+        return result.subscribe(innerSubscriber);
     }
-    return subscribeTo(result)(destination);
-}/** PURE_IMPORTS_START tslib,_util_isScheduler,_util_isArray,_OuterSubscriber,_util_subscribeToResult,_fromArray PURE_IMPORTS_END */
-var NONE = {};
+    return subscribeTo(result)(innerSubscriber);
+}var NONE = {};
 function combineLatest() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -2353,7 +2296,7 @@ function combineLatest() {
     }
     return fromArray(observables, scheduler).lift(new CombineLatestOperator(resultSelector));
 }
-var CombineLatestOperator = /*@__PURE__*/ (function () {
+var CombineLatestOperator = (function () {
     function CombineLatestOperator(resultSelector) {
         this.resultSelector = resultSelector;
     }
@@ -2362,7 +2305,7 @@ var CombineLatestOperator = /*@__PURE__*/ (function () {
     };
     return CombineLatestOperator;
 }());
-var CombineLatestSubscriber = /*@__PURE__*/ (function (_super) {
+var CombineLatestSubscriber = (function (_super) {
     __extends(CombineLatestSubscriber, _super);
     function CombineLatestSubscriber(destination, resultSelector) {
         var _this = _super.call(this, destination) || this;
@@ -2424,8 +2367,7 @@ var CombineLatestSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.next(result);
     };
     return CombineLatestSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _Observable,_Subscription,_symbol_observable PURE_IMPORTS_END */
-function scheduleObservable(input, scheduler) {
+}(OuterSubscriber));function scheduleObservable(input, scheduler) {
     return new Observable(function (subscriber) {
         var sub = new Subscription();
         sub.add(scheduler.schedule(function () {
@@ -2438,24 +2380,20 @@ function scheduleObservable(input, scheduler) {
         }));
         return sub;
     });
-}/** PURE_IMPORTS_START _Observable,_Subscription PURE_IMPORTS_END */
-function schedulePromise(input, scheduler) {
+}function schedulePromise(input, scheduler) {
     return new Observable(function (subscriber) {
         var sub = new Subscription();
-        sub.add(scheduler.schedule(function () {
-            return input.then(function (value) {
-                sub.add(scheduler.schedule(function () {
-                    subscriber.next(value);
-                    sub.add(scheduler.schedule(function () { return subscriber.complete(); }));
-                }));
-            }, function (err) {
-                sub.add(scheduler.schedule(function () { return subscriber.error(err); }));
-            });
-        }));
+        sub.add(scheduler.schedule(function () { return input.then(function (value) {
+            sub.add(scheduler.schedule(function () {
+                subscriber.next(value);
+                sub.add(scheduler.schedule(function () { return subscriber.complete(); }));
+            }));
+        }, function (err) {
+            sub.add(scheduler.schedule(function () { return subscriber.error(err); }));
+        }); }));
         return sub;
     });
-}/** PURE_IMPORTS_START _Observable,_Subscription,_symbol_iterator PURE_IMPORTS_END */
-function scheduleIterable(input, scheduler) {
+}function scheduleIterable(input, scheduler) {
     if (!input) {
         throw new Error('Iterable cannot be null');
     }
@@ -2495,14 +2433,11 @@ function scheduleIterable(input, scheduler) {
         }));
         return sub;
     });
-}/** PURE_IMPORTS_START _symbol_observable PURE_IMPORTS_END */
-function isInteropObservable(input) {
+}function isInteropObservable(input) {
     return input && typeof input[observable] === 'function';
-}/** PURE_IMPORTS_START _symbol_iterator PURE_IMPORTS_END */
-function isIterable(input) {
+}function isIterable(input) {
     return input && typeof input[iterator] === 'function';
-}/** PURE_IMPORTS_START _scheduleObservable,_schedulePromise,_scheduleArray,_scheduleIterable,_util_isInteropObservable,_util_isPromise,_util_isArrayLike,_util_isIterable PURE_IMPORTS_END */
-function scheduled(input, scheduler) {
+}function scheduled(input, scheduler) {
     if (input != null) {
         if (isInteropObservable(input)) {
             return scheduleObservable(input, scheduler);
@@ -2518,8 +2453,7 @@ function scheduled(input, scheduler) {
         }
     }
     throw new TypeError((input !== null && typeof input || input) + ' is not observable');
-}/** PURE_IMPORTS_START _Observable,_util_subscribeTo,_scheduled_scheduled PURE_IMPORTS_END */
-function from(input, scheduler) {
+}function from(input, scheduler) {
     if (!scheduler) {
         if (input instanceof Observable) {
             return input;
@@ -2529,11 +2463,8 @@ function from(input, scheduler) {
     else {
         return scheduled(input, scheduler);
     }
-}/** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber,_map,_observable_from PURE_IMPORTS_END */
-function mergeMap(project, resultSelector, concurrent) {
-    if (concurrent === void 0) {
-        concurrent = Number.POSITIVE_INFINITY;
-    }
+}function mergeMap(project, resultSelector, concurrent) {
+    if (concurrent === void 0) { concurrent = Number.POSITIVE_INFINITY; }
     if (typeof resultSelector === 'function') {
         return function (source) { return source.pipe(mergeMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); }, concurrent)); };
     }
@@ -2542,11 +2473,9 @@ function mergeMap(project, resultSelector, concurrent) {
     }
     return function (source) { return source.lift(new MergeMapOperator(project, concurrent)); };
 }
-var MergeMapOperator = /*@__PURE__*/ (function () {
+var MergeMapOperator = (function () {
     function MergeMapOperator(project, concurrent) {
-        if (concurrent === void 0) {
-            concurrent = Number.POSITIVE_INFINITY;
-        }
+        if (concurrent === void 0) { concurrent = Number.POSITIVE_INFINITY; }
         this.project = project;
         this.concurrent = concurrent;
     }
@@ -2555,12 +2484,10 @@ var MergeMapOperator = /*@__PURE__*/ (function () {
     };
     return MergeMapOperator;
 }());
-var MergeMapSubscriber = /*@__PURE__*/ (function (_super) {
+var MergeMapSubscriber = (function (_super) {
     __extends(MergeMapSubscriber, _super);
     function MergeMapSubscriber(destination, project, concurrent) {
-        if (concurrent === void 0) {
-            concurrent = Number.POSITIVE_INFINITY;
-        }
+        if (concurrent === void 0) { concurrent = Number.POSITIVE_INFINITY; }
         var _this = _super.call(this, destination) || this;
         _this.project = project;
         _this.concurrent = concurrent;
@@ -2592,10 +2519,13 @@ var MergeMapSubscriber = /*@__PURE__*/ (function (_super) {
         this._innerSub(result, value, index);
     };
     MergeMapSubscriber.prototype._innerSub = function (ish, value, index) {
-        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+        var innerSubscriber = new InnerSubscriber(this, value, index);
         var destination = this.destination;
         destination.add(innerSubscriber);
-        subscribeToResult(this, ish, value, index, innerSubscriber);
+        var innerSubscription = subscribeToResult(this, ish, undefined, undefined, innerSubscriber);
+        if (innerSubscription !== innerSubscriber) {
+            destination.add(innerSubscription);
+        }
     };
     MergeMapSubscriber.prototype._complete = function () {
         this.hasCompleted = true;
@@ -2619,24 +2549,18 @@ var MergeMapSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return MergeMapSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _mergeMap,_util_identity PURE_IMPORTS_END */
-function mergeAll(concurrent) {
-    if (concurrent === void 0) {
-        concurrent = Number.POSITIVE_INFINITY;
-    }
+}(OuterSubscriber));function mergeAll(concurrent) {
+    if (concurrent === void 0) { concurrent = Number.POSITIVE_INFINITY; }
     return mergeMap(identity, concurrent);
-}/** PURE_IMPORTS_START _mergeAll PURE_IMPORTS_END */
-function concatAll() {
+}function concatAll() {
     return mergeAll(1);
-}/** PURE_IMPORTS_START _of,_operators_concatAll PURE_IMPORTS_END */
-function concat() {
+}function concat() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
     }
     return concatAll()(of.apply(void 0, observables));
-}/** PURE_IMPORTS_START _Observable,_from,_empty PURE_IMPORTS_END */
-function defer(observableFactory) {
+}function defer(observableFactory) {
     return new Observable(function (subscriber) {
         var input;
         try {
@@ -2649,8 +2573,7 @@ function defer(observableFactory) {
         var source = input ? from(input) : empty$1();
         return source.subscribe(subscriber);
     });
-}/** PURE_IMPORTS_START _Observable,_util_isArray,_operators_map,_util_isObject,_from PURE_IMPORTS_END */
-function forkJoin() {
+}function forkJoin() {
     var sources = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         sources[_i] = arguments[_i];
@@ -2711,8 +2634,7 @@ function forkJoinInternal(sources, keys) {
             _loop_1(i);
         }
     });
-}/** PURE_IMPORTS_START _Observable,_util_isArray,_util_isFunction,_operators_map PURE_IMPORTS_END */
-function fromEvent(target, eventName, options, resultSelector) {
+}function fromEvent(target, eventName, options, resultSelector) {
     if (isFunction(options)) {
         resultSelector = options;
         options = undefined;
@@ -2767,8 +2689,7 @@ function isJQueryStyleEventEmitter(sourceObj) {
 }
 function isEventTarget(sourceObj) {
     return sourceObj && typeof sourceObj.addEventListener === 'function' && typeof sourceObj.removeEventListener === 'function';
-}/** PURE_IMPORTS_START _Observable,_util_isArray,_util_isFunction,_operators_map PURE_IMPORTS_END */
-function fromEventPattern(addHandler, removeHandler, resultSelector) {
+}function fromEventPattern(addHandler, removeHandler, resultSelector) {
     if (resultSelector) {
         return fromEventPattern(addHandler, removeHandler).pipe(map(function (args) { return isArray(args) ? resultSelector.apply(void 0, args) : resultSelector(args); }));
     }
@@ -2793,8 +2714,7 @@ function fromEventPattern(addHandler, removeHandler, resultSelector) {
         }
         return function () { return removeHandler(handler, retValue); };
     });
-}/** PURE_IMPORTS_START _Observable,_util_identity,_util_isScheduler PURE_IMPORTS_END */
-function generate(initialStateOrOptions, condition, iterate, resultSelectorOrObservable, scheduler) {
+}function generate(initialStateOrOptions, condition, iterate, resultSelectorOrObservable, scheduler) {
     var resultSelector;
     var initialState;
     if (arguments.length == 1) {
@@ -2913,26 +2833,15 @@ function dispatch$3(state) {
         return undefined;
     }
     return this.schedule(state);
-}/** PURE_IMPORTS_START _defer,_empty PURE_IMPORTS_END */
-function iif(condition, trueResult, falseResult) {
-    if (trueResult === void 0) {
-        trueResult = EMPTY;
-    }
-    if (falseResult === void 0) {
-        falseResult = EMPTY;
-    }
+}function iif(condition, trueResult, falseResult) {
+    if (trueResult === void 0) { trueResult = EMPTY; }
+    if (falseResult === void 0) { falseResult = EMPTY; }
     return defer(function () { return condition() ? trueResult : falseResult; });
-}/** PURE_IMPORTS_START _isArray PURE_IMPORTS_END */
-function isNumeric(val) {
+}function isNumeric(val) {
     return !isArray(val) && (val - parseFloat(val) + 1) >= 0;
-}/** PURE_IMPORTS_START _Observable,_scheduler_async,_util_isNumeric PURE_IMPORTS_END */
-function interval(period, scheduler) {
-    if (period === void 0) {
-        period = 0;
-    }
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}function interval(period, scheduler) {
+    if (period === void 0) { period = 0; }
+    if (scheduler === void 0) { scheduler = async; }
     if (!isNumeric(period) || period < 0) {
         period = 0;
     }
@@ -2948,8 +2857,7 @@ function dispatch$4(state) {
     var subscriber = state.subscriber, counter = state.counter, period = state.period;
     subscriber.next(counter);
     this.schedule({ subscriber: subscriber, counter: counter + 1, period: period }, period);
-}/** PURE_IMPORTS_START _Observable,_util_isScheduler,_operators_mergeAll,_fromArray PURE_IMPORTS_END */
-function merge() {
+}function merge() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
@@ -2970,12 +2878,10 @@ function merge() {
         return observables[0];
     }
     return mergeAll(concurrent)(fromArray(observables, scheduler));
-}/** PURE_IMPORTS_START _Observable,_util_noop PURE_IMPORTS_END */
-var NEVER = /*@__PURE__*/ new Observable(noop);
+}var NEVER = new Observable(noop);
 function never() {
     return NEVER;
-}/** PURE_IMPORTS_START _Observable,_from,_util_isArray,_empty PURE_IMPORTS_END */
-function onErrorResumeNext() {
+}function onErrorResumeNext() {
     var sources = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         sources[_i] = arguments[_i];
@@ -2995,8 +2901,7 @@ function onErrorResumeNext() {
             complete: subNext,
         });
     });
-}/** PURE_IMPORTS_START _Observable,_Subscription PURE_IMPORTS_END */
-function pairs(obj, scheduler) {
+}function pairs(obj, scheduler) {
     if (!scheduler) {
         return new Observable(function (subscriber) {
             var keys = Object.keys(obj);
@@ -3030,21 +2935,19 @@ function dispatch$5(state) {
             subscriber.complete();
         }
     }
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function not(pred, thisArg) {
+}function not(pred, thisArg) {
     function notPred() {
         return !(notPred.pred.apply(notPred.thisArg, arguments));
     }
     notPred.pred = pred;
     notPred.thisArg = thisArg;
     return notPred;
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function filter(predicate, thisArg) {
+}function filter(predicate, thisArg) {
     return function filterOperatorFunction(source) {
         return source.lift(new FilterOperator(predicate, thisArg));
     };
 }
-var FilterOperator = /*@__PURE__*/ (function () {
+var FilterOperator = (function () {
     function FilterOperator(predicate, thisArg) {
         this.predicate = predicate;
         this.thisArg = thisArg;
@@ -3054,7 +2957,7 @@ var FilterOperator = /*@__PURE__*/ (function () {
     };
     return FilterOperator;
 }());
-var FilterSubscriber = /*@__PURE__*/ (function (_super) {
+var FilterSubscriber = (function (_super) {
     __extends(FilterSubscriber, _super);
     function FilterSubscriber(destination, predicate, thisArg) {
         var _this = _super.call(this, destination) || this;
@@ -3077,14 +2980,12 @@ var FilterSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return FilterSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _util_not,_util_subscribeTo,_operators_filter,_Observable PURE_IMPORTS_END */
-function partition(source, predicate, thisArg) {
+}(Subscriber));function partition(source, predicate, thisArg) {
     return [
         filter(predicate, thisArg)(new Observable(subscribeTo(source))),
         filter(not(predicate, thisArg))(new Observable(subscribeTo(source)))
     ];
-}/** PURE_IMPORTS_START tslib,_util_isArray,_fromArray,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function race() {
+}function race() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
@@ -3099,7 +3000,7 @@ function race() {
     }
     return fromArray(observables, undefined).lift(new RaceOperator());
 }
-var RaceOperator = /*@__PURE__*/ (function () {
+var RaceOperator = (function () {
     function RaceOperator() {
     }
     RaceOperator.prototype.call = function (subscriber, source) {
@@ -3107,7 +3008,7 @@ var RaceOperator = /*@__PURE__*/ (function () {
     };
     return RaceOperator;
 }());
-var RaceSubscriber = /*@__PURE__*/ (function (_super) {
+var RaceSubscriber = (function (_super) {
     __extends(RaceSubscriber, _super);
     function RaceSubscriber(destination) {
         var _this = _super.call(this, destination) || this;
@@ -3151,12 +3052,17 @@ var RaceSubscriber = /*@__PURE__*/ (function (_super) {
         }
         this.destination.next(innerValue);
     };
+    RaceSubscriber.prototype.notifyComplete = function (innerSub) {
+        this.hasFirst = true;
+        _super.prototype.notifyComplete.call(this, innerSub);
+    };
+    RaceSubscriber.prototype.notifyError = function (error, innerSub) {
+        this.hasFirst = true;
+        _super.prototype.notifyError.call(this, error, innerSub);
+    };
     return RaceSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
-function range(start, count, scheduler) {
-    if (start === void 0) {
-        start = 0;
-    }
+}(OuterSubscriber));function range(start, count, scheduler) {
+    if (start === void 0) { start = 0; }
     return new Observable(function (subscriber) {
         if (count === undefined) {
             count = start;
@@ -3197,11 +3103,8 @@ function dispatch$6(state) {
     state.index = index + 1;
     state.start = start + 1;
     this.schedule(state);
-}/** PURE_IMPORTS_START _Observable,_scheduler_async,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
-function timer(dueTime, periodOrScheduler, scheduler) {
-    if (dueTime === void 0) {
-        dueTime = 0;
-    }
+}function timer(dueTime, periodOrScheduler, scheduler) {
+    if (dueTime === void 0) { dueTime = 0; }
     var period = -1;
     if (isNumeric(periodOrScheduler)) {
         period = Number(periodOrScheduler) < 1 && 1 || Number(periodOrScheduler);
@@ -3232,8 +3135,7 @@ function dispatch$7(state) {
     }
     state.index = index + 1;
     this.schedule(state, period);
-}/** PURE_IMPORTS_START _Observable,_from,_empty PURE_IMPORTS_END */
-function using(resourceFactory, observableFactory) {
+}function using(resourceFactory, observableFactory) {
     return new Observable(function (subscriber) {
         var resource;
         try {
@@ -3260,8 +3162,7 @@ function using(resourceFactory, observableFactory) {
             }
         };
     });
-}/** PURE_IMPORTS_START tslib,_fromArray,_util_isArray,_Subscriber,_OuterSubscriber,_util_subscribeToResult,_.._internal_symbol_iterator PURE_IMPORTS_END */
-function zip() {
+}function zip() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
@@ -3272,7 +3173,7 @@ function zip() {
     }
     return fromArray(observables, undefined).lift(new ZipOperator(resultSelector));
 }
-var ZipOperator = /*@__PURE__*/ (function () {
+var ZipOperator = (function () {
     function ZipOperator(resultSelector) {
         this.resultSelector = resultSelector;
     }
@@ -3281,12 +3182,10 @@ var ZipOperator = /*@__PURE__*/ (function () {
     };
     return ZipOperator;
 }());
-var ZipSubscriber = /*@__PURE__*/ (function (_super) {
+var ZipSubscriber = (function (_super) {
     __extends(ZipSubscriber, _super);
     function ZipSubscriber(destination, resultSelector, values) {
-        if (values === void 0) {
-            values = Object.create(null);
-        }
+        if (values === void 0) { values = Object.create(null); }
         var _this = _super.call(this, destination) || this;
         _this.iterators = [];
         _this.active = 0;
@@ -3379,7 +3278,7 @@ var ZipSubscriber = /*@__PURE__*/ (function (_super) {
     };
     return ZipSubscriber;
 }(Subscriber));
-var StaticIterator = /*@__PURE__*/ (function () {
+var StaticIterator = (function () {
     function StaticIterator(iterator) {
         this.iterator = iterator;
         this.nextResult = iterator.next();
@@ -3398,7 +3297,7 @@ var StaticIterator = /*@__PURE__*/ (function () {
     };
     return StaticIterator;
 }());
-var StaticArrayIterator = /*@__PURE__*/ (function () {
+var StaticArrayIterator = (function () {
     function StaticArrayIterator(array) {
         this.array = array;
         this.index = 0;
@@ -3421,7 +3320,7 @@ var StaticArrayIterator = /*@__PURE__*/ (function () {
     };
     return StaticArrayIterator;
 }());
-var ZipBufferIterator = /*@__PURE__*/ (function (_super) {
+var ZipBufferIterator = (function (_super) {
     __extends(ZipBufferIterator, _super);
     function ZipBufferIterator(destination, parent, observable) {
         var _this = _super.call(this, destination) || this;
@@ -3467,13 +3366,12 @@ var ZipBufferIterator = /*@__PURE__*/ (function (_super) {
         return subscribeToResult(this, this.observable, this, index);
     };
     return ZipBufferIterator;
-}(OuterSubscriber));/** PURE_IMPORTS_START  PURE_IMPORTS_END */var rxjs = /*#__PURE__*/Object.freeze({Observable: Observable,ConnectableObservable: ConnectableObservable,GroupedObservable: GroupedObservable,observable: observable,Subject: Subject,BehaviorSubject: BehaviorSubject,ReplaySubject: ReplaySubject,AsyncSubject: AsyncSubject,asapScheduler: asap,asyncScheduler: async,queueScheduler: queue,animationFrameScheduler: animationFrame,VirtualTimeScheduler: VirtualTimeScheduler,VirtualAction: VirtualAction,Scheduler: Scheduler,Subscription: Subscription,Subscriber: Subscriber,Notification: Notification,get NotificationKind(){return NotificationKind},pipe: pipe,noop: noop,identity: identity,isObservable: isObservable,ArgumentOutOfRangeError: ArgumentOutOfRangeError,EmptyError: EmptyError,ObjectUnsubscribedError: ObjectUnsubscribedError,UnsubscriptionError: UnsubscriptionError,TimeoutError: TimeoutError,bindCallback: bindCallback,bindNodeCallback: bindNodeCallback,combineLatest: combineLatest,concat: concat,defer: defer,empty: empty$1,forkJoin: forkJoin,from: from,fromEvent: fromEvent,fromEventPattern: fromEventPattern,generate: generate,iif: iif,interval: interval,merge: merge,never: never,of: of,onErrorResumeNext: onErrorResumeNext,pairs: pairs,partition: partition,race: race,range: range,throwError: throwError,timer: timer,using: using,zip: zip,scheduled: scheduled,EMPTY: EMPTY,NEVER: NEVER,config: config});/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function audit(durationSelector) {
+}(OuterSubscriber));var rxjs=/*#__PURE__*/Object.freeze({__proto__:null,Observable: Observable,ConnectableObservable: ConnectableObservable,GroupedObservable: GroupedObservable,observable: observable,animationFrames: animationFrames,Subject: Subject,BehaviorSubject: BehaviorSubject,ReplaySubject: ReplaySubject,AsyncSubject: AsyncSubject,asapScheduler: asap,asyncScheduler: async,queueScheduler: queue,animationFrameScheduler: animationFrame,VirtualTimeScheduler: VirtualTimeScheduler,VirtualAction: VirtualAction,Scheduler: Scheduler,Subscription: Subscription,Subscriber: Subscriber,Notification: Notification,get NotificationKind(){return NotificationKind},pipe: pipe,noop: noop,identity: identity,isObservable: isObservable,ArgumentOutOfRangeError: ArgumentOutOfRangeError,EmptyError: EmptyError,ObjectUnsubscribedError: ObjectUnsubscribedError,UnsubscriptionError: UnsubscriptionError,TimeoutError: TimeoutError,bindCallback: bindCallback,bindNodeCallback: bindNodeCallback,combineLatest: combineLatest,concat: concat,defer: defer,empty: empty$1,forkJoin: forkJoin,from: from,fromEvent: fromEvent,fromEventPattern: fromEventPattern,generate: generate,iif: iif,interval: interval,merge: merge,never: never,of: of,onErrorResumeNext: onErrorResumeNext,pairs: pairs,partition: partition,race: race,range: range,throwError: throwError,timer: timer,using: using,zip: zip,scheduled: scheduled,EMPTY: EMPTY,NEVER: NEVER,config: config});function audit(durationSelector) {
     return function auditOperatorFunction(source) {
         return source.lift(new AuditOperator(durationSelector));
     };
 }
-var AuditOperator = /*@__PURE__*/ (function () {
+var AuditOperator = (function () {
     function AuditOperator(durationSelector) {
         this.durationSelector = durationSelector;
     }
@@ -3482,7 +3380,7 @@ var AuditOperator = /*@__PURE__*/ (function () {
     };
     return AuditOperator;
 }());
-var AuditSubscriber = /*@__PURE__*/ (function (_super) {
+var AuditSubscriber = (function (_super) {
     __extends(AuditSubscriber, _super);
     function AuditSubscriber(destination, durationSelector) {
         var _this = _super.call(this, destination) || this;
@@ -3531,19 +3429,15 @@ var AuditSubscriber = /*@__PURE__*/ (function (_super) {
         this.clearThrottle();
     };
     return AuditSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _scheduler_async,_audit,_observable_timer PURE_IMPORTS_END */
-function auditTime(duration, scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}(OuterSubscriber));function auditTime(duration, scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
     return audit(function () { return timer(duration, scheduler); });
-}/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function buffer(closingNotifier) {
+}function buffer(closingNotifier) {
     return function bufferOperatorFunction(source) {
         return source.lift(new BufferOperator(closingNotifier));
     };
 }
-var BufferOperator = /*@__PURE__*/ (function () {
+var BufferOperator = (function () {
     function BufferOperator(closingNotifier) {
         this.closingNotifier = closingNotifier;
     }
@@ -3552,7 +3446,7 @@ var BufferOperator = /*@__PURE__*/ (function () {
     };
     return BufferOperator;
 }());
-var BufferSubscriber = /*@__PURE__*/ (function (_super) {
+var BufferSubscriber = (function (_super) {
     __extends(BufferSubscriber, _super);
     function BufferSubscriber(destination, closingNotifier) {
         var _this = _super.call(this, destination) || this;
@@ -3569,16 +3463,13 @@ var BufferSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.next(buffer);
     };
     return BufferSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function bufferCount(bufferSize, startBufferEvery) {
-    if (startBufferEvery === void 0) {
-        startBufferEvery = null;
-    }
+}(OuterSubscriber));function bufferCount(bufferSize, startBufferEvery) {
+    if (startBufferEvery === void 0) { startBufferEvery = null; }
     return function bufferCountOperatorFunction(source) {
         return source.lift(new BufferCountOperator(bufferSize, startBufferEvery));
     };
 }
-var BufferCountOperator = /*@__PURE__*/ (function () {
+var BufferCountOperator = (function () {
     function BufferCountOperator(bufferSize, startBufferEvery) {
         this.bufferSize = bufferSize;
         this.startBufferEvery = startBufferEvery;
@@ -3594,7 +3485,7 @@ var BufferCountOperator = /*@__PURE__*/ (function () {
     };
     return BufferCountOperator;
 }());
-var BufferCountSubscriber = /*@__PURE__*/ (function (_super) {
+var BufferCountSubscriber = (function (_super) {
     __extends(BufferCountSubscriber, _super);
     function BufferCountSubscriber(destination, bufferSize) {
         var _this = _super.call(this, destination) || this;
@@ -3619,7 +3510,7 @@ var BufferCountSubscriber = /*@__PURE__*/ (function (_super) {
     };
     return BufferCountSubscriber;
 }(Subscriber));
-var BufferSkipCountSubscriber = /*@__PURE__*/ (function (_super) {
+var BufferSkipCountSubscriber = (function (_super) {
     __extends(BufferSkipCountSubscriber, _super);
     function BufferSkipCountSubscriber(destination, bufferSize, startBufferEvery) {
         var _this = _super.call(this, destination) || this;
@@ -3655,8 +3546,7 @@ var BufferSkipCountSubscriber = /*@__PURE__*/ (function (_super) {
         _super.prototype._complete.call(this);
     };
     return BufferSkipCountSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_scheduler_async,_Subscriber,_util_isScheduler PURE_IMPORTS_END */
-function bufferTime(bufferTimeSpan) {
+}(Subscriber));function bufferTime(bufferTimeSpan) {
     var length = arguments.length;
     var scheduler = async;
     if (isScheduler(arguments[arguments.length - 1])) {
@@ -3675,7 +3565,7 @@ function bufferTime(bufferTimeSpan) {
         return source.lift(new BufferTimeOperator(bufferTimeSpan, bufferCreationInterval, maxBufferSize, scheduler));
     };
 }
-var BufferTimeOperator = /*@__PURE__*/ (function () {
+var BufferTimeOperator = (function () {
     function BufferTimeOperator(bufferTimeSpan, bufferCreationInterval, maxBufferSize, scheduler) {
         this.bufferTimeSpan = bufferTimeSpan;
         this.bufferCreationInterval = bufferCreationInterval;
@@ -3687,13 +3577,13 @@ var BufferTimeOperator = /*@__PURE__*/ (function () {
     };
     return BufferTimeOperator;
 }());
-var Context = /*@__PURE__*/ (function () {
+var Context = (function () {
     function Context() {
         this.buffer = [];
     }
     return Context;
 }());
-var BufferTimeSubscriber = /*@__PURE__*/ (function (_super) {
+var BufferTimeSubscriber = (function (_super) {
     __extends(BufferTimeSubscriber, _super);
     function BufferTimeSubscriber(destination, bufferTimeSpan, bufferCreationInterval, maxBufferSize, scheduler) {
         var _this = _super.call(this, destination) || this;
@@ -3797,13 +3687,12 @@ function dispatchBufferCreation(state) {
 function dispatchBufferClose(arg) {
     var subscriber = arg.subscriber, context = arg.context;
     subscriber.closeContext(context);
-}/** PURE_IMPORTS_START tslib,_Subscription,_util_subscribeToResult,_OuterSubscriber PURE_IMPORTS_END */
-function bufferToggle(openings, closingSelector) {
+}function bufferToggle(openings, closingSelector) {
     return function bufferToggleOperatorFunction(source) {
         return source.lift(new BufferToggleOperator(openings, closingSelector));
     };
 }
-var BufferToggleOperator = /*@__PURE__*/ (function () {
+var BufferToggleOperator = (function () {
     function BufferToggleOperator(openings, closingSelector) {
         this.openings = openings;
         this.closingSelector = closingSelector;
@@ -3813,7 +3702,7 @@ var BufferToggleOperator = /*@__PURE__*/ (function () {
     };
     return BufferToggleOperator;
 }());
-var BufferToggleSubscriber = /*@__PURE__*/ (function (_super) {
+var BufferToggleSubscriber = (function (_super) {
     __extends(BufferToggleSubscriber, _super);
     function BufferToggleSubscriber(destination, openings, closingSelector) {
         var _this = _super.call(this, destination) || this;
@@ -3898,13 +3787,12 @@ var BufferToggleSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return BufferToggleSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function bufferWhen(closingSelector) {
+}(OuterSubscriber));function bufferWhen(closingSelector) {
     return function (source) {
         return source.lift(new BufferWhenOperator(closingSelector));
     };
 }
-var BufferWhenOperator = /*@__PURE__*/ (function () {
+var BufferWhenOperator = (function () {
     function BufferWhenOperator(closingSelector) {
         this.closingSelector = closingSelector;
     }
@@ -3913,7 +3801,7 @@ var BufferWhenOperator = /*@__PURE__*/ (function () {
     };
     return BufferWhenOperator;
 }());
-var BufferWhenSubscriber = /*@__PURE__*/ (function (_super) {
+var BufferWhenSubscriber = (function (_super) {
     __extends(BufferWhenSubscriber, _super);
     function BufferWhenSubscriber(destination, closingSelector) {
         var _this = _super.call(this, destination) || this;
@@ -3974,15 +3862,14 @@ var BufferWhenSubscriber = /*@__PURE__*/ (function (_super) {
         this.subscribing = false;
     };
     return BufferWhenSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function catchError(selector) {
+}(OuterSubscriber));function catchError(selector) {
     return function catchErrorOperatorFunction(source) {
         var operator = new CatchOperator(selector);
         var caught = source.lift(operator);
         return (operator.caught = caught);
     };
 }
-var CatchOperator = /*@__PURE__*/ (function () {
+var CatchOperator = (function () {
     function CatchOperator(selector) {
         this.selector = selector;
     }
@@ -3991,7 +3878,7 @@ var CatchOperator = /*@__PURE__*/ (function () {
     };
     return CatchOperator;
 }());
-var CatchSubscriber = /*@__PURE__*/ (function (_super) {
+var CatchSubscriber = (function (_super) {
     __extends(CatchSubscriber, _super);
     function CatchSubscriber(destination, selector, caught) {
         var _this = _super.call(this, destination) || this;
@@ -4012,15 +3899,16 @@ var CatchSubscriber = /*@__PURE__*/ (function (_super) {
             this._unsubscribeAndRecycle();
             var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
             this.add(innerSubscriber);
-            subscribeToResult(this, result, undefined, undefined, innerSubscriber);
+            var innerSubscription = subscribeToResult(this, result, undefined, undefined, innerSubscriber);
+            if (innerSubscription !== innerSubscriber) {
+                this.add(innerSubscription);
+            }
         }
     };
     return CatchSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _observable_combineLatest PURE_IMPORTS_END */
-function combineAll(project) {
+}(OuterSubscriber));function combineAll(project) {
     return function (source) { return source.lift(new CombineLatestOperator(project)); };
-}/** PURE_IMPORTS_START _util_isArray,_observable_combineLatest,_observable_from PURE_IMPORTS_END */
-function combineLatest$1() {
+}function combineLatest$1() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
@@ -4032,25 +3920,27 @@ function combineLatest$1() {
     if (observables.length === 1 && isArray(observables[0])) {
         observables = observables[0].slice();
     }
-    return function (source) { return source.lift.call(from([source].concat(observables)), new CombineLatestOperator(project)); };
-}/** PURE_IMPORTS_START _observable_concat PURE_IMPORTS_END */
-function concat$1() {
+    return function (source) { return source.lift.call(from(__spreadArrays([source], observables)), new CombineLatestOperator(project)); };
+}function concat$1() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
     }
-    return function (source) { return source.lift.call(concat.apply(void 0, [source].concat(observables))); };
-}/** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
-function concatMap(project, resultSelector) {
+    return function (source) { return source.lift.call(concat.apply(void 0, __spreadArrays([source], observables))); };
+}function concatMap(project, resultSelector) {
     return mergeMap(project, resultSelector, 1);
-}/** PURE_IMPORTS_START _concatMap PURE_IMPORTS_END */
-function concatMapTo(innerObservable, resultSelector) {
+}function concatMapTo(innerObservable, resultSelector) {
     return concatMap(function () { return innerObservable; }, resultSelector);
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function count(predicate) {
+}function concatWith() {
+    var otherSources = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        otherSources[_i] = arguments[_i];
+    }
+    return function (source) { return source.lift.call(concat.apply(void 0, __spreadArrays([source], otherSources))); };
+}function count(predicate) {
     return function (source) { return source.lift(new CountOperator(predicate, source)); };
 }
-var CountOperator = /*@__PURE__*/ (function () {
+var CountOperator = (function () {
     function CountOperator(predicate, source) {
         this.predicate = predicate;
         this.source = source;
@@ -4060,7 +3950,7 @@ var CountOperator = /*@__PURE__*/ (function () {
     };
     return CountOperator;
 }());
-var CountSubscriber = /*@__PURE__*/ (function (_super) {
+var CountSubscriber = (function (_super) {
     __extends(CountSubscriber, _super);
     function CountSubscriber(destination, predicate, source) {
         var _this = _super.call(this, destination) || this;
@@ -4096,11 +3986,10 @@ var CountSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.complete();
     };
     return CountSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function debounce(durationSelector) {
+}(Subscriber));function debounce(durationSelector) {
     return function (source) { return source.lift(new DebounceOperator(durationSelector)); };
 }
-var DebounceOperator = /*@__PURE__*/ (function () {
+var DebounceOperator = (function () {
     function DebounceOperator(durationSelector) {
         this.durationSelector = durationSelector;
     }
@@ -4109,7 +3998,7 @@ var DebounceOperator = /*@__PURE__*/ (function () {
     };
     return DebounceOperator;
 }());
-var DebounceSubscriber = /*@__PURE__*/ (function (_super) {
+var DebounceSubscriber = (function (_super) {
     __extends(DebounceSubscriber, _super);
     function DebounceSubscriber(destination, durationSelector) {
         var _this = _super.call(this, destination) || this;
@@ -4167,14 +4056,11 @@ var DebounceSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return DebounceSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
-function debounceTime(dueTime, scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}(OuterSubscriber));function debounceTime(dueTime, scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
     return function (source) { return source.lift(new DebounceTimeOperator(dueTime, scheduler)); };
 }
-var DebounceTimeOperator = /*@__PURE__*/ (function () {
+var DebounceTimeOperator = (function () {
     function DebounceTimeOperator(dueTime, scheduler) {
         this.dueTime = dueTime;
         this.scheduler = scheduler;
@@ -4184,7 +4070,7 @@ var DebounceTimeOperator = /*@__PURE__*/ (function () {
     };
     return DebounceTimeOperator;
 }());
-var DebounceTimeSubscriber = /*@__PURE__*/ (function (_super) {
+var DebounceTimeSubscriber = (function (_super) {
     __extends(DebounceTimeSubscriber, _super);
     function DebounceTimeSubscriber(destination, dueTime, scheduler) {
         var _this = _super.call(this, destination) || this;
@@ -4226,14 +4112,11 @@ var DebounceTimeSubscriber = /*@__PURE__*/ (function (_super) {
 }(Subscriber));
 function dispatchNext$2(subscriber) {
     subscriber.debouncedNext();
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function defaultIfEmpty(defaultValue) {
-    if (defaultValue === void 0) {
-        defaultValue = null;
-    }
+}function defaultIfEmpty(defaultValue) {
+    if (defaultValue === void 0) { defaultValue = null; }
     return function (source) { return source.lift(new DefaultIfEmptyOperator(defaultValue)); };
 }
-var DefaultIfEmptyOperator = /*@__PURE__*/ (function () {
+var DefaultIfEmptyOperator = (function () {
     function DefaultIfEmptyOperator(defaultValue) {
         this.defaultValue = defaultValue;
     }
@@ -4242,7 +4125,7 @@ var DefaultIfEmptyOperator = /*@__PURE__*/ (function () {
     };
     return DefaultIfEmptyOperator;
 }());
-var DefaultIfEmptySubscriber = /*@__PURE__*/ (function (_super) {
+var DefaultIfEmptySubscriber = (function (_super) {
     __extends(DefaultIfEmptySubscriber, _super);
     function DefaultIfEmptySubscriber(destination, defaultValue) {
         var _this = _super.call(this, destination) || this;
@@ -4261,19 +4144,15 @@ var DefaultIfEmptySubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.complete();
     };
     return DefaultIfEmptySubscriber;
-}(Subscriber));/** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function isDate(value) {
+}(Subscriber));function isDate(value) {
     return value instanceof Date && !isNaN(+value);
-}/** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_Subscriber,_Notification PURE_IMPORTS_END */
-function delay(delay, scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}function delay(delay, scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
     var absoluteDelay = isDate(delay);
     var delayFor = absoluteDelay ? (+delay - scheduler.now()) : Math.abs(delay);
     return function (source) { return source.lift(new DelayOperator(delayFor, scheduler)); };
 }
-var DelayOperator = /*@__PURE__*/ (function () {
+var DelayOperator = (function () {
     function DelayOperator(delay, scheduler) {
         this.delay = delay;
         this.scheduler = scheduler;
@@ -4283,7 +4162,7 @@ var DelayOperator = /*@__PURE__*/ (function () {
     };
     return DelayOperator;
 }());
-var DelaySubscriber = /*@__PURE__*/ (function (_super) {
+var DelaySubscriber = (function (_super) {
     __extends(DelaySubscriber, _super);
     function DelaySubscriber(destination, delay, scheduler) {
         var _this = _super.call(this, destination) || this;
@@ -4344,14 +4223,13 @@ var DelaySubscriber = /*@__PURE__*/ (function (_super) {
     };
     return DelaySubscriber;
 }(Subscriber));
-var DelayMessage = /*@__PURE__*/ (function () {
+var DelayMessage = (function () {
     function DelayMessage(time, notification) {
         this.time = time;
         this.notification = notification;
     }
     return DelayMessage;
-}());/** PURE_IMPORTS_START tslib,_Subscriber,_Observable,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function delayWhen(delayDurationSelector, subscriptionDelay) {
+}());function delayWhen(delayDurationSelector, subscriptionDelay) {
     if (subscriptionDelay) {
         return function (source) {
             return new SubscriptionDelayObservable(source, subscriptionDelay)
@@ -4360,7 +4238,7 @@ function delayWhen(delayDurationSelector, subscriptionDelay) {
     }
     return function (source) { return source.lift(new DelayWhenOperator(delayDurationSelector)); };
 }
-var DelayWhenOperator = /*@__PURE__*/ (function () {
+var DelayWhenOperator = (function () {
     function DelayWhenOperator(delayDurationSelector) {
         this.delayDurationSelector = delayDurationSelector;
     }
@@ -4369,7 +4247,7 @@ var DelayWhenOperator = /*@__PURE__*/ (function () {
     };
     return DelayWhenOperator;
 }());
-var DelayWhenSubscriber = /*@__PURE__*/ (function (_super) {
+var DelayWhenSubscriber = (function (_super) {
     __extends(DelayWhenSubscriber, _super);
     function DelayWhenSubscriber(destination, delayDurationSelector) {
         var _this = _super.call(this, destination) || this;
@@ -4434,7 +4312,7 @@ var DelayWhenSubscriber = /*@__PURE__*/ (function (_super) {
     };
     return DelayWhenSubscriber;
 }(OuterSubscriber));
-var SubscriptionDelayObservable = /*@__PURE__*/ (function (_super) {
+var SubscriptionDelayObservable = (function (_super) {
     __extends(SubscriptionDelayObservable, _super);
     function SubscriptionDelayObservable(source, subscriptionDelay) {
         var _this = _super.call(this) || this;
@@ -4447,7 +4325,7 @@ var SubscriptionDelayObservable = /*@__PURE__*/ (function (_super) {
     };
     return SubscriptionDelayObservable;
 }(Observable));
-var SubscriptionDelaySubscriber = /*@__PURE__*/ (function (_super) {
+var SubscriptionDelaySubscriber = (function (_super) {
     __extends(SubscriptionDelaySubscriber, _super);
     function SubscriptionDelaySubscriber(parent, source) {
         var _this = _super.call(this) || this;
@@ -4475,13 +4353,12 @@ var SubscriptionDelaySubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return SubscriptionDelaySubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function dematerialize() {
+}(Subscriber));function dematerialize() {
     return function dematerializeOperatorFunction(source) {
         return source.lift(new DeMaterializeOperator());
     };
 }
-var DeMaterializeOperator = /*@__PURE__*/ (function () {
+var DeMaterializeOperator = (function () {
     function DeMaterializeOperator() {
     }
     DeMaterializeOperator.prototype.call = function (subscriber, source) {
@@ -4489,7 +4366,7 @@ var DeMaterializeOperator = /*@__PURE__*/ (function () {
     };
     return DeMaterializeOperator;
 }());
-var DeMaterializeSubscriber = /*@__PURE__*/ (function (_super) {
+var DeMaterializeSubscriber = (function (_super) {
     __extends(DeMaterializeSubscriber, _super);
     function DeMaterializeSubscriber(destination) {
         return _super.call(this, destination) || this;
@@ -4498,11 +4375,10 @@ var DeMaterializeSubscriber = /*@__PURE__*/ (function (_super) {
         value.observe(this.destination);
     };
     return DeMaterializeSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function distinct(keySelector, flushes) {
+}(Subscriber));function distinct(keySelector, flushes) {
     return function (source) { return source.lift(new DistinctOperator(keySelector, flushes)); };
 }
-var DistinctOperator = /*@__PURE__*/ (function () {
+var DistinctOperator = (function () {
     function DistinctOperator(keySelector, flushes) {
         this.keySelector = keySelector;
         this.flushes = flushes;
@@ -4512,7 +4388,7 @@ var DistinctOperator = /*@__PURE__*/ (function () {
     };
     return DistinctOperator;
 }());
-var DistinctSubscriber = /*@__PURE__*/ (function (_super) {
+var DistinctSubscriber = (function (_super) {
     __extends(DistinctSubscriber, _super);
     function DistinctSubscriber(destination, keySelector, flushes) {
         var _this = _super.call(this, destination) || this;
@@ -4557,11 +4433,10 @@ var DistinctSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return DistinctSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function distinctUntilChanged(compare, keySelector) {
+}(OuterSubscriber));function distinctUntilChanged(compare, keySelector) {
     return function (source) { return source.lift(new DistinctUntilChangedOperator(compare, keySelector)); };
 }
-var DistinctUntilChangedOperator = /*@__PURE__*/ (function () {
+var DistinctUntilChangedOperator = (function () {
     function DistinctUntilChangedOperator(compare, keySelector) {
         this.compare = compare;
         this.keySelector = keySelector;
@@ -4571,7 +4446,7 @@ var DistinctUntilChangedOperator = /*@__PURE__*/ (function () {
     };
     return DistinctUntilChangedOperator;
 }());
-var DistinctUntilChangedSubscriber = /*@__PURE__*/ (function (_super) {
+var DistinctUntilChangedSubscriber = (function (_super) {
     __extends(DistinctUntilChangedSubscriber, _super);
     function DistinctUntilChangedSubscriber(destination, compare, keySelector) {
         var _this = _super.call(this, destination) || this;
@@ -4613,19 +4488,15 @@ var DistinctUntilChangedSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return DistinctUntilChangedSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _distinctUntilChanged PURE_IMPORTS_END */
-function distinctUntilKeyChanged(key, compare) {
+}(Subscriber));function distinctUntilKeyChanged(key, compare) {
     return distinctUntilChanged(function (x, y) { return compare ? compare(x[key], y[key]) : x[key] === y[key]; });
-}/** PURE_IMPORTS_START tslib,_util_EmptyError,_Subscriber PURE_IMPORTS_END */
-function throwIfEmpty(errorFactory) {
-    if (errorFactory === void 0) {
-        errorFactory = defaultErrorFactory;
-    }
+}function throwIfEmpty(errorFactory) {
+    if (errorFactory === void 0) { errorFactory = defaultErrorFactory; }
     return function (source) {
         return source.lift(new ThrowIfEmptyOperator(errorFactory));
     };
 }
-var ThrowIfEmptyOperator = /*@__PURE__*/ (function () {
+var ThrowIfEmptyOperator = (function () {
     function ThrowIfEmptyOperator(errorFactory) {
         this.errorFactory = errorFactory;
     }
@@ -4634,7 +4505,7 @@ var ThrowIfEmptyOperator = /*@__PURE__*/ (function () {
     };
     return ThrowIfEmptyOperator;
 }());
-var ThrowIfEmptySubscriber = /*@__PURE__*/ (function (_super) {
+var ThrowIfEmptySubscriber = (function (_super) {
     __extends(ThrowIfEmptySubscriber, _super);
     function ThrowIfEmptySubscriber(destination, errorFactory) {
         var _this = _super.call(this, destination) || this;
@@ -4665,8 +4536,7 @@ var ThrowIfEmptySubscriber = /*@__PURE__*/ (function (_super) {
 }(Subscriber));
 function defaultErrorFactory() {
     return new EmptyError();
-}/** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
-function take(count) {
+}function take(count) {
     return function (source) {
         if (count === 0) {
             return empty$1();
@@ -4676,7 +4546,7 @@ function take(count) {
         }
     };
 }
-var TakeOperator = /*@__PURE__*/ (function () {
+var TakeOperator = (function () {
     function TakeOperator(total) {
         this.total = total;
         if (this.total < 0) {
@@ -4688,7 +4558,7 @@ var TakeOperator = /*@__PURE__*/ (function () {
     };
     return TakeOperator;
 }());
-var TakeSubscriber = /*@__PURE__*/ (function (_super) {
+var TakeSubscriber = (function (_super) {
     __extends(TakeSubscriber, _super);
     function TakeSubscriber(destination, total) {
         var _this = _super.call(this, destination) || this;
@@ -4708,29 +4578,24 @@ var TakeSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return TakeSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _util_ArgumentOutOfRangeError,_filter,_throwIfEmpty,_defaultIfEmpty,_take PURE_IMPORTS_END */
-function elementAt(index, defaultValue) {
+}(Subscriber));function elementAt(index, defaultValue) {
     if (index < 0) {
         throw new ArgumentOutOfRangeError();
     }
     var hasDefaultValue = arguments.length >= 2;
-    return function (source) {
-        return source.pipe(filter(function (v, i) { return i === index; }), take(1), hasDefaultValue
-            ? defaultIfEmpty(defaultValue)
-            : throwIfEmpty(function () { return new ArgumentOutOfRangeError(); }));
-    };
-}/** PURE_IMPORTS_START _observable_concat,_observable_of PURE_IMPORTS_END */
-function endWith() {
+    return function (source) { return source.pipe(filter(function (v, i) { return i === index; }), take(1), hasDefaultValue
+        ? defaultIfEmpty(defaultValue)
+        : throwIfEmpty(function () { return new ArgumentOutOfRangeError(); })); };
+}function endWith() {
     var array = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         array[_i] = arguments[_i];
     }
     return function (source) { return concat(source, of.apply(void 0, array)); };
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function every(predicate, thisArg) {
+}function every(predicate, thisArg) {
     return function (source) { return source.lift(new EveryOperator(predicate, thisArg, source)); };
 }
-var EveryOperator = /*@__PURE__*/ (function () {
+var EveryOperator = (function () {
     function EveryOperator(predicate, thisArg, source) {
         this.predicate = predicate;
         this.thisArg = thisArg;
@@ -4741,7 +4606,7 @@ var EveryOperator = /*@__PURE__*/ (function () {
     };
     return EveryOperator;
 }());
-var EverySubscriber = /*@__PURE__*/ (function (_super) {
+var EverySubscriber = (function (_super) {
     __extends(EverySubscriber, _super);
     function EverySubscriber(destination, predicate, thisArg, source) {
         var _this = _super.call(this, destination) || this;
@@ -4773,11 +4638,10 @@ var EverySubscriber = /*@__PURE__*/ (function (_super) {
         this.notifyComplete(true);
     };
     return EverySubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function exhaust() {
+}(Subscriber));function exhaust() {
     return function (source) { return source.lift(new SwitchFirstOperator()); };
 }
-var SwitchFirstOperator = /*@__PURE__*/ (function () {
+var SwitchFirstOperator = (function () {
     function SwitchFirstOperator() {
     }
     SwitchFirstOperator.prototype.call = function (subscriber, source) {
@@ -4785,7 +4649,7 @@ var SwitchFirstOperator = /*@__PURE__*/ (function () {
     };
     return SwitchFirstOperator;
 }());
-var SwitchFirstSubscriber = /*@__PURE__*/ (function (_super) {
+var SwitchFirstSubscriber = (function (_super) {
     __extends(SwitchFirstSubscriber, _super);
     function SwitchFirstSubscriber(destination) {
         var _this = _super.call(this, destination) || this;
@@ -4813,8 +4677,7 @@ var SwitchFirstSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return SwitchFirstSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
-function exhaustMap(project, resultSelector) {
+}(OuterSubscriber));function exhaustMap(project, resultSelector) {
     if (resultSelector) {
         return function (source) { return source.pipe(exhaustMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); })); };
     }
@@ -4822,7 +4685,7 @@ function exhaustMap(project, resultSelector) {
         return source.lift(new ExhaustMapOperator(project));
     };
 }
-var ExhaustMapOperator = /*@__PURE__*/ (function () {
+var ExhaustMapOperator = (function () {
     function ExhaustMapOperator(project) {
         this.project = project;
     }
@@ -4831,7 +4694,7 @@ var ExhaustMapOperator = /*@__PURE__*/ (function () {
     };
     return ExhaustMapOperator;
 }());
-var ExhaustMapSubscriber = /*@__PURE__*/ (function (_super) {
+var ExhaustMapSubscriber = (function (_super) {
     __extends(ExhaustMapSubscriber, _super);
     function ExhaustMapSubscriber(destination, project) {
         var _this = _super.call(this, destination) || this;
@@ -4860,10 +4723,13 @@ var ExhaustMapSubscriber = /*@__PURE__*/ (function (_super) {
         this._innerSub(result, value, index);
     };
     ExhaustMapSubscriber.prototype._innerSub = function (result, value, index) {
-        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+        var innerSubscriber = new InnerSubscriber(this, value, index);
         var destination = this.destination;
         destination.add(innerSubscriber);
-        subscribeToResult(this, result, value, index, innerSubscriber);
+        var innerSubscription = subscribeToResult(this, result, undefined, undefined, innerSubscriber);
+        if (innerSubscription !== innerSubscriber) {
+            destination.add(innerSubscription);
+        }
     };
     ExhaustMapSubscriber.prototype._complete = function () {
         this.hasCompleted = true;
@@ -4887,18 +4753,13 @@ var ExhaustMapSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return ExhaustMapSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function expand(project, concurrent, scheduler) {
-    if (concurrent === void 0) {
-        concurrent = Number.POSITIVE_INFINITY;
-    }
-    if (scheduler === void 0) {
-        scheduler = undefined;
-    }
+}(OuterSubscriber));function expand(project, concurrent, scheduler) {
+    if (concurrent === void 0) { concurrent = Number.POSITIVE_INFINITY; }
+    if (scheduler === void 0) { scheduler = undefined; }
     concurrent = (concurrent || 0) < 1 ? Number.POSITIVE_INFINITY : concurrent;
     return function (source) { return source.lift(new ExpandOperator(project, concurrent, scheduler)); };
 }
-var ExpandOperator = /*@__PURE__*/ (function () {
+var ExpandOperator = (function () {
     function ExpandOperator(project, concurrent, scheduler) {
         this.project = project;
         this.concurrent = concurrent;
@@ -4909,7 +4770,7 @@ var ExpandOperator = /*@__PURE__*/ (function () {
     };
     return ExpandOperator;
 }());
-var ExpandSubscriber = /*@__PURE__*/ (function (_super) {
+var ExpandSubscriber = (function (_super) {
     __extends(ExpandSubscriber, _super);
     function ExpandSubscriber(destination, project, concurrent, scheduler) {
         var _this = _super.call(this, destination) || this;
@@ -4985,11 +4846,10 @@ var ExpandSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return ExpandSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_Subscription PURE_IMPORTS_END */
-function finalize(callback) {
+}(OuterSubscriber));function finalize(callback) {
     return function (source) { return source.lift(new FinallyOperator(callback)); };
 }
-var FinallyOperator = /*@__PURE__*/ (function () {
+var FinallyOperator = (function () {
     function FinallyOperator(callback) {
         this.callback = callback;
     }
@@ -4998,7 +4858,7 @@ var FinallyOperator = /*@__PURE__*/ (function () {
     };
     return FinallyOperator;
 }());
-var FinallySubscriber = /*@__PURE__*/ (function (_super) {
+var FinallySubscriber = (function (_super) {
     __extends(FinallySubscriber, _super);
     function FinallySubscriber(destination, callback) {
         var _this = _super.call(this, destination) || this;
@@ -5006,14 +4866,13 @@ var FinallySubscriber = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     return FinallySubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function find(predicate, thisArg) {
+}(Subscriber));function find(predicate, thisArg) {
     if (typeof predicate !== 'function') {
         throw new TypeError('predicate is not a function');
     }
     return function (source) { return source.lift(new FindValueOperator(predicate, source, false, thisArg)); };
 }
-var FindValueOperator = /*@__PURE__*/ (function () {
+var FindValueOperator = (function () {
     function FindValueOperator(predicate, source, yieldIndex, thisArg) {
         this.predicate = predicate;
         this.source = source;
@@ -5025,7 +4884,7 @@ var FindValueOperator = /*@__PURE__*/ (function () {
     };
     return FindValueOperator;
 }());
-var FindValueSubscriber = /*@__PURE__*/ (function (_super) {
+var FindValueSubscriber = (function (_super) {
     __extends(FindValueSubscriber, _super);
     function FindValueSubscriber(destination, predicate, source, yieldIndex, thisArg) {
         var _this = _super.call(this, destination) || this;
@@ -5059,20 +4918,17 @@ var FindValueSubscriber = /*@__PURE__*/ (function (_super) {
         this.notifyComplete(this.yieldIndex ? -1 : undefined);
     };
     return FindValueSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _operators_find PURE_IMPORTS_END */
-function findIndex(predicate, thisArg) {
+}(Subscriber));function findIndex(predicate, thisArg) {
     return function (source) { return source.lift(new FindValueOperator(predicate, source, true, thisArg)); };
-}/** PURE_IMPORTS_START _util_EmptyError,_filter,_take,_defaultIfEmpty,_throwIfEmpty,_util_identity PURE_IMPORTS_END */
-function first(predicate, defaultValue) {
+}function first(predicate, defaultValue) {
     var hasDefaultValue = arguments.length >= 2;
     return function (source) { return source.pipe(predicate ? filter(function (v, i) { return predicate(v, i, source); }) : identity, take(1), hasDefaultValue ? defaultIfEmpty(defaultValue) : throwIfEmpty(function () { return new EmptyError(); })); };
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function ignoreElements() {
+}function ignoreElements() {
     return function ignoreElementsOperatorFunction(source) {
         return source.lift(new IgnoreElementsOperator());
     };
 }
-var IgnoreElementsOperator = /*@__PURE__*/ (function () {
+var IgnoreElementsOperator = (function () {
     function IgnoreElementsOperator() {
     }
     IgnoreElementsOperator.prototype.call = function (subscriber, source) {
@@ -5080,7 +4936,7 @@ var IgnoreElementsOperator = /*@__PURE__*/ (function () {
     };
     return IgnoreElementsOperator;
 }());
-var IgnoreElementsSubscriber = /*@__PURE__*/ (function (_super) {
+var IgnoreElementsSubscriber = (function (_super) {
     __extends(IgnoreElementsSubscriber, _super);
     function IgnoreElementsSubscriber() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -5088,11 +4944,10 @@ var IgnoreElementsSubscriber = /*@__PURE__*/ (function (_super) {
     IgnoreElementsSubscriber.prototype._next = function (unused) {
     };
     return IgnoreElementsSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function isEmpty() {
+}(Subscriber));function isEmpty() {
     return function (source) { return source.lift(new IsEmptyOperator()); };
 }
-var IsEmptyOperator = /*@__PURE__*/ (function () {
+var IsEmptyOperator = (function () {
     function IsEmptyOperator() {
     }
     IsEmptyOperator.prototype.call = function (observer, source) {
@@ -5100,7 +4955,7 @@ var IsEmptyOperator = /*@__PURE__*/ (function () {
     };
     return IsEmptyOperator;
 }());
-var IsEmptySubscriber = /*@__PURE__*/ (function (_super) {
+var IsEmptySubscriber = (function (_super) {
     __extends(IsEmptySubscriber, _super);
     function IsEmptySubscriber(destination) {
         return _super.call(this, destination) || this;
@@ -5117,8 +4972,7 @@ var IsEmptySubscriber = /*@__PURE__*/ (function (_super) {
         this.notifyComplete(true);
     };
     return IsEmptySubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError,_observable_empty PURE_IMPORTS_END */
-function takeLast(count) {
+}(Subscriber));function takeLast(count) {
     return function takeLastOperatorFunction(source) {
         if (count === 0) {
             return empty$1();
@@ -5128,7 +4982,7 @@ function takeLast(count) {
         }
     };
 }
-var TakeLastOperator = /*@__PURE__*/ (function () {
+var TakeLastOperator = (function () {
     function TakeLastOperator(total) {
         this.total = total;
         if (this.total < 0) {
@@ -5140,7 +4994,7 @@ var TakeLastOperator = /*@__PURE__*/ (function () {
     };
     return TakeLastOperator;
 }());
-var TakeLastSubscriber = /*@__PURE__*/ (function (_super) {
+var TakeLastSubscriber = (function (_super) {
     __extends(TakeLastSubscriber, _super);
     function TakeLastSubscriber(destination, total) {
         var _this = _super.call(this, destination) || this;
@@ -5175,15 +5029,13 @@ var TakeLastSubscriber = /*@__PURE__*/ (function (_super) {
         destination.complete();
     };
     return TakeLastSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _util_EmptyError,_filter,_takeLast,_throwIfEmpty,_defaultIfEmpty,_util_identity PURE_IMPORTS_END */
-function last(predicate, defaultValue) {
+}(Subscriber));function last(predicate, defaultValue) {
     var hasDefaultValue = arguments.length >= 2;
     return function (source) { return source.pipe(predicate ? filter(function (v, i) { return predicate(v, i, source); }) : identity, takeLast(1), hasDefaultValue ? defaultIfEmpty(defaultValue) : throwIfEmpty(function () { return new EmptyError(); })); };
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function mapTo(value) {
+}function mapTo(value) {
     return function (source) { return source.lift(new MapToOperator(value)); };
 }
-var MapToOperator = /*@__PURE__*/ (function () {
+var MapToOperator = (function () {
     function MapToOperator(value) {
         this.value = value;
     }
@@ -5192,7 +5044,7 @@ var MapToOperator = /*@__PURE__*/ (function () {
     };
     return MapToOperator;
 }());
-var MapToSubscriber = /*@__PURE__*/ (function (_super) {
+var MapToSubscriber = (function (_super) {
     __extends(MapToSubscriber, _super);
     function MapToSubscriber(destination, value) {
         var _this = _super.call(this, destination) || this;
@@ -5203,13 +5055,12 @@ var MapToSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.next(this.value);
     };
     return MapToSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_Notification PURE_IMPORTS_END */
-function materialize() {
+}(Subscriber));function materialize() {
     return function materializeOperatorFunction(source) {
         return source.lift(new MaterializeOperator());
     };
 }
-var MaterializeOperator = /*@__PURE__*/ (function () {
+var MaterializeOperator = (function () {
     function MaterializeOperator() {
     }
     MaterializeOperator.prototype.call = function (subscriber, source) {
@@ -5217,7 +5068,7 @@ var MaterializeOperator = /*@__PURE__*/ (function () {
     };
     return MaterializeOperator;
 }());
-var MaterializeSubscriber = /*@__PURE__*/ (function (_super) {
+var MaterializeSubscriber = (function (_super) {
     __extends(MaterializeSubscriber, _super);
     function MaterializeSubscriber(destination) {
         return _super.call(this, destination) || this;
@@ -5236,8 +5087,7 @@ var MaterializeSubscriber = /*@__PURE__*/ (function (_super) {
         destination.complete();
     };
     return MaterializeSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function scan(accumulator, seed) {
+}(Subscriber));function scan(accumulator, seed) {
     var hasSeed = false;
     if (arguments.length >= 2) {
         hasSeed = true;
@@ -5246,11 +5096,9 @@ function scan(accumulator, seed) {
         return source.lift(new ScanOperator(accumulator, seed, hasSeed));
     };
 }
-var ScanOperator = /*@__PURE__*/ (function () {
+var ScanOperator = (function () {
     function ScanOperator(accumulator, seed, hasSeed) {
-        if (hasSeed === void 0) {
-            hasSeed = false;
-        }
+        if (hasSeed === void 0) { hasSeed = false; }
         this.accumulator = accumulator;
         this.seed = seed;
         this.hasSeed = hasSeed;
@@ -5260,51 +5108,39 @@ var ScanOperator = /*@__PURE__*/ (function () {
     };
     return ScanOperator;
 }());
-var ScanSubscriber = /*@__PURE__*/ (function (_super) {
+var ScanSubscriber = (function (_super) {
     __extends(ScanSubscriber, _super);
-    function ScanSubscriber(destination, accumulator, _seed, hasSeed) {
+    function ScanSubscriber(destination, accumulator, _state, _hasState) {
         var _this = _super.call(this, destination) || this;
         _this.accumulator = accumulator;
-        _this._seed = _seed;
-        _this.hasSeed = hasSeed;
+        _this._state = _state;
+        _this._hasState = _hasState;
         _this.index = 0;
         return _this;
     }
-    Object.defineProperty(ScanSubscriber.prototype, "seed", {
-        get: function () {
-            return this._seed;
-        },
-        set: function (value) {
-            this.hasSeed = true;
-            this._seed = value;
-        },
-        enumerable: true,
-        configurable: true
-    });
     ScanSubscriber.prototype._next = function (value) {
-        if (!this.hasSeed) {
-            this.seed = value;
-            this.destination.next(value);
+        var destination = this.destination;
+        if (!this._hasState) {
+            this._state = value;
+            this._hasState = true;
+            destination.next(value);
         }
         else {
-            return this._tryNext(value);
+            var index = this.index++;
+            var result = void 0;
+            try {
+                result = this.accumulator(this._state, value, index);
+            }
+            catch (err) {
+                destination.error(err);
+                return;
+            }
+            this._state = result;
+            destination.next(result);
         }
-    };
-    ScanSubscriber.prototype._tryNext = function (value) {
-        var index = this.index++;
-        var result;
-        try {
-            result = this.accumulator(this.seed, value, index);
-        }
-        catch (err) {
-            this.destination.error(err);
-        }
-        this.seed = result;
-        this.destination.next(result);
     };
     return ScanSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _scan,_takeLast,_defaultIfEmpty,_util_pipe PURE_IMPORTS_END */
-function reduce(accumulator, seed) {
+}(Subscriber));function reduce(accumulator, seed) {
     if (arguments.length >= 2) {
         return function reduceOperatorFunctionWithSeed(source) {
             return pipe(scan(accumulator, seed), takeLast(1), defaultIfEmpty(seed))(source);
@@ -5313,24 +5149,19 @@ function reduce(accumulator, seed) {
     return function reduceOperatorFunction(source) {
         return pipe(scan(function (acc, value, index) { return accumulator(acc, value, index + 1); }), takeLast(1))(source);
     };
-}/** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
-function max(comparer) {
+}function max(comparer) {
     var max = (typeof comparer === 'function')
         ? function (x, y) { return comparer(x, y) > 0 ? x : y; }
         : function (x, y) { return x > y ? x : y; };
     return reduce(max);
-}/** PURE_IMPORTS_START _observable_merge PURE_IMPORTS_END */
-function merge$1() {
+}function merge$1() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
     }
-    return function (source) { return source.lift.call(merge.apply(void 0, [source].concat(observables))); };
-}/** PURE_IMPORTS_START _mergeMap PURE_IMPORTS_END */
-function mergeMapTo(innerObservable, resultSelector, concurrent) {
-    if (concurrent === void 0) {
-        concurrent = Number.POSITIVE_INFINITY;
-    }
+    return function (source) { return source.lift.call(merge.apply(void 0, __spreadArrays([source], observables))); };
+}function mergeMapTo(innerObservable, resultSelector, concurrent) {
+    if (concurrent === void 0) { concurrent = Number.POSITIVE_INFINITY; }
     if (typeof resultSelector === 'function') {
         return mergeMap(function () { return innerObservable; }, resultSelector, concurrent);
     }
@@ -5338,14 +5169,11 @@ function mergeMapTo(innerObservable, resultSelector, concurrent) {
         concurrent = resultSelector;
     }
     return mergeMap(function () { return innerObservable; }, concurrent);
-}/** PURE_IMPORTS_START tslib,_util_subscribeToResult,_OuterSubscriber,_InnerSubscriber PURE_IMPORTS_END */
-function mergeScan(accumulator, seed, concurrent) {
-    if (concurrent === void 0) {
-        concurrent = Number.POSITIVE_INFINITY;
-    }
+}function mergeScan(accumulator, seed, concurrent) {
+    if (concurrent === void 0) { concurrent = Number.POSITIVE_INFINITY; }
     return function (source) { return source.lift(new MergeScanOperator(accumulator, seed, concurrent)); };
 }
-var MergeScanOperator = /*@__PURE__*/ (function () {
+var MergeScanOperator = (function () {
     function MergeScanOperator(accumulator, seed, concurrent) {
         this.accumulator = accumulator;
         this.seed = seed;
@@ -5356,7 +5184,7 @@ var MergeScanOperator = /*@__PURE__*/ (function () {
     };
     return MergeScanOperator;
 }());
-var MergeScanSubscriber = /*@__PURE__*/ (function (_super) {
+var MergeScanSubscriber = (function (_super) {
     __extends(MergeScanSubscriber, _super);
     function MergeScanSubscriber(destination, accumulator, acc, concurrent) {
         var _this = _super.call(this, destination) || this;
@@ -5390,10 +5218,13 @@ var MergeScanSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     MergeScanSubscriber.prototype._innerSub = function (ish, value, index) {
-        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+        var innerSubscriber = new InnerSubscriber(this, value, index);
         var destination = this.destination;
         destination.add(innerSubscriber);
-        subscribeToResult(this, ish, value, index, innerSubscriber);
+        var innerSubscription = subscribeToResult(this, ish, undefined, undefined, innerSubscriber);
+        if (innerSubscription !== innerSubscriber) {
+            destination.add(innerSubscription);
+        }
     };
     MergeScanSubscriber.prototype._complete = function () {
         this.hasCompleted = true;
@@ -5427,14 +5258,12 @@ var MergeScanSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return MergeScanSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
-function min(comparer) {
+}(OuterSubscriber));function min(comparer) {
     var min = (typeof comparer === 'function')
         ? function (x, y) { return comparer(x, y) < 0 ? x : y; }
         : function (x, y) { return x < y ? x : y; };
     return reduce(min);
-}/** PURE_IMPORTS_START _observable_ConnectableObservable PURE_IMPORTS_END */
-function multicast(subjectOrSubjectFactory, selector) {
+}function multicast(subjectOrSubjectFactory, selector) {
     return function multicastOperatorFunction(source) {
         var subjectFactory;
         if (typeof subjectOrSubjectFactory === 'function') {
@@ -5454,7 +5283,7 @@ function multicast(subjectOrSubjectFactory, selector) {
         return connectable;
     };
 }
-var MulticastOperator = /*@__PURE__*/ (function () {
+var MulticastOperator = (function () {
     function MulticastOperator(subjectFactory, selector) {
         this.subjectFactory = subjectFactory;
         this.selector = selector;
@@ -5467,8 +5296,7 @@ var MulticastOperator = /*@__PURE__*/ (function () {
         return subscription;
     };
     return MulticastOperator;
-}());/** PURE_IMPORTS_START tslib,_observable_from,_util_isArray,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function onErrorResumeNext$1() {
+}());function onErrorResumeNext$1() {
     var nextSources = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         nextSources[_i] = arguments[_i];
@@ -5478,7 +5306,7 @@ function onErrorResumeNext$1() {
     }
     return function (source) { return source.lift(new OnErrorResumeNextOperator(nextSources)); };
 }
-var OnErrorResumeNextOperator = /*@__PURE__*/ (function () {
+var OnErrorResumeNextOperator = (function () {
     function OnErrorResumeNextOperator(nextSources) {
         this.nextSources = nextSources;
     }
@@ -5487,7 +5315,7 @@ var OnErrorResumeNextOperator = /*@__PURE__*/ (function () {
     };
     return OnErrorResumeNextOperator;
 }());
-var OnErrorResumeNextSubscriber = /*@__PURE__*/ (function (_super) {
+var OnErrorResumeNextSubscriber = (function (_super) {
     __extends(OnErrorResumeNextSubscriber, _super);
     function OnErrorResumeNextSubscriber(destination, nextSources) {
         var _this = _super.call(this, destination) || this;
@@ -5515,18 +5343,20 @@ var OnErrorResumeNextSubscriber = /*@__PURE__*/ (function (_super) {
             var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
             var destination = this.destination;
             destination.add(innerSubscriber);
-            subscribeToResult(this, next, undefined, undefined, innerSubscriber);
+            var innerSubscription = subscribeToResult(this, next, undefined, undefined, innerSubscriber);
+            if (innerSubscription !== innerSubscriber) {
+                destination.add(innerSubscription);
+            }
         }
         else {
             this.destination.complete();
         }
     };
     return OnErrorResumeNextSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function pairwise() {
+}(OuterSubscriber));function pairwise() {
     return function (source) { return source.lift(new PairwiseOperator()); };
 }
-var PairwiseOperator = /*@__PURE__*/ (function () {
+var PairwiseOperator = (function () {
     function PairwiseOperator() {
     }
     PairwiseOperator.prototype.call = function (subscriber, source) {
@@ -5534,7 +5364,7 @@ var PairwiseOperator = /*@__PURE__*/ (function () {
     };
     return PairwiseOperator;
 }());
-var PairwiseSubscriber = /*@__PURE__*/ (function (_super) {
+var PairwiseSubscriber = (function (_super) {
     __extends(PairwiseSubscriber, _super);
     function PairwiseSubscriber(destination) {
         var _this = _super.call(this, destination) || this;
@@ -5555,16 +5385,12 @@ var PairwiseSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return PairwiseSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _util_not,_filter PURE_IMPORTS_END */
-function partition$1(predicate, thisArg) {
-    return function (source) {
-        return [
-            filter(predicate, thisArg)(source),
-            filter(not(predicate, thisArg))(source)
-        ];
-    };
-}/** PURE_IMPORTS_START _map PURE_IMPORTS_END */
-function pluck() {
+}(Subscriber));function partition$1(predicate, thisArg) {
+    return function (source) { return [
+        filter(predicate, thisArg)(source),
+        filter(not(predicate, thisArg))(source)
+    ]; };
+}function pluck() {
     var properties = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         properties[_i] = arguments[_i];
@@ -5590,27 +5416,22 @@ function plucker(props, length) {
         return currentProp;
     };
     return mapper;
-}/** PURE_IMPORTS_START _Subject,_multicast PURE_IMPORTS_END */
-function publish(selector) {
+}function publish(selector) {
     return selector ?
         multicast(function () { return new Subject(); }, selector) :
         multicast(new Subject());
-}/** PURE_IMPORTS_START _BehaviorSubject,_multicast PURE_IMPORTS_END */
-function publishBehavior(value) {
+}function publishBehavior(value) {
     return function (source) { return multicast(new BehaviorSubject(value))(source); };
-}/** PURE_IMPORTS_START _AsyncSubject,_multicast PURE_IMPORTS_END */
-function publishLast() {
+}function publishLast() {
     return function (source) { return multicast(new AsyncSubject())(source); };
-}/** PURE_IMPORTS_START _ReplaySubject,_multicast PURE_IMPORTS_END */
-function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
+}function publishReplay(bufferSize, windowTime, selectorOrScheduler, scheduler) {
     if (selectorOrScheduler && typeof selectorOrScheduler !== 'function') {
         scheduler = selectorOrScheduler;
     }
     var selector = typeof selectorOrScheduler === 'function' ? selectorOrScheduler : undefined;
     var subject = new ReplaySubject(bufferSize, windowTime, scheduler);
     return function (source) { return multicast(function () { return subject; }, selector)(source); };
-}/** PURE_IMPORTS_START _util_isArray,_observable_race PURE_IMPORTS_END */
-function race$1() {
+}function race$1() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
@@ -5619,13 +5440,10 @@ function race$1() {
         if (observables.length === 1 && isArray(observables[0])) {
             observables = observables[0];
         }
-        return source.lift.call(race.apply(void 0, [source].concat(observables)));
+        return source.lift.call(race.apply(void 0, __spreadArrays([source], observables)));
     };
-}/** PURE_IMPORTS_START tslib,_Subscriber,_observable_empty PURE_IMPORTS_END */
-function repeat(count) {
-    if (count === void 0) {
-        count = -1;
-    }
+}function repeat(count) {
+    if (count === void 0) { count = -1; }
     return function (source) {
         if (count === 0) {
             return empty$1();
@@ -5638,7 +5456,7 @@ function repeat(count) {
         }
     };
 }
-var RepeatOperator = /*@__PURE__*/ (function () {
+var RepeatOperator = (function () {
     function RepeatOperator(count, source) {
         this.count = count;
         this.source = source;
@@ -5648,7 +5466,7 @@ var RepeatOperator = /*@__PURE__*/ (function () {
     };
     return RepeatOperator;
 }());
-var RepeatSubscriber = /*@__PURE__*/ (function (_super) {
+var RepeatSubscriber = (function (_super) {
     __extends(RepeatSubscriber, _super);
     function RepeatSubscriber(destination, count, source) {
         var _this = _super.call(this, destination) || this;
@@ -5669,11 +5487,10 @@ var RepeatSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return RepeatSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function repeatWhen(notifier) {
+}(Subscriber));function repeatWhen(notifier) {
     return function (source) { return source.lift(new RepeatWhenOperator(notifier)); };
 }
-var RepeatWhenOperator = /*@__PURE__*/ (function () {
+var RepeatWhenOperator = (function () {
     function RepeatWhenOperator(notifier) {
         this.notifier = notifier;
     }
@@ -5682,7 +5499,7 @@ var RepeatWhenOperator = /*@__PURE__*/ (function () {
     };
     return RepeatWhenOperator;
 }());
-var RepeatWhenSubscriber = /*@__PURE__*/ (function (_super) {
+var RepeatWhenSubscriber = (function (_super) {
     __extends(RepeatWhenSubscriber, _super);
     function RepeatWhenSubscriber(destination, notifier, source) {
         var _this = _super.call(this, destination) || this;
@@ -5746,14 +5563,11 @@ var RepeatWhenSubscriber = /*@__PURE__*/ (function (_super) {
         this.retriesSubscription = subscribeToResult(this, retries);
     };
     return RepeatWhenSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function retry(count) {
-    if (count === void 0) {
-        count = -1;
-    }
+}(OuterSubscriber));function retry(count) {
+    if (count === void 0) { count = -1; }
     return function (source) { return source.lift(new RetryOperator(count, source)); };
 }
-var RetryOperator = /*@__PURE__*/ (function () {
+var RetryOperator = (function () {
     function RetryOperator(count, source) {
         this.count = count;
         this.source = source;
@@ -5763,7 +5577,7 @@ var RetryOperator = /*@__PURE__*/ (function () {
     };
     return RetryOperator;
 }());
-var RetrySubscriber = /*@__PURE__*/ (function (_super) {
+var RetrySubscriber = (function (_super) {
     __extends(RetrySubscriber, _super);
     function RetrySubscriber(destination, count, source) {
         var _this = _super.call(this, destination) || this;
@@ -5784,11 +5598,10 @@ var RetrySubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return RetrySubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function retryWhen(notifier) {
+}(Subscriber));function retryWhen(notifier) {
     return function (source) { return source.lift(new RetryWhenOperator(notifier, source)); };
 }
-var RetryWhenOperator = /*@__PURE__*/ (function () {
+var RetryWhenOperator = (function () {
     function RetryWhenOperator(notifier, source) {
         this.notifier = notifier;
         this.source = source;
@@ -5798,7 +5611,7 @@ var RetryWhenOperator = /*@__PURE__*/ (function () {
     };
     return RetryWhenOperator;
 }());
-var RetryWhenSubscriber = /*@__PURE__*/ (function (_super) {
+var RetryWhenSubscriber = (function (_super) {
     __extends(RetryWhenSubscriber, _super);
     function RetryWhenSubscriber(destination, notifier, source) {
         var _this = _super.call(this, destination) || this;
@@ -5853,11 +5666,10 @@ var RetryWhenSubscriber = /*@__PURE__*/ (function (_super) {
         this.source.subscribe(this);
     };
     return RetryWhenSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function sample(notifier) {
+}(OuterSubscriber));function sample(notifier) {
     return function (source) { return source.lift(new SampleOperator(notifier)); };
 }
-var SampleOperator = /*@__PURE__*/ (function () {
+var SampleOperator = (function () {
     function SampleOperator(notifier) {
         this.notifier = notifier;
     }
@@ -5869,7 +5681,7 @@ var SampleOperator = /*@__PURE__*/ (function () {
     };
     return SampleOperator;
 }());
-var SampleSubscriber = /*@__PURE__*/ (function (_super) {
+var SampleSubscriber = (function (_super) {
     __extends(SampleSubscriber, _super);
     function SampleSubscriber() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -5893,14 +5705,11 @@ var SampleSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return SampleSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async PURE_IMPORTS_END */
-function sampleTime(period, scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}(OuterSubscriber));function sampleTime(period, scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
     return function (source) { return source.lift(new SampleTimeOperator(period, scheduler)); };
 }
-var SampleTimeOperator = /*@__PURE__*/ (function () {
+var SampleTimeOperator = (function () {
     function SampleTimeOperator(period, scheduler) {
         this.period = period;
         this.scheduler = scheduler;
@@ -5910,7 +5719,7 @@ var SampleTimeOperator = /*@__PURE__*/ (function () {
     };
     return SampleTimeOperator;
 }());
-var SampleTimeSubscriber = /*@__PURE__*/ (function (_super) {
+var SampleTimeSubscriber = (function (_super) {
     __extends(SampleTimeSubscriber, _super);
     function SampleTimeSubscriber(destination, period, scheduler) {
         var _this = _super.call(this, destination) || this;
@@ -5936,11 +5745,10 @@ function dispatchNotification(state) {
     var subscriber = state.subscriber, period = state.period;
     subscriber.notifyNext();
     this.schedule(state, period);
-}/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function sequenceEqual(compareTo, comparator) {
+}function sequenceEqual(compareTo, comparator) {
     return function (source) { return source.lift(new SequenceEqualOperator(compareTo, comparator)); };
 }
-var SequenceEqualOperator = /*@__PURE__*/ (function () {
+var SequenceEqualOperator = (function () {
     function SequenceEqualOperator(compareTo, comparator) {
         this.compareTo = compareTo;
         this.comparator = comparator;
@@ -5950,7 +5758,7 @@ var SequenceEqualOperator = /*@__PURE__*/ (function () {
     };
     return SequenceEqualOperator;
 }());
-var SequenceEqualSubscriber = /*@__PURE__*/ (function (_super) {
+var SequenceEqualSubscriber = (function (_super) {
     __extends(SequenceEqualSubscriber, _super);
     function SequenceEqualSubscriber(destination, compareTo, comparator) {
         var _this = _super.call(this, destination) || this;
@@ -6021,7 +5829,7 @@ var SequenceEqualSubscriber = /*@__PURE__*/ (function (_super) {
     };
     return SequenceEqualSubscriber;
 }(Subscriber));
-var SequenceEqualCompareToSubscriber = /*@__PURE__*/ (function (_super) {
+var SequenceEqualCompareToSubscriber = (function (_super) {
     __extends(SequenceEqualCompareToSubscriber, _super);
     function SequenceEqualCompareToSubscriber(destination, parent) {
         var _this = _super.call(this, destination) || this;
@@ -6040,14 +5848,12 @@ var SequenceEqualCompareToSubscriber = /*@__PURE__*/ (function (_super) {
         this.unsubscribe();
     };
     return SequenceEqualCompareToSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _multicast,_refCount,_Subject PURE_IMPORTS_END */
-function shareSubjectFactory() {
+}(Subscriber));function shareSubjectFactory() {
     return new Subject();
 }
 function share() {
     return function (source) { return refCount()(multicast(shareSubjectFactory)(source)); };
-}/** PURE_IMPORTS_START _ReplaySubject PURE_IMPORTS_END */
-function shareReplay(configOrBufferSize, windowTime, scheduler) {
+}function shareReplay(configOrBufferSize, windowTime, scheduler) {
     var config;
     if (configOrBufferSize && typeof configOrBufferSize === 'object') {
         config = configOrBufferSize;
@@ -6082,6 +5888,7 @@ function shareReplayOperator(_a) {
                 },
                 complete: function () {
                     isComplete = true;
+                    subscription = undefined;
                     subject.complete();
                 },
             });
@@ -6097,11 +5904,10 @@ function shareReplayOperator(_a) {
             }
         });
     };
-}/** PURE_IMPORTS_START tslib,_Subscriber,_util_EmptyError PURE_IMPORTS_END */
-function single(predicate) {
+}function single(predicate) {
     return function (source) { return source.lift(new SingleOperator(predicate, source)); };
 }
-var SingleOperator = /*@__PURE__*/ (function () {
+var SingleOperator = (function () {
     function SingleOperator(predicate, source) {
         this.predicate = predicate;
         this.source = source;
@@ -6111,7 +5917,7 @@ var SingleOperator = /*@__PURE__*/ (function () {
     };
     return SingleOperator;
 }());
-var SingleSubscriber = /*@__PURE__*/ (function (_super) {
+var SingleSubscriber = (function (_super) {
     __extends(SingleSubscriber, _super);
     function SingleSubscriber(destination, predicate, source) {
         var _this = _super.call(this, destination) || this;
@@ -6160,11 +5966,10 @@ var SingleSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return SingleSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function skip(count) {
+}(Subscriber));function skip(count) {
     return function (source) { return source.lift(new SkipOperator(count)); };
 }
-var SkipOperator = /*@__PURE__*/ (function () {
+var SkipOperator = (function () {
     function SkipOperator(total) {
         this.total = total;
     }
@@ -6173,7 +5978,7 @@ var SkipOperator = /*@__PURE__*/ (function () {
     };
     return SkipOperator;
 }());
-var SkipSubscriber = /*@__PURE__*/ (function (_super) {
+var SkipSubscriber = (function (_super) {
     __extends(SkipSubscriber, _super);
     function SkipSubscriber(destination, total) {
         var _this = _super.call(this, destination) || this;
@@ -6187,11 +5992,10 @@ var SkipSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return SkipSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_util_ArgumentOutOfRangeError PURE_IMPORTS_END */
-function skipLast(count) {
+}(Subscriber));function skipLast(count) {
     return function (source) { return source.lift(new SkipLastOperator(count)); };
 }
-var SkipLastOperator = /*@__PURE__*/ (function () {
+var SkipLastOperator = (function () {
     function SkipLastOperator(_skipCount) {
         this._skipCount = _skipCount;
         if (this._skipCount < 0) {
@@ -6208,7 +6012,7 @@ var SkipLastOperator = /*@__PURE__*/ (function () {
     };
     return SkipLastOperator;
 }());
-var SkipLastSubscriber = /*@__PURE__*/ (function (_super) {
+var SkipLastSubscriber = (function (_super) {
     __extends(SkipLastSubscriber, _super);
     function SkipLastSubscriber(destination, _skipCount) {
         var _this = _super.call(this, destination) || this;
@@ -6232,11 +6036,10 @@ var SkipLastSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return SkipLastSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function skipUntil(notifier) {
+}(Subscriber));function skipUntil(notifier) {
     return function (source) { return source.lift(new SkipUntilOperator(notifier)); };
 }
-var SkipUntilOperator = /*@__PURE__*/ (function () {
+var SkipUntilOperator = (function () {
     function SkipUntilOperator(notifier) {
         this.notifier = notifier;
     }
@@ -6245,7 +6048,7 @@ var SkipUntilOperator = /*@__PURE__*/ (function () {
     };
     return SkipUntilOperator;
 }());
-var SkipUntilSubscriber = /*@__PURE__*/ (function (_super) {
+var SkipUntilSubscriber = (function (_super) {
     __extends(SkipUntilSubscriber, _super);
     function SkipUntilSubscriber(destination, notifier) {
         var _this = _super.call(this, destination) || this;
@@ -6253,7 +6056,11 @@ var SkipUntilSubscriber = /*@__PURE__*/ (function (_super) {
         var innerSubscriber = new InnerSubscriber(_this, undefined, undefined);
         _this.add(innerSubscriber);
         _this.innerSubscription = innerSubscriber;
-        subscribeToResult(_this, notifier, undefined, undefined, innerSubscriber);
+        var innerSubscription = subscribeToResult(_this, notifier, undefined, undefined, innerSubscriber);
+        if (innerSubscription !== innerSubscriber) {
+            _this.add(innerSubscription);
+            _this.innerSubscription = innerSubscription;
+        }
         return _this;
     }
     SkipUntilSubscriber.prototype._next = function (value) {
@@ -6270,11 +6077,10 @@ var SkipUntilSubscriber = /*@__PURE__*/ (function (_super) {
     SkipUntilSubscriber.prototype.notifyComplete = function () {
     };
     return SkipUntilSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function skipWhile(predicate) {
+}(OuterSubscriber));function skipWhile(predicate) {
     return function (source) { return source.lift(new SkipWhileOperator(predicate)); };
 }
-var SkipWhileOperator = /*@__PURE__*/ (function () {
+var SkipWhileOperator = (function () {
     function SkipWhileOperator(predicate) {
         this.predicate = predicate;
     }
@@ -6283,7 +6089,7 @@ var SkipWhileOperator = /*@__PURE__*/ (function () {
     };
     return SkipWhileOperator;
 }());
-var SkipWhileSubscriber = /*@__PURE__*/ (function (_super) {
+var SkipWhileSubscriber = (function (_super) {
     __extends(SkipWhileSubscriber, _super);
     function SkipWhileSubscriber(destination, predicate) {
         var _this = _super.call(this, destination) || this;
@@ -6311,8 +6117,7 @@ var SkipWhileSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return SkipWhileSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START _observable_concat,_util_isScheduler PURE_IMPORTS_END */
-function startWith() {
+}(Subscriber));function startWith() {
     var array = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         array[_i] = arguments[_i];
@@ -6325,16 +6130,11 @@ function startWith() {
     else {
         return function (source) { return concat(array, source); };
     }
-}/** PURE_IMPORTS_START tslib,_Observable,_scheduler_asap,_util_isNumeric PURE_IMPORTS_END */
-var SubscribeOnObservable = /*@__PURE__*/ (function (_super) {
+}var SubscribeOnObservable = (function (_super) {
     __extends(SubscribeOnObservable, _super);
     function SubscribeOnObservable(source, delayTime, scheduler) {
-        if (delayTime === void 0) {
-            delayTime = 0;
-        }
-        if (scheduler === void 0) {
-            scheduler = asap;
-        }
+        if (delayTime === void 0) { delayTime = 0; }
+        if (scheduler === void 0) { scheduler = asap; }
         var _this = _super.call(this) || this;
         _this.source = source;
         _this.delayTime = delayTime;
@@ -6348,12 +6148,8 @@ var SubscribeOnObservable = /*@__PURE__*/ (function (_super) {
         return _this;
     }
     SubscribeOnObservable.create = function (source, delay, scheduler) {
-        if (delay === void 0) {
-            delay = 0;
-        }
-        if (scheduler === void 0) {
-            scheduler = asap;
-        }
+        if (delay === void 0) { delay = 0; }
+        if (scheduler === void 0) { scheduler = asap; }
         return new SubscribeOnObservable(source, delay, scheduler);
     };
     SubscribeOnObservable.dispatch = function (arg) {
@@ -6369,16 +6165,13 @@ var SubscribeOnObservable = /*@__PURE__*/ (function (_super) {
         });
     };
     return SubscribeOnObservable;
-}(Observable));/** PURE_IMPORTS_START _observable_SubscribeOnObservable PURE_IMPORTS_END */
-function subscribeOn(scheduler, delay) {
-    if (delay === void 0) {
-        delay = 0;
-    }
+}(Observable));function subscribeOn(scheduler, delay) {
+    if (delay === void 0) { delay = 0; }
     return function subscribeOnOperatorFunction(source) {
         return source.lift(new SubscribeOnOperator(scheduler, delay));
     };
 }
-var SubscribeOnOperator = /*@__PURE__*/ (function () {
+var SubscribeOnOperator = (function () {
     function SubscribeOnOperator(scheduler, delay) {
         this.scheduler = scheduler;
         this.delay = delay;
@@ -6387,14 +6180,13 @@ var SubscribeOnOperator = /*@__PURE__*/ (function () {
         return new SubscribeOnObservable(source, this.delay, this.scheduler).subscribe(subscriber);
     };
     return SubscribeOnOperator;
-}());/** PURE_IMPORTS_START tslib,_OuterSubscriber,_InnerSubscriber,_util_subscribeToResult,_map,_observable_from PURE_IMPORTS_END */
-function switchMap(project, resultSelector) {
+}());function switchMap(project, resultSelector) {
     if (typeof resultSelector === 'function') {
         return function (source) { return source.pipe(switchMap(function (a, i) { return from(project(a, i)).pipe(map(function (b, ii) { return resultSelector(a, b, i, ii); })); })); };
     }
     return function (source) { return source.lift(new SwitchMapOperator(project)); };
 }
-var SwitchMapOperator = /*@__PURE__*/ (function () {
+var SwitchMapOperator = (function () {
     function SwitchMapOperator(project) {
         this.project = project;
     }
@@ -6403,7 +6195,7 @@ var SwitchMapOperator = /*@__PURE__*/ (function () {
     };
     return SwitchMapOperator;
 }());
-var SwitchMapSubscriber = /*@__PURE__*/ (function (_super) {
+var SwitchMapSubscriber = (function (_super) {
     __extends(SwitchMapSubscriber, _super);
     function SwitchMapSubscriber(destination, project) {
         var _this = _super.call(this, destination) || this;
@@ -6428,10 +6220,13 @@ var SwitchMapSubscriber = /*@__PURE__*/ (function (_super) {
         if (innerSubscription) {
             innerSubscription.unsubscribe();
         }
-        var innerSubscriber = new InnerSubscriber(this, undefined, undefined);
+        var innerSubscriber = new InnerSubscriber(this, value, index);
         var destination = this.destination;
         destination.add(innerSubscriber);
-        this.innerSubscription = subscribeToResult(this, result, value, index, innerSubscriber);
+        this.innerSubscription = subscribeToResult(this, result, undefined, undefined, innerSubscriber);
+        if (this.innerSubscription !== innerSubscriber) {
+            destination.add(this.innerSubscription);
+        }
     };
     SwitchMapSubscriber.prototype._complete = function () {
         var innerSubscription = this.innerSubscription;
@@ -6455,17 +6250,14 @@ var SwitchMapSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.next(innerValue);
     };
     return SwitchMapSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _switchMap,_util_identity PURE_IMPORTS_END */
-function switchAll() {
+}(OuterSubscriber));function switchAll() {
     return switchMap(identity);
-}/** PURE_IMPORTS_START _switchMap PURE_IMPORTS_END */
-function switchMapTo(innerObservable, resultSelector) {
+}function switchMapTo(innerObservable, resultSelector) {
     return resultSelector ? switchMap(function () { return innerObservable; }, resultSelector) : switchMap(function () { return innerObservable; });
-}/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function takeUntil(notifier) {
+}function takeUntil(notifier) {
     return function (source) { return source.lift(new TakeUntilOperator(notifier)); };
 }
-var TakeUntilOperator = /*@__PURE__*/ (function () {
+var TakeUntilOperator = (function () {
     function TakeUntilOperator(notifier) {
         this.notifier = notifier;
     }
@@ -6480,7 +6272,7 @@ var TakeUntilOperator = /*@__PURE__*/ (function () {
     };
     return TakeUntilOperator;
 }());
-var TakeUntilSubscriber = /*@__PURE__*/ (function (_super) {
+var TakeUntilSubscriber = (function (_super) {
     __extends(TakeUntilSubscriber, _super);
     function TakeUntilSubscriber(destination) {
         var _this = _super.call(this, destination) || this;
@@ -6494,16 +6286,13 @@ var TakeUntilSubscriber = /*@__PURE__*/ (function (_super) {
     TakeUntilSubscriber.prototype.notifyComplete = function () {
     };
     return TakeUntilSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
-function takeWhile(predicate, inclusive) {
-    if (inclusive === void 0) {
-        inclusive = false;
-    }
+}(OuterSubscriber));function takeWhile(predicate, inclusive) {
+    if (inclusive === void 0) { inclusive = false; }
     return function (source) {
         return source.lift(new TakeWhileOperator(predicate, inclusive));
     };
 }
-var TakeWhileOperator = /*@__PURE__*/ (function () {
+var TakeWhileOperator = (function () {
     function TakeWhileOperator(predicate, inclusive) {
         this.predicate = predicate;
         this.inclusive = inclusive;
@@ -6513,7 +6302,7 @@ var TakeWhileOperator = /*@__PURE__*/ (function () {
     };
     return TakeWhileOperator;
 }());
-var TakeWhileSubscriber = /*@__PURE__*/ (function (_super) {
+var TakeWhileSubscriber = (function (_super) {
     __extends(TakeWhileSubscriber, _super);
     function TakeWhileSubscriber(destination, predicate, inclusive) {
         var _this = _super.call(this, destination) || this;
@@ -6547,13 +6336,12 @@ var TakeWhileSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     return TakeWhileSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_util_noop,_util_isFunction PURE_IMPORTS_END */
-function tap(nextOrObserver, error, complete) {
+}(Subscriber));function tap(nextOrObserver, error, complete) {
     return function tapOperatorFunction(source) {
         return source.lift(new DoOperator(nextOrObserver, error, complete));
     };
 }
-var DoOperator = /*@__PURE__*/ (function () {
+var DoOperator = (function () {
     function DoOperator(nextOrObserver, error, complete) {
         this.nextOrObserver = nextOrObserver;
         this.error = error;
@@ -6564,7 +6352,7 @@ var DoOperator = /*@__PURE__*/ (function () {
     };
     return DoOperator;
 }());
-var TapSubscriber = /*@__PURE__*/ (function (_super) {
+var TapSubscriber = (function (_super) {
     __extends(TapSubscriber, _super);
     function TapSubscriber(destination, observerOrNext, error, complete) {
         var _this = _super.call(this, destination) || this;
@@ -6616,18 +6404,15 @@ var TapSubscriber = /*@__PURE__*/ (function (_super) {
         return this.destination.complete();
     };
     return TapSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-var defaultThrottleConfig = {
+}(Subscriber));var defaultThrottleConfig = {
     leading: true,
     trailing: false
 };
 function throttle(durationSelector, config) {
-    if (config === void 0) {
-        config = defaultThrottleConfig;
-    }
+    if (config === void 0) { config = defaultThrottleConfig; }
     return function (source) { return source.lift(new ThrottleOperator(durationSelector, config.leading, config.trailing)); };
 }
-var ThrottleOperator = /*@__PURE__*/ (function () {
+var ThrottleOperator = (function () {
     function ThrottleOperator(durationSelector, leading, trailing) {
         this.durationSelector = durationSelector;
         this.leading = leading;
@@ -6638,7 +6423,7 @@ var ThrottleOperator = /*@__PURE__*/ (function () {
     };
     return ThrottleOperator;
 }());
-var ThrottleSubscriber = /*@__PURE__*/ (function (_super) {
+var ThrottleSubscriber = (function (_super) {
     __extends(ThrottleSubscriber, _super);
     function ThrottleSubscriber(destination, durationSelector, _leading, _trailing) {
         var _this = _super.call(this, destination) || this;
@@ -6702,17 +6487,12 @@ var ThrottleSubscriber = /*@__PURE__*/ (function (_super) {
         this.throttlingDone();
     };
     return ThrottleSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_scheduler_async,_throttle PURE_IMPORTS_END */
-function throttleTime(duration, scheduler, config) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
-    if (config === void 0) {
-        config = defaultThrottleConfig;
-    }
+}(OuterSubscriber));function throttleTime(duration, scheduler, config) {
+    if (scheduler === void 0) { scheduler = async; }
+    if (config === void 0) { config = defaultThrottleConfig; }
     return function (source) { return source.lift(new ThrottleTimeOperator(duration, scheduler, config.leading, config.trailing)); };
 }
-var ThrottleTimeOperator = /*@__PURE__*/ (function () {
+var ThrottleTimeOperator = (function () {
     function ThrottleTimeOperator(duration, scheduler, leading, trailing) {
         this.duration = duration;
         this.scheduler = scheduler;
@@ -6724,7 +6504,7 @@ var ThrottleTimeOperator = /*@__PURE__*/ (function () {
     };
     return ThrottleTimeOperator;
 }());
-var ThrottleTimeSubscriber = /*@__PURE__*/ (function (_super) {
+var ThrottleTimeSubscriber = (function (_super) {
     __extends(ThrottleTimeSubscriber, _super);
     function ThrottleTimeSubscriber(destination, duration, scheduler, leading, trailing) {
         var _this = _super.call(this, destination) || this;
@@ -6781,41 +6561,33 @@ var ThrottleTimeSubscriber = /*@__PURE__*/ (function (_super) {
 function dispatchNext$3(arg) {
     var subscriber = arg.subscriber;
     subscriber.clearThrottle();
-}/** PURE_IMPORTS_START _scheduler_async,_scan,_observable_defer,_map PURE_IMPORTS_END */
-function timeInterval(scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
-    return function (source) {
-        return defer(function () {
-            return source.pipe(scan(function (_a, value) {
-                var current = _a.current;
-                return ({ value: value, current: scheduler.now(), last: current });
-            }, { current: scheduler.now(), value: undefined, last: undefined }), map(function (_a) {
-                var current = _a.current, last = _a.last, value = _a.value;
-                return new TimeInterval(value, current - last);
-            }));
-        });
-    };
+}function timeInterval(scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
+    return function (source) { return defer(function () {
+        return source.pipe(scan(function (_a, value) {
+            var current = _a.current;
+            return ({ value: value, current: scheduler.now(), last: current });
+        }, { current: scheduler.now(), value: undefined, last: undefined }), map(function (_a) {
+            var current = _a.current, last = _a.last, value = _a.value;
+            return new TimeInterval(value, current - last);
+        }));
+    }); };
 }
-var TimeInterval = /*@__PURE__*/ (function () {
+var TimeInterval = (function () {
     function TimeInterval(value, interval) {
         this.value = value;
         this.interval = interval;
     }
     return TimeInterval;
-}());/** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function timeoutWith(due, withObservable, scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}());function timeoutWith(due, withObservable, scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
     return function (source) {
         var absoluteTimeout = isDate(due);
         var waitFor = absoluteTimeout ? (+due - scheduler.now()) : Math.abs(due);
         return source.lift(new TimeoutWithOperator(waitFor, absoluteTimeout, withObservable, scheduler));
     };
 }
-var TimeoutWithOperator = /*@__PURE__*/ (function () {
+var TimeoutWithOperator = (function () {
     function TimeoutWithOperator(waitFor, absoluteTimeout, withObservable, scheduler) {
         this.waitFor = waitFor;
         this.absoluteTimeout = absoluteTimeout;
@@ -6827,7 +6599,7 @@ var TimeoutWithOperator = /*@__PURE__*/ (function () {
     };
     return TimeoutWithOperator;
 }());
-var TimeoutWithSubscriber = /*@__PURE__*/ (function (_super) {
+var TimeoutWithSubscriber = (function (_super) {
     __extends(TimeoutWithSubscriber, _super);
     function TimeoutWithSubscriber(destination, absoluteTimeout, waitFor, withObservable, scheduler) {
         var _this = _super.call(this, destination) || this;
@@ -6865,27 +6637,20 @@ var TimeoutWithSubscriber = /*@__PURE__*/ (function (_super) {
         this.withObservable = null;
     };
     return TimeoutWithSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _scheduler_async,_util_TimeoutError,_timeoutWith,_observable_throwError PURE_IMPORTS_END */
-function timeout(due, scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}(OuterSubscriber));function timeout(due, scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
     return timeoutWith(due, throwError(new TimeoutError()), scheduler);
-}/** PURE_IMPORTS_START _scheduler_async,_map PURE_IMPORTS_END */
-function timestamp(scheduler) {
-    if (scheduler === void 0) {
-        scheduler = async;
-    }
+}function timestamp(scheduler) {
+    if (scheduler === void 0) { scheduler = async; }
     return map(function (value) { return new Timestamp(value, scheduler.now()); });
 }
-var Timestamp = /*@__PURE__*/ (function () {
+var Timestamp = (function () {
     function Timestamp(value, timestamp) {
         this.value = value;
         this.timestamp = timestamp;
     }
     return Timestamp;
-}());/** PURE_IMPORTS_START _reduce PURE_IMPORTS_END */
-function toArrayReducer(arr, item, index) {
+}());function toArrayReducer(arr, item, index) {
     if (index === 0) {
         return [item];
     }
@@ -6894,13 +6659,12 @@ function toArrayReducer(arr, item, index) {
 }
 function toArray() {
     return reduce(toArrayReducer, []);
-}/** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function window$1(windowBoundaries) {
+}function window$1(windowBoundaries) {
     return function windowOperatorFunction(source) {
         return source.lift(new WindowOperator(windowBoundaries));
     };
 }
-var WindowOperator = /*@__PURE__*/ (function () {
+var WindowOperator = (function () {
     function WindowOperator(windowBoundaries) {
         this.windowBoundaries = windowBoundaries;
     }
@@ -6914,7 +6678,7 @@ var WindowOperator = /*@__PURE__*/ (function () {
     };
     return WindowOperator;
 }());
-var WindowSubscriber = /*@__PURE__*/ (function (_super) {
+var WindowSubscriber = (function (_super) {
     __extends(WindowSubscriber, _super);
     function WindowSubscriber(destination) {
         var _this = _super.call(this, destination) || this;
@@ -6955,16 +6719,13 @@ var WindowSubscriber = /*@__PURE__*/ (function (_super) {
         destination.next(newWindow);
     };
     return WindowSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subscriber,_Subject PURE_IMPORTS_END */
-function windowCount(windowSize, startWindowEvery) {
-    if (startWindowEvery === void 0) {
-        startWindowEvery = 0;
-    }
+}(OuterSubscriber));function windowCount(windowSize, startWindowEvery) {
+    if (startWindowEvery === void 0) { startWindowEvery = 0; }
     return function windowCountOperatorFunction(source) {
         return source.lift(new WindowCountOperator(windowSize, startWindowEvery));
     };
 }
-var WindowCountOperator = /*@__PURE__*/ (function () {
+var WindowCountOperator = (function () {
     function WindowCountOperator(windowSize, startWindowEvery) {
         this.windowSize = windowSize;
         this.startWindowEvery = startWindowEvery;
@@ -6974,7 +6735,7 @@ var WindowCountOperator = /*@__PURE__*/ (function () {
     };
     return WindowCountOperator;
 }());
-var WindowCountSubscriber = /*@__PURE__*/ (function (_super) {
+var WindowCountSubscriber = (function (_super) {
     __extends(WindowCountSubscriber, _super);
     function WindowCountSubscriber(destination, windowSize, startWindowEvery) {
         var _this = _super.call(this, destination) || this;
@@ -7028,8 +6789,7 @@ var WindowCountSubscriber = /*@__PURE__*/ (function (_super) {
         this.windows = null;
     };
     return WindowCountSubscriber;
-}(Subscriber));/** PURE_IMPORTS_START tslib,_Subject,_scheduler_async,_Subscriber,_util_isNumeric,_util_isScheduler PURE_IMPORTS_END */
-function windowTime(windowTimeSpan) {
+}(Subscriber));function windowTime(windowTimeSpan) {
     var scheduler = async;
     var windowCreationInterval = null;
     var maxWindowSize = Number.POSITIVE_INFINITY;
@@ -7040,19 +6800,19 @@ function windowTime(windowTimeSpan) {
         scheduler = arguments[2];
     }
     else if (isNumeric(arguments[2])) {
-        maxWindowSize = arguments[2];
+        maxWindowSize = Number(arguments[2]);
     }
     if (isScheduler(arguments[1])) {
         scheduler = arguments[1];
     }
     else if (isNumeric(arguments[1])) {
-        windowCreationInterval = arguments[1];
+        windowCreationInterval = Number(arguments[1]);
     }
     return function windowTimeOperatorFunction(source) {
         return source.lift(new WindowTimeOperator(windowTimeSpan, windowCreationInterval, maxWindowSize, scheduler));
     };
 }
-var WindowTimeOperator = /*@__PURE__*/ (function () {
+var WindowTimeOperator = (function () {
     function WindowTimeOperator(windowTimeSpan, windowCreationInterval, maxWindowSize, scheduler) {
         this.windowTimeSpan = windowTimeSpan;
         this.windowCreationInterval = windowCreationInterval;
@@ -7064,7 +6824,7 @@ var WindowTimeOperator = /*@__PURE__*/ (function () {
     };
     return WindowTimeOperator;
 }());
-var CountedSubject = /*@__PURE__*/ (function (_super) {
+var CountedSubject = (function (_super) {
     __extends(CountedSubject, _super);
     function CountedSubject() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -7084,7 +6844,7 @@ var CountedSubject = /*@__PURE__*/ (function (_super) {
     });
     return CountedSubject;
 }(Subject));
-var WindowTimeSubscriber = /*@__PURE__*/ (function (_super) {
+var WindowTimeSubscriber = (function (_super) {
     __extends(WindowTimeSubscriber, _super);
     function WindowTimeSubscriber(destination, windowTimeSpan, windowCreationInterval, maxWindowSize, scheduler) {
         var _this = _super.call(this, destination) || this;
@@ -7175,11 +6935,10 @@ function dispatchWindowClose(state) {
         context.action.remove(context.subscription);
     }
     subscriber.closeWindow(window);
-}/** PURE_IMPORTS_START tslib,_Subject,_Subscription,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function windowToggle(openings, closingSelector) {
+}function windowToggle(openings, closingSelector) {
     return function (source) { return source.lift(new WindowToggleOperator(openings, closingSelector)); };
 }
-var WindowToggleOperator = /*@__PURE__*/ (function () {
+var WindowToggleOperator = (function () {
     function WindowToggleOperator(openings, closingSelector) {
         this.openings = openings;
         this.closingSelector = closingSelector;
@@ -7189,7 +6948,7 @@ var WindowToggleOperator = /*@__PURE__*/ (function () {
     };
     return WindowToggleOperator;
 }());
-var WindowToggleSubscriber = /*@__PURE__*/ (function (_super) {
+var WindowToggleSubscriber = (function (_super) {
     __extends(WindowToggleSubscriber, _super);
     function WindowToggleSubscriber(destination, openings, closingSelector) {
         var _this = _super.call(this, destination) || this;
@@ -7297,13 +7056,12 @@ var WindowToggleSubscriber = /*@__PURE__*/ (function (_super) {
         subscription.unsubscribe();
     };
     return WindowToggleSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_Subject,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function windowWhen(closingSelector) {
+}(OuterSubscriber));function windowWhen(closingSelector) {
     return function windowWhenOperatorFunction(source) {
         return source.lift(new WindowOperator$1(closingSelector));
     };
 }
-var WindowOperator$1 = /*@__PURE__*/ (function () {
+var WindowOperator$1 = (function () {
     function WindowOperator(closingSelector) {
         this.closingSelector = closingSelector;
     }
@@ -7312,7 +7070,7 @@ var WindowOperator$1 = /*@__PURE__*/ (function () {
     };
     return WindowOperator;
 }());
-var WindowSubscriber$1 = /*@__PURE__*/ (function (_super) {
+var WindowSubscriber$1 = (function (_super) {
     __extends(WindowSubscriber, _super);
     function WindowSubscriber(destination, closingSelector) {
         var _this = _super.call(this, destination) || this;
@@ -7349,9 +7107,7 @@ var WindowSubscriber$1 = /*@__PURE__*/ (function (_super) {
         }
     };
     WindowSubscriber.prototype.openWindow = function (innerSub) {
-        if (innerSub === void 0) {
-            innerSub = null;
-        }
+        if (innerSub === void 0) { innerSub = null; }
         if (innerSub) {
             this.remove(innerSub);
             innerSub.unsubscribe();
@@ -7375,8 +7131,7 @@ var WindowSubscriber$1 = /*@__PURE__*/ (function (_super) {
         this.add(this.closingNotification = subscribeToResult(this, closingNotifier));
     };
     return WindowSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START tslib,_OuterSubscriber,_util_subscribeToResult PURE_IMPORTS_END */
-function withLatestFrom() {
+}(OuterSubscriber));function withLatestFrom() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         args[_i] = arguments[_i];
@@ -7390,7 +7145,7 @@ function withLatestFrom() {
         return source.lift(new WithLatestFromOperator(observables, project));
     };
 }
-var WithLatestFromOperator = /*@__PURE__*/ (function () {
+var WithLatestFromOperator = (function () {
     function WithLatestFromOperator(observables, project) {
         this.observables = observables;
         this.project = project;
@@ -7400,7 +7155,7 @@ var WithLatestFromOperator = /*@__PURE__*/ (function () {
     };
     return WithLatestFromOperator;
 }());
-var WithLatestFromSubscriber = /*@__PURE__*/ (function (_super) {
+var WithLatestFromSubscriber = (function (_super) {
     __extends(WithLatestFromSubscriber, _super);
     function WithLatestFromSubscriber(destination, observables, project) {
         var _this = _super.call(this, destination) || this;
@@ -7432,7 +7187,7 @@ var WithLatestFromSubscriber = /*@__PURE__*/ (function (_super) {
     };
     WithLatestFromSubscriber.prototype._next = function (value) {
         if (this.toRespond.length === 0) {
-            var args = [value].concat(this.values);
+            var args = __spreadArrays([value], this.values);
             if (this.project) {
                 this._tryProject(args);
             }
@@ -7453,19 +7208,17 @@ var WithLatestFromSubscriber = /*@__PURE__*/ (function (_super) {
         this.destination.next(result);
     };
     return WithLatestFromSubscriber;
-}(OuterSubscriber));/** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
-function zip$1() {
+}(OuterSubscriber));function zip$1() {
     var observables = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         observables[_i] = arguments[_i];
     }
     return function zipOperatorFunction(source) {
-        return source.lift.call(zip.apply(void 0, [source].concat(observables)));
+        return source.lift.call(zip.apply(void 0, __spreadArrays([source], observables)));
     };
-}/** PURE_IMPORTS_START _observable_zip PURE_IMPORTS_END */
-function zipAll(project) {
+}function zipAll(project) {
     return function (source) { return source.lift(new ZipOperator(project)); };
-}/** PURE_IMPORTS_START  PURE_IMPORTS_END */var operators = /*#__PURE__*/Object.freeze({audit: audit,auditTime: auditTime,buffer: buffer,bufferCount: bufferCount,bufferTime: bufferTime,bufferToggle: bufferToggle,bufferWhen: bufferWhen,catchError: catchError,combineAll: combineAll,combineLatest: combineLatest$1,concat: concat$1,concatAll: concatAll,concatMap: concatMap,concatMapTo: concatMapTo,count: count,debounce: debounce,debounceTime: debounceTime,defaultIfEmpty: defaultIfEmpty,delay: delay,delayWhen: delayWhen,dematerialize: dematerialize,distinct: distinct,distinctUntilChanged: distinctUntilChanged,distinctUntilKeyChanged: distinctUntilKeyChanged,elementAt: elementAt,endWith: endWith,every: every,exhaust: exhaust,exhaustMap: exhaustMap,expand: expand,filter: filter,finalize: finalize,find: find,findIndex: findIndex,first: first,groupBy: groupBy,ignoreElements: ignoreElements,isEmpty: isEmpty,last: last,map: map,mapTo: mapTo,materialize: materialize,max: max,merge: merge$1,mergeAll: mergeAll,mergeMap: mergeMap,flatMap: mergeMap,mergeMapTo: mergeMapTo,mergeScan: mergeScan,min: min,multicast: multicast,observeOn: observeOn,onErrorResumeNext: onErrorResumeNext$1,pairwise: pairwise,partition: partition$1,pluck: pluck,publish: publish,publishBehavior: publishBehavior,publishLast: publishLast,publishReplay: publishReplay,race: race$1,reduce: reduce,repeat: repeat,repeatWhen: repeatWhen,retry: retry,retryWhen: retryWhen,refCount: refCount,sample: sample,sampleTime: sampleTime,scan: scan,sequenceEqual: sequenceEqual,share: share,shareReplay: shareReplay,single: single,skip: skip,skipLast: skipLast,skipUntil: skipUntil,skipWhile: skipWhile,startWith: startWith,subscribeOn: subscribeOn,switchAll: switchAll,switchMap: switchMap,switchMapTo: switchMapTo,take: take,takeLast: takeLast,takeUntil: takeUntil,takeWhile: takeWhile,tap: tap,throttle: throttle,throttleTime: throttleTime,throwIfEmpty: throwIfEmpty,timeInterval: timeInterval,timeout: timeout,timeoutWith: timeoutWith,timestamp: timestamp,toArray: toArray,window: window$1,windowCount: windowCount,windowTime: windowTime,windowToggle: windowToggle,windowWhen: windowWhen,withLatestFrom: withLatestFrom,zip: zip$1,zipAll: zipAll});if (typeof self !== "undefined") {
+}var operators=/*#__PURE__*/Object.freeze({__proto__:null,audit: audit,auditTime: auditTime,buffer: buffer,bufferCount: bufferCount,bufferTime: bufferTime,bufferToggle: bufferToggle,bufferWhen: bufferWhen,catchError: catchError,combineAll: combineAll,combineLatest: combineLatest$1,concat: concat$1,concatAll: concatAll,concatMap: concatMap,concatMapTo: concatMapTo,concatWith: concatWith,count: count,debounce: debounce,debounceTime: debounceTime,defaultIfEmpty: defaultIfEmpty,delay: delay,delayWhen: delayWhen,dematerialize: dematerialize,distinct: distinct,distinctUntilChanged: distinctUntilChanged,distinctUntilKeyChanged: distinctUntilKeyChanged,elementAt: elementAt,endWith: endWith,every: every,exhaust: exhaust,exhaustMap: exhaustMap,expand: expand,filter: filter,finalize: finalize,find: find,findIndex: findIndex,first: first,groupBy: groupBy,ignoreElements: ignoreElements,isEmpty: isEmpty,last: last,map: map,mapTo: mapTo,materialize: materialize,max: max,merge: merge$1,mergeAll: mergeAll,mergeMap: mergeMap,flatMap: mergeMap,mergeMapTo: mergeMapTo,mergeScan: mergeScan,min: min,multicast: multicast,observeOn: observeOn,onErrorResumeNext: onErrorResumeNext$1,pairwise: pairwise,partition: partition$1,pluck: pluck,publish: publish,publishBehavior: publishBehavior,publishLast: publishLast,publishReplay: publishReplay,race: race$1,reduce: reduce,repeat: repeat,repeatWhen: repeatWhen,retry: retry,retryWhen: retryWhen,refCount: refCount,sample: sample,sampleTime: sampleTime,scan: scan,sequenceEqual: sequenceEqual,share: share,shareReplay: shareReplay,single: single,skip: skip,skipLast: skipLast,skipUntil: skipUntil,skipWhile: skipWhile,startWith: startWith,subscribeOn: subscribeOn,switchAll: switchAll,switchMap: switchMap,switchMapTo: switchMapTo,take: take,takeLast: takeLast,takeUntil: takeUntil,takeWhile: takeWhile,tap: tap,throttle: throttle,throttleTime: throttleTime,throwIfEmpty: throwIfEmpty,timeInterval: timeInterval,timeout: timeout,timeoutWith: timeoutWith,timestamp: timestamp,toArray: toArray,window: window$1,windowCount: windowCount,windowTime: windowTime,windowToggle: windowToggle,windowWhen: windowWhen,withLatestFrom: withLatestFrom,zip: zip$1,zipAll: zipAll});if (typeof self !== "undefined") {
   init(self);
 } else if (typeof global$1 !== "undefined") {
   init(global$1);
