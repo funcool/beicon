@@ -18,12 +18,13 @@ This a list of posible **breaking changes**:
 
 Other relevant but backward compatible changes:
 
-- Update to RxJS 6.5.3
+- Update to RxJS 7.0.0-alpha.1
 - Add `merge-all` operator.
 - Add `concat-all` operator.
+- Add `buffer-until` operator.
 - Add `first` operator.
 - Add `last` operator.
-- The `merge-map` becomes the main operator name and `flat-name` an alias.
+- The `merge-map` becomes the main operator name and `flat-map` an alias.
 - Add `fmap` alias to `merge-map` operator.
 - Add `finalize` operator.
 - Add `dispose!` function for finalize a subscription.
