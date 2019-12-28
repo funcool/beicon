@@ -221,6 +221,18 @@ rxjs.operators.mergeMapTo = function() {};
  * @this {null}
  * @return {rxjs.Observable}
  */
+rxjs.operators.first = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.last = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
 rxjs.operators.filter = function() {};
 
 /**
@@ -360,6 +372,12 @@ rxjs.operators.distinctUntilChanged = function() {};
  * @return {rxjs.Observable}
  */
 rxjs.operators.bufferCount = function() {};
+
+/**
+ * @this {null}
+ * @return {rxjs.Observable}
+ */
+rxjs.operators.buffer = function() {};
 
 /**
  * @this {null}
