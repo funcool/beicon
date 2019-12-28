@@ -642,6 +642,10 @@
   ([ms start ob] (pipe ob (.bufferTime rxop ms start)))
   ([ms start max ob] (pipe ob (.bufferTime rxop ms start max))))
 
+(defn buffer-until
+  "Buffers the source Observable values until notifier emits."
+  [notifier ob] (pipe ob (.buffer rxop notifier)))
+
 (defn retry
   "Given an optional number of retries and an observable,
   repeats the source observable the specified number of
