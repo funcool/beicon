@@ -8,12 +8,11 @@
                 funcool/promesa {:mvn/version "5.0.0-SNAPSHOT"}}
    :extra-paths ["test" "dev-resources"]}
 
-  :ancient {:main-opts ["-m" "deps-ancient.deps-ancient"]
-            :extra-deps {deps-ancient {:mvn/version "RELEASE"}}}
+  :ancient
+  {:main-opts ["-m" "deps-ancient.deps-ancient"],
+   :extra-deps {deps-ancient/deps-ancient {:mvn/version "RELEASE"}}}
 
-  :deploy {:extra-deps {badigeon/badigeon {:git/url "https://github.com/EwenG/badigeon.git"
-                                           :sha "db25a8f7053dec65afeb7fb0d1a5351dcdbe78bd"
-                                           :tag "0.0.8"}}
-           :main-opts ["deploy.clj"]}}}
-
+  :jar
+  {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
+   :main-opts ["-m" "hf.depstar.jar", "target/beicon.jar"]}}}
 

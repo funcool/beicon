@@ -1,8 +1,6 @@
 # Changelog #
 
-## Version 6.0.0 ##
-
-Date: unreleased
+## Version 2020.03.23-1 ##
 
 This a list of posible **breaking changes**:
 
