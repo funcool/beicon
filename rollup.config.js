@@ -9,10 +9,10 @@ const plugins = [
     'process.env.NODE_ENV': JSON.stringify('production')
   }),
 
-  babel({
-    exclude: 'node_modules/**',
-    sourceMap: false
-  }),
+  // babel({
+  //   exclude: 'node_modules/**',
+  //   sourceMap: false
+  // }),
 
   resolve({
     mainFields: ['module', 'main'],
@@ -36,6 +36,9 @@ export default [{
     file: './assets/rxjs/rxjs.bundle.js',
     compact: true,
     format: 'iife',
+    indent: true,
+    name: "rxjs",
+    exports: "named"
   },
   plugins: plugins
 }];

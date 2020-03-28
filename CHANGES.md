@@ -1,5 +1,10 @@
 # Changelog #
 
+## Version 2020.03.28-1 ##
+
+- Minor internal assets loading changes.
+
+
 ## Version 2020.03.23-1 ##
 
 This a list of posible **breaking changes**:

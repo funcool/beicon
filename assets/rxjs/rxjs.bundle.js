@@ -1,6 +1,4 @@
-(function(){'use strict';var global$1 = (typeof global !== "undefined" ? global :
-            typeof self !== "undefined" ? self :
-            typeof window !== "undefined" ? window : {});/*! *****************************************************************************
+var rxjs=(function(exports){'use strict';/*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the
@@ -6659,7 +6657,7 @@ var Timestamp = (function () {
 }
 function toArray() {
     return reduce(toArrayReducer, []);
-}function window$1(windowBoundaries) {
+}function window(windowBoundaries) {
     return function windowOperatorFunction(source) {
         return source.lift(new WindowOperator(windowBoundaries));
     };
@@ -7218,18 +7216,5 @@ var WithLatestFromSubscriber = (function (_super) {
     };
 }function zipAll(project) {
     return function (source) { return source.lift(new ZipOperator(project)); };
-}var operators=/*#__PURE__*/Object.freeze({__proto__:null,audit: audit,auditTime: auditTime,buffer: buffer,bufferCount: bufferCount,bufferTime: bufferTime,bufferToggle: bufferToggle,bufferWhen: bufferWhen,catchError: catchError,combineAll: combineAll,combineLatest: combineLatest$1,concat: concat$1,concatAll: concatAll,concatMap: concatMap,concatMapTo: concatMapTo,concatWith: concatWith,count: count,debounce: debounce,debounceTime: debounceTime,defaultIfEmpty: defaultIfEmpty,delay: delay,delayWhen: delayWhen,dematerialize: dematerialize,distinct: distinct,distinctUntilChanged: distinctUntilChanged,distinctUntilKeyChanged: distinctUntilKeyChanged,elementAt: elementAt,endWith: endWith,every: every,exhaust: exhaust,exhaustMap: exhaustMap,expand: expand,filter: filter,finalize: finalize,find: find,findIndex: findIndex,first: first,groupBy: groupBy,ignoreElements: ignoreElements,isEmpty: isEmpty,last: last,map: map,mapTo: mapTo,materialize: materialize,max: max,merge: merge$1,mergeAll: mergeAll,mergeMap: mergeMap,flatMap: mergeMap,mergeMapTo: mergeMapTo,mergeScan: mergeScan,min: min,multicast: multicast,observeOn: observeOn,onErrorResumeNext: onErrorResumeNext$1,pairwise: pairwise,partition: partition$1,pluck: pluck,publish: publish,publishBehavior: publishBehavior,publishLast: publishLast,publishReplay: publishReplay,race: race$1,reduce: reduce,repeat: repeat,repeatWhen: repeatWhen,retry: retry,retryWhen: retryWhen,refCount: refCount,sample: sample,sampleTime: sampleTime,scan: scan,sequenceEqual: sequenceEqual,share: share,shareReplay: shareReplay,single: single,skip: skip,skipLast: skipLast,skipUntil: skipUntil,skipWhile: skipWhile,startWith: startWith,subscribeOn: subscribeOn,switchAll: switchAll,switchMap: switchMap,switchMapTo: switchMapTo,take: take,takeLast: takeLast,takeUntil: takeUntil,takeWhile: takeWhile,tap: tap,throttle: throttle,throttleTime: throttleTime,throwIfEmpty: throwIfEmpty,timeInterval: timeInterval,timeout: timeout,timeoutWith: timeoutWith,timestamp: timestamp,toArray: toArray,window: window$1,windowCount: windowCount,windowTime: windowTime,windowToggle: windowToggle,windowWhen: windowWhen,withLatestFrom: withLatestFrom,zip: zip$1,zipAll: zipAll});if (typeof self !== "undefined") {
-  init(self);
-} else if (typeof global$1 !== "undefined") {
-  init(global$1);
-} else if (typeof window !== "undefined") {
-  init(window);
-} else {
-  throw new Error("unsupported execution environment");
-}
-
-function init(g) {
-  g.rxjs = Object.assign({}, rxjs, {
-    operators: operators
-  });
-}}());
+}var operators=/*#__PURE__*/Object.freeze({__proto__:null,audit: audit,auditTime: auditTime,buffer: buffer,bufferCount: bufferCount,bufferTime: bufferTime,bufferToggle: bufferToggle,bufferWhen: bufferWhen,catchError: catchError,combineAll: combineAll,combineLatest: combineLatest$1,concat: concat$1,concatAll: concatAll,concatMap: concatMap,concatMapTo: concatMapTo,concatWith: concatWith,count: count,debounce: debounce,debounceTime: debounceTime,defaultIfEmpty: defaultIfEmpty,delay: delay,delayWhen: delayWhen,dematerialize: dematerialize,distinct: distinct,distinctUntilChanged: distinctUntilChanged,distinctUntilKeyChanged: distinctUntilKeyChanged,elementAt: elementAt,endWith: endWith,every: every,exhaust: exhaust,exhaustMap: exhaustMap,expand: expand,filter: filter,finalize: finalize,find: find,findIndex: findIndex,first: first,groupBy: groupBy,ignoreElements: ignoreElements,isEmpty: isEmpty,last: last,map: map,mapTo: mapTo,materialize: materialize,max: max,merge: merge$1,mergeAll: mergeAll,mergeMap: mergeMap,flatMap: mergeMap,mergeMapTo: mergeMapTo,mergeScan: mergeScan,min: min,multicast: multicast,observeOn: observeOn,onErrorResumeNext: onErrorResumeNext$1,pairwise: pairwise,partition: partition$1,pluck: pluck,publish: publish,publishBehavior: publishBehavior,publishLast: publishLast,publishReplay: publishReplay,race: race$1,reduce: reduce,repeat: repeat,repeatWhen: repeatWhen,retry: retry,retryWhen: retryWhen,refCount: refCount,sample: sample,sampleTime: sampleTime,scan: scan,sequenceEqual: sequenceEqual,share: share,shareReplay: shareReplay,single: single,skip: skip,skipLast: skipLast,skipUntil: skipUntil,skipWhile: skipWhile,startWith: startWith,subscribeOn: subscribeOn,switchAll: switchAll,switchMap: switchMap,switchMapTo: switchMapTo,take: take,takeLast: takeLast,takeUntil: takeUntil,takeWhile: takeWhile,tap: tap,throttle: throttle,throttleTime: throttleTime,throwIfEmpty: throwIfEmpty,timeInterval: timeInterval,timeout: timeout,timeoutWith: timeoutWith,timestamp: timestamp,toArray: toArray,window: window,windowCount: windowCount,windowTime: windowTime,windowToggle: windowToggle,windowWhen: windowWhen,withLatestFrom: withLatestFrom,zip: zip$1,zipAll: zipAll});const rxjsMain = rxjs;
+const rxjsOperators = operators;exports.rxjsMain=rxjsMain;exports.rxjsOperators=rxjsOperators;return exports;}({}));

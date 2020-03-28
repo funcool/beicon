@@ -6,8 +6,8 @@
   (:require [beicon.impl.rxjs]
             [cljs.core :as c]))
 
-(def rxop (.-operators js/rxjs))
-(def rx js/rxjs)
+(def rxop (unchecked-get js/rxjs "rxjsOperators"))
+(def rx (unchecked-get js/rxjs "rxjsMain"))
 
 (def ^:const Observable (.-Observable rx))
 (def ^:const Subject (.-Subject rx))
