@@ -4,10 +4,12 @@
                             take take-while map-indexed concat empty
                             delay range throw do trampoline])
   (:require [beicon.impl.rxjs]
+            [beicon.impl.rxjs-operators]
             [cljs.core :as c]))
 
-(def rxop (unchecked-get js/rxjs "rxjsOperators"))
-(def rx (unchecked-get js/rxjs "rxjsMain"))
+
+(def rx js/rxjsMain)
+(def rxop js/rxjsOperators)
 
 (def ^:const Observable (.-Observable rx))
 (def ^:const Subject (.-Subject rx))

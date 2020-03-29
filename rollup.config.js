@@ -9,10 +9,10 @@ const plugins = [
     'process.env.NODE_ENV': JSON.stringify('production')
   }),
 
-  // babel({
-  //   exclude: 'node_modules/**',
-  //   sourceMap: false
-  // }),
+  babel({
+    exclude: 'node_modules/**',
+    sourceMap: false
+  }),
 
   resolve({
     mainFields: ['module', 'main'],
@@ -31,14 +31,25 @@ const plugins = [
 ];
 
 export default [{
-  input: "./assets/rxjs/rxjs.js",
+  input: "./assets/rxjs/rxjs.main.js",
   output: {
-    file: './assets/rxjs/rxjs.bundle.js',
+    file: './assets/rxjs/rxjs.main.bundle.js',
     compact: true,
     format: 'iife',
     indent: true,
-    name: "rxjs",
-    exports: "named"
+    name: "rxjsMain",
+    exports: "default"
+  },
+  plugins: plugins
+}, {
+  input: "./assets/rxjs/rxjs.operators.js",
+  output: {
+    file: './assets/rxjs/rxjs.operators.bundle.js',
+    compact: true,
+    format: 'iife',
+    indent: true,
+    name: "rxjsOperators",
+    exports: "default"
   },
   plugins: plugins
 }];
