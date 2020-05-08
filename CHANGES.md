@@ -1,5 +1,10 @@
 # Changelog #
 
+## Version 2020.05.08-1 ##
+
+- Add `switch-map` operator.
+
+
 ## Version 2020.03.29-1 ##
 
 - Minor internal assets loading changes.

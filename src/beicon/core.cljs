@@ -432,6 +432,10 @@
   [f ob]
   (pipe ob (.flatMap rxop #(f %))))
 
+(defn switch-map
+  [f obj]
+  (pipe obj (.switchMap rxop #(f %))))
+
 ;; Aliases
 (def fmap merge-map)
 (def flat-map merge-map)
