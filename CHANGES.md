@@ -1,5 +1,11 @@
 # Changelog #
 
+## Version 2020.05.08-2 ##
+
+- Add `subs` helper as alternative to `subscribe` that receives the
+  observable in the last position of arguments.
+
+
 ## Version 2020.05.08-1 ##
 
 - Add `switch-map` operator.

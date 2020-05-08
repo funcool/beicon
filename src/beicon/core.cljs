@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [true? map filter reduce merge repeat first
                             last mapcat repeatedly zip dedupe drop
                             take take-while map-indexed concat empty
-                            delay range throw do trampoline])
+                            delay range throw do trampoline subs])
   (:require [beicon.impl.rxjs]
             [beicon.impl.rxjs-operators]
             [cljs.core :as c]))
@@ -175,6 +175,12 @@
                                (if (fn? ef) ef noop)
                                (if (fn? cf) cf noop))]
      (wrap-disposable (.subscribe ob observer)))))
+
+(defn subs
+  "A specialized version of `subscribe` with inverted arguments."
+  ([nf ob] (subscribe ob nf nil nil))
+  ([nf ef ob] (subscribe ob nf ef nil))
+  ([nf ef cf ob] (subscribe ob nf ef cf)))
 
 ;; Alias
 (def sub! subscribe)
