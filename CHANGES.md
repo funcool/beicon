@@ -1,5 +1,10 @@
 # Changelog #
 
+## Version 2020.12.20-1 ##
+
+- Update to rxjs 7.0.0-beta.9
+- Fix minor incompatibilities and unsafe usage of rxjs api.
+
 ## Version 2020.05.08-2 ##
 
 - Add `subs` helper as alternative to `subscribe` that receives the

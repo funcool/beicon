@@ -1,8 +1,9 @@
-import babel from 'rollup-plugin-babel';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import globals from 'rollup-plugin-node-globals';
-import replace from 'rollup-plugin-replace';
+import {babel} from '@rollup/plugin-babel';
+import {nodeResolve} from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
+
+// import globals from 'rollup-plugin-node-globals';
 
 const plugins = [
   replace({
@@ -11,10 +12,11 @@ const plugins = [
 
   babel({
     exclude: 'node_modules/**',
-    sourceMap: false
+    sourceMap: false,
+    babelHelpers: 'bundled'
   }),
 
-  resolve({
+  nodeResolve({
     mainFields: ['module', 'main'],
     // preferBuiltins: false,
     browser: true
@@ -26,8 +28,6 @@ const plugins = [
     ignoreGlobal: false,  // Default: false
     sourceMap: false,  // Default: true
   }),
-
-  globals(),
 ];
 
 export default [{

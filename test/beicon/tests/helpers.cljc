@@ -6,11 +6,13 @@
 #?(:clj
    (defmacro with-timeout
      [ms & body]
-     `(js/setTimeout
-       (fn []
-         (do
-           ~@body))
-       ~ms)))
+     `(do
+        (js/setTimeout
+         (fn []
+           (do
+             ~@body))
+         ~ms)
+        nil)))
 
 #?(:cljs
    (defn drain!

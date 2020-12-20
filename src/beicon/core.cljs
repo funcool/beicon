@@ -123,12 +123,12 @@
               (reduced? v) (do
                              (sink subs @v)
                              (.complete subs))))]
-    (Observable.
-     (fn [subs]
-       (try
-         (sf (partial sink subs))
-         (catch js/Error e
-           (.error subs e)))))))
+    (.create ^js Observable
+             (fn [subs]
+               (try
+                 (sf (partial sink subs))
+                 (catch js/Error e
+                   (.error subs e)))))))
 
 ;; --- Observable Subscription
 
@@ -171,9 +171,10 @@
   ([ob nf] (subscribe ob nf nil nil))
   ([ob nf ef] (subscribe ob nf ef nil))
   ([ob nf ef cf]
-   (let [observer (Subscriber. (if (fn? nf) nf noop)
-                               (if (fn? ef) ef noop)
-                               (if (fn? cf) cf noop))]
+   (let [observer (.create ^js Subscriber
+                           (if (fn? nf) nf noop)
+                           (if (fn? ef) ef noop)
+                           (if (fn? cf) cf noop))]
      (wrap-disposable (.subscribe ob observer)))))
 
 (defn subs

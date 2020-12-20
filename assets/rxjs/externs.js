@@ -9,6 +9,13 @@ var rxjsOperators = function() {};
  */
 rxjsMain.Observable = function() {};
 
+
+/**
+ * @this {null}
+ * @return {rxjsMain.Observable}
+ */
+rxjsMain.Observable.create = function() {};
+
 /**
  * @constructor
  * @extends {rxjsMain.Observable}
@@ -41,6 +48,14 @@ rxjsMain.Scheduler = function() {};
  * @constructor
  */
 rxjsMain.Subscription = function() {};
+
+
+/**
+ * @this {null}
+ * @return {rxjsMain.Subscription}
+ */
+rxjsMain.Subscription.create = function() {};
+
 
 /**
  * @const
