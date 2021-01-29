@@ -270,7 +270,9 @@
   "Creates an observable from js arrays, clojurescript collections, and
   promise instance."
   [v]
-  (.from rx v))
+  (if (nil? v)
+    (.empty rx)
+    (.from rx v)))
 
 (defn from-atom
   [atm]
