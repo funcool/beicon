@@ -7,7 +7,6 @@
             [beicon.impl.rxjs-operators]
             [cljs.core :as c]))
 
-
 (def rx js/rxjsMain)
 (def rxop js/rxjsOperators)
 
@@ -293,6 +292,15 @@
   in end state."
   []
   (.empty rx))
+
+(defn if-empty
+  "Emits a given value if the source Observable completes without
+  emitting any next value, otherwise mirrors the source Observable."
+  [default ob]
+  (pipe ob (.defaultIfEmpty rxop default)))
+
+;; Alias
+(def default-if-empty if-empty)
 
 (defn throw
   [e]

@@ -1,5 +1,11 @@
 # Changelog #
 
+## Version 2021.03.31-1 ##
+
+- Add `if-empty` operator.
+- Update to rxjs 7.0.0-beta.13
+
+
 ## Version 2021.01.29-1 ##
 
 - Accept `nil` on `from` function.

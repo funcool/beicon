@@ -208,3 +208,4 @@ rxjsOperators.share = function() {};
 rxjsOperators.ignoreElements = function() {};
 rxjsOperators.subscribeOn = function() {};
 rxjsOperators.observeOn = function() {};
+rxjsOperators.defaultIfEmpty = function() {};

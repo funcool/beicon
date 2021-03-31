@@ -7,7 +7,8 @@ import replace from '@rollup/plugin-replace';
 
 const plugins = [
   replace({
-    'process.env.NODE_ENV': JSON.stringify('production')
+    'process.env.NODE_ENV': JSON.stringify('production'),
+    preventAssignment: true
   }),
 
   babel({
