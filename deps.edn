@@ -13,6 +13,8 @@
    :extra-deps {deps-ancient/deps-ancient {:mvn/version "RELEASE"}}}
 
   :jar
-  {:extra-deps {seancorfield/depstar {:mvn/version "RELEASE"}}
-   :main-opts ["-m" "hf.depstar.jar", "target/beicon.jar"]}}}
+  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.206"}}
+   :exec-fn hf.depstar/jar
+   :exec-args {:jar "target/beicon.jar"}}}}
+
 
