@@ -1,5 +1,31 @@
 # Changelog #
 
+## Version 2021.04.09-1 ##
+
+**BREAKING CHANGE:**
+
+- The `create` factory function is simplified, and IObservableValue is
+  removed. The subscription object is passed as is to the factory
+  function.
+
+
+Before:
+
+```clojure
+(rx/create (fn [sink]
+             (sink 1)
+             (sink (reduced 2))))
+```
+
+Now:
+
+```clojure
+(rx/create (fn [subs]
+             (rx/push! subs 1)
+             (rx/push! subs 2)
+             (rx/end! subs)))
+```
+
 ## Version 2021.03.31-1 ##
 
 - Add `if-empty` operator.

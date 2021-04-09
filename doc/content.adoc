@@ -139,9 +139,10 @@ is intended to be used for building other kinds of constructors.
 [source, clojure]
 ----
 (def stream
-  (rx/create (fn [sink]
-               (sink 1)          ;; next with `1` as value
-               (sink (rx/end 2)) ;; next with `2` as value and end the stream
+  (rx/create (fn [subs]
+               (rx/push! subs 1)          ;; next with `1` as value
+               (rx/push! subs 2)          ;; next with `2` as value
+               (rx/end! subs)             ;; end the stream
                (fn []
                  ;; function called on unsubscription
                  ))))
@@ -150,16 +151,6 @@ is intended to be used for building other kinds of constructors.
 ;; ==> v: 1
 ;; ==> v: 2
 ----
-
-This is implemented using protocols to make it flexible and easily
-extensible by the user. This is how the default implementation
-behaves:
-
-- Exceptions or exception instances trigger the error termination of stream.
-- `(rx/end value)` sends the unwrapped value to the stream, then terminates stream.
-- `rx/end` as value triggers the stream termination.
-- `nil` triggers stream validation.
-- any other values are valid values for sending to the stream.
 
 
 == Consuming streams

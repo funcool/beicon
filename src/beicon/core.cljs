@@ -74,60 +74,17 @@
 
 ;; --- Observables Constructor
 
-(defprotocol IObservableValue
-  (-end? [_] "Returns true if is end value.")
-  (-error? [_] "Returns true if is end value.")
-  (-next? [_] "Returns true if is end value."))
-
-(def end
-  "Mark a value as a final value of the stream."
-  cljs.core/reduced)
-
-(do
-  (extend-type default
-    IObservableValue
-    (-next? [_] true)
-    (-error? [_] false)
-    (-end? [_] false))
-
-  (extend-type cljs.core.Reduced
-    IObservableValue
-    (-next? [_] false)
-    (-error? [_] false)
-    (-end? [_] false))
-
-  (extend-type js/Error
-    IObservableValue
-    (-next? [_] false)
-    (-error? [_] true)
-    (-end? [_] false))
-
-  (extend-type cljs.core.ExceptionInfo
-    IObservableValue
-    (-next? [_] false)
-    (-error? [_] true)
-    (-end? [_] false)))
-
 (defn create
   "Creates an observable sequence from a specified subscribe method
   implementation."
   [sf]
   {:pre [(fn? sf)]}
-  (letfn [(sink [subs v]
-            (cond
-              (identical? end v) (.complete subs)
-              (-next? v) (.next subs v)
-              (-error? v) (.error subs v)
-              (-end? v) (.complete subs)
-              (reduced? v) (do
-                             (sink subs @v)
-                             (.complete subs))))]
-    (.create ^js Observable
-             (fn [subs]
-               (try
-                 (sf (partial sink subs))
-                 (catch js/Error e
-                   (.error subs e)))))))
+  (.create ^js Observable
+           (fn [subs]
+             (try
+               (sf subs)
+               (catch :default e
+                 (.error subs e))))))
 
 ;; --- Observable Subscription
 
@@ -228,17 +185,17 @@
 (defn push!
   "Pushes the given value to the bus stream."
   [b v]
-  (.next b v))
+  (.next ^js b v))
 
 (defn error!
   "Pushes the given error to the bus stream."
   [b e]
-  (.error b e))
+  (.error ^js b e))
 
 (defn end!
   "Ends the given bus stream."
   [b]
-  (.complete b))
+  (.complete ^js b))
 
 ;; --- Observable Factory Helpers
 
@@ -561,12 +518,9 @@
    (pipe ob (.catchError rxop
                          (fn [error source]
                            (let [value (handler error source)]
-                             (cond
-                               (observable? value) value
-                               (nil? value) (empty)
-                               (-end? value) (empty)
-                               (-error? value) (throw value)
-                               (-next? value) (of value)))))))
+                             (if (observable? value)
+                               value
+                               (empty)))))))
   ([pred handler ob]
    (catch (fn [value]
             (if (pred value)
@@ -682,21 +636,21 @@
   [xform ob]
   (when-not (observable? ob)
     (throw (ex-info "Only observables are supported" {})))
-  (letfn [(sink-step [sink]
+  (letfn [(subs-step [subs]
             (fn
-              ([r] (sink end) r)
-              ([_ input] (sink input) input)))]
-    (create (fn [sink]
-              (let [xsink (xform (sink-step sink))
-                    step (fn [input]
-                           (let [v (xsink nil input)]
-                             (when (reduced? v)
-                               (xsink @v))))
+              ([r] (end! subs) r)
+              ([_ input] (push! subs input) input)))]
+    (create (fn [subs]
+              (let [xsubs (xform (subs-step subs))
+                    step  (fn [input]
+                            (let [v (xsubs nil input)]
+                              (when (reduced? v)
+                                (xsubs @v))))
                     disposable (on-value ob step)]
-                (on-complete ob #(do (xsink nil)
-                                     (sink end)))
+                (on-complete ob #(do (xsubs nil)
+                                     (end! subs)))
                 (fn []
-                  (cancel! disposable)))))))
+                  (dispose! disposable)))))))
 
 ;; --- Schedulers
 
