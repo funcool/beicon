@@ -1,5 +1,10 @@
 # Changelog #
 
+## Version 2021.04.12-1 ##
+
+- Fix `from-atom` factory.
+
+
 ## Version 2021.04.09-1 ##
 
 **BREAKING CHANGE:**

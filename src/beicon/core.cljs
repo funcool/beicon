@@ -231,13 +231,13 @@
     (.from rx v)))
 
 (defn from-atom
-  [atm]
-  (create (fn [sink]
-            (let [key (keyword (gensym "beicon"))]
-              (add-watch atm key (fn [_ _ _ val]
-                                   (sink val)))
-              (fn []
-                (remove-watch atm key))))))
+  ([atm] (from-atom atm nil))
+  ([atm {:keys [emit-current-value?] :or {emit-current-value? false}}]
+   (create (fn [subs]
+             (let [key (keyword (gensym "beicon"))]
+               (when emit-current-value? (push! subs @atm))
+               (add-watch atm key (fn [_ _ _ val] (push! subs val)))
+               (fn [] (remove-watch atm key)))))))
 
 (defn from-event
   "Creates an Observable by attaching an event listener to an event target"
