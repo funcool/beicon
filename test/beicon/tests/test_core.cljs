@@ -69,10 +69,10 @@
   (t/async done
     (let [s (s/create (fn [sink]
                         (with-timeout 10
-                          (rx/push! sink 1)
-                          (rx/push! sink 2)
-                          (rx/push! sink 3)
-                          (rx/end! sink))))]
+                          (s/push! sink 1)
+                          (s/push! sink 2)
+                          (s/push! sink 3)
+                          (s/end! sink))))]
       (t/is (s/observable? s))
       (drain! s #(t/is (= % [1 2 3])))
       (s/on-end s done))))
@@ -288,8 +288,10 @@
   (t/async done
     (let [s1 (s/delay 10 (s/from [9]))
           s2 (s/delay 10 (s/from [2]))
-          s3 (s/combine-latest s2 s1)
-          s3 (s/map vec s3)]
+          s3 (->> s1
+                  (s/combine-latest s2)
+                  (s/map vec)
+                  #_(s/tap #(prn "TMP" %)))]
       (t/is (s/observable? s3))
       (drain! s3 #(t/is (= % [[9 2]])))
       (s/on-end s3 done))))

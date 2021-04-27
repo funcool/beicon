@@ -653,7 +653,6 @@
   (pipe ob (fn [source]
              (->> source
                   (combine-latest (timer ms))
-                  (tap #(prn "KAKA" %))
                   (map c/first)))))
 
 (defn interval
