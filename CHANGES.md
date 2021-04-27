@@ -1,9 +1,10 @@
 # Changelog #
 
-## Version 2021.04.27-1 ##
+## Version 2021.04.27-2 ##
 
-- Add the ability to pass a vector of observables to `combine-latest` operator.
-- Remove the arity 3 from `combine-latest` operator (**breaking change**).
+- Replace `combine-latest` operator with `combine-latest-with` (now it
+  does not accepts the selector/join function).
+- Add new `combine-latest` constructor.
 - Add the `delay-at-least` operator.
 - Update documentation
 

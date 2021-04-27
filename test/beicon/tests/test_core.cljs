@@ -289,7 +289,7 @@
     (let [s1 (s/delay 10 (s/from [9]))
           s2 (s/delay 10 (s/from [2]))
           s3 (->> s1
-                  (s/combine-latest s2)
+                  (s/combine-latest-with s2)
                   (s/map vec)
                   #_(s/tap #(prn "TMP" %)))]
       (t/is (s/observable? s3))
@@ -300,11 +300,37 @@
   (t/async done
     (let [s1 (s/delay 10 (s/from [9]))
           s2 (s/delay 10 (s/from [2]))
+          s3 (->> (s/combine-latest s1 s2)
+                  (s/map vec)
+                  (s/delay-at-least 100))]
+      (t/is (s/observable? s3))
+      (drain! s3 #(t/is (= % [[9 2]])))
+      (s/on-end s3 done))))
+
+(t/deftest observable-combine-latest-3
+  (t/async done
+    (let [s1 (s/delay 10 (s/from [9]))
+          s2 (s/delay 10 (s/from [2]))
           s3 (->> (s/combine-latest [s1 s2])
                   (s/map vec)
                   (s/delay-at-least 100))]
       (t/is (s/observable? s3))
       (drain! s3 #(t/is (= % [[9 2]])))
+      (s/on-end s3 done))))
+
+(t/deftest observable-combine-latest-4
+  (t/async done
+    (let [s1 (s/delay 10 (s/from [9]))
+          s2 (s/delay 10 (s/from [2]))
+          s3 (s/delay 10 (s/from [1]))
+          s4 (s/delay 10 (s/from [3]))
+          s5 (s/delay 10 (s/from [4]))
+          s6 (s/delay 10 (s/from [5]))
+          s3 (->> (s/combine-latest s1 s2 s3 s4 s5 s6)
+                  (s/map vec)
+                  (s/delay-at-least 100))]
+      (t/is (s/observable? s3))
+      (drain! s3 #(t/is (= % [[9 2 1 3 4 5]])))
       (s/on-end s3 done))))
 
 (t/deftest observable-catch-1

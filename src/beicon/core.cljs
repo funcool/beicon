@@ -475,11 +475,32 @@
 (defn combine-latest
   "Combines multiple Observables to create an Observable whose values
   are calculated from the latest values of each of its input
-  Observables."
+  Observables (constructor)."
   ([obs]
-   (.combineLatest rx (into-array obs)))
-  ([other ob]
-   (pipe ob (.combineLatestWith rxop other))))
+   (cond
+     (array? obs)
+     (.combineLatest rx obs)
+
+     (sequential? obs)
+     (.combineLatest rx (into-array obs))
+
+     :else
+     (throw (ex-info "Invalid argument" {:type ::invalid-argument}))))
+  ([o1 o2]
+   (.combineLatest rx o1 o2))
+  ([o1 o2 o3]
+   (.combineLatest rx o1 o2 o3))
+  ([o1 o2 o3 o4]
+   (.combineLatest rx o1 o2 o3 o4))
+  ([o1 o2 o3 o4 & other]
+   (combine-latest (into-array (into [o1 o2 o3 o4] other)))))
+
+(defn combine-latest-with
+  "Combines multiple Observables to create an Observable whose values
+  are calculated from the latest values of each of its input
+  Observables (operator)."
+  [other ob]
+  (pipe ob (.combineLatestWith rxop other)))
 
 (defn catch
   "Continues an observable sequence that is terminated
@@ -652,7 +673,7 @@
   [ms ob]
   (pipe ob (fn [source]
              (->> source
-                  (combine-latest (timer ms))
+                  (combine-latest-with (timer ms))
                   (map c/first)))))
 
 (defn interval
