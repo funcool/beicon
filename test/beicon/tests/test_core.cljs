@@ -69,9 +69,10 @@
   (t/async done
     (let [s (s/create (fn [sink]
                         (with-timeout 10
-                          (sink 1)
-                          (sink 2)
-                          (sink (s/end 3)))))]
+                          (rx/push! sink 1)
+                          (rx/push! sink 2)
+                          (rx/push! sink 3)
+                          (rx/end! sink))))]
       (t/is (s/observable? s))
       (drain! s #(t/is (= % [1 2 3])))
       (s/on-end s done))))
@@ -119,8 +120,8 @@
   (t/async done
     (let [s (s/create (fn [sink]
                         (with-timeout 10
-                          (sink 1)
-                          (sink (ex-info "oh noes" {})))))]
+                          (s/push! sink 1)
+                          (s/error! sink (ex-info "oh noes" {})))))]
       (t/is (s/observable? s))
       (drain! s
               #(t/is (= % [1]))
@@ -260,15 +261,15 @@
 (t/deftest observable-retry
   (t/async done
     (let [errored? (volatile! false)
-          s (s/create (fn [sink]
-                        (if @errored?
-                          (do
-                            (sink 2)
-                            (sink 3)
-                            (sink s/end))
-                          (do
-                            (vreset! errored? true)
-                            (sink (js/Error.))))))
+          s        (s/create (fn [sink]
+                               (if @errored?
+                                 (do
+                                   (s/push! sink 2)
+                                   (s/push! sink 3)
+                                   (s/end! sink))
+                                 (do
+                                   (vreset! errored? true)
+                                   (s/error! sink (js/Error.))))))
              rs (s/retry 2 s)]
       (t/is (s/observable? rs))
       (drain! rs #(t/is (= % [2 3])))
@@ -287,7 +288,19 @@
   (t/async done
     (let [s1 (s/delay 10 (s/from [9]))
           s2 (s/delay 10 (s/from [2]))
-          s3 (s/combine-latest s2 s1)]
+          s3 (s/combine-latest s2 s1)
+          s3 (s/map vec s3)]
+      (t/is (s/observable? s3))
+      (drain! s3 #(t/is (= % [[9 2]])))
+      (s/on-end s3 done))))
+
+(t/deftest observable-combine-latest-2
+  (t/async done
+    (let [s1 (s/delay 10 (s/from [9]))
+          s2 (s/delay 10 (s/from [2]))
+          s3 (->> (s/combine-latest [s1 s2])
+                  (s/map vec)
+                  (s/delay-at-least 100))]
       (t/is (s/observable? s3))
       (drain! s3 #(t/is (= % [[9 2]])))
       (s/on-end s3 done))))

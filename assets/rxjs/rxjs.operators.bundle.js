@@ -121,6 +121,22 @@ function __spreadArray(to, from) {
     return to;
 }
 
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+    function fulfill(value) { resume("next", value); }
+    function reject(value) { resume("throw", value); }
+    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+}
+
 function __asyncValues(o) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var m = o[Symbol.asyncIterator], i;
@@ -609,10 +625,6 @@ var iterator = getSymbolIterator();function caughtSchedule(subscriber, scheduler
         }));
         return function () { return isFunction(iterator$1 === null || iterator$1 === void 0 ? void 0 : iterator$1.return) && iterator$1.return(); };
     });
-}function isInteropObservable(input) {
-    return isFunction(input[observable]);
-}function isIterable(input) {
-    return isFunction(input === null || input === void 0 ? void 0 : input[iterator]);
 }function scheduleAsyncIterable(input, scheduler) {
     if (!input) {
         throw new Error('Iterable cannot be null');
@@ -636,10 +648,50 @@ var iterator = getSymbolIterator();function caughtSchedule(subscriber, scheduler
         }));
         return sub;
     });
+}function isInteropObservable(input) {
+    return isFunction(input[observable]);
+}function isIterable(input) {
+    return isFunction(input === null || input === void 0 ? void 0 : input[iterator]);
 }function isAsyncIterable(obj) {
     return Symbol.asyncIterator && isFunction(obj === null || obj === void 0 ? void 0 : obj[Symbol.asyncIterator]);
 }function createInvalidObservableTypeError(input) {
-    return new TypeError("You provided " + (input !== null && typeof input === 'object' ? 'an invalid object' : "'" + input + "'") + " where a stream was expected. You can provide an Observable, Promise, Array, AsyncIterable, or Iterable.");
+    return new TypeError("You provided " + (input !== null && typeof input === 'object' ? 'an invalid object' : "'" + input + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
+}function readableStreamLikeToAsyncGenerator(readableStream) {
+    return __asyncGenerator(this, arguments, function readableStreamLikeToAsyncGenerator_1() {
+        var reader, _a, value, done;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    reader = readableStream.getReader();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, , 9, 10]);
+                    _b.label = 2;
+                case 2:
+                    return [4, __await(reader.read())];
+                case 3:
+                    _a = _b.sent(), value = _a.value, done = _a.done;
+                    if (!done) return [3, 5];
+                    return [4, __await(void 0)];
+                case 4: return [2, _b.sent()];
+                case 5: return [4, __await(value)];
+                case 6: return [4, _b.sent()];
+                case 7:
+                    _b.sent();
+                    return [3, 2];
+                case 8: return [3, 10];
+                case 9:
+                    reader.releaseLock();
+                    return [7];
+                case 10: return [2];
+            }
+        });
+    });
+}
+function isReadableStreamLike(obj) {
+    return isFunction(obj === null || obj === void 0 ? void 0 : obj.getReader);
+}function scheduleReadableStreamLike(input, scheduler) {
+    return scheduleAsyncIterable(readableStreamLikeToAsyncGenerator(input), scheduler);
 }function scheduled(input, scheduler) {
     if (input != null) {
         if (isInteropObservable(input)) {
@@ -656,6 +708,9 @@ var iterator = getSymbolIterator();function caughtSchedule(subscriber, scheduler
         }
         if (isIterable(input)) {
             return scheduleIterable(input, scheduler);
+        }
+        if (isReadableStreamLike(input)) {
+            return scheduleReadableStreamLike(input, scheduler);
         }
     }
     throw createInvalidObservableTypeError(input);
@@ -681,6 +736,9 @@ function innerFrom(input) {
         }
         if (isIterable(input)) {
             return fromIterable(input);
+        }
+        if (isReadableStreamLike(input)) {
+            return fromReadableStreamLike(input);
         }
     }
     throw createInvalidObservableTypeError(input);
@@ -741,6 +799,9 @@ function fromAsyncIterable(asyncIterable) {
         process(asyncIterable, subscriber).catch(function (err) { return subscriber.error(err); });
     });
 }
+function fromReadableStreamLike(readableStream) {
+    return fromAsyncIterable(readableStreamLikeToAsyncGenerator(readableStream));
+}
 function process(asyncIterable, subscriber) {
     var asyncIterable_1, asyncIterable_1_1;
     var e_2, _a;
@@ -787,7 +848,7 @@ function process(asyncIterable, subscriber) {
     });
 }var OperatorSubscriber = (function (_super) {
     __extends(OperatorSubscriber, _super);
-    function OperatorSubscriber(destination, onNext, onError, onComplete, onFinalize) {
+    function OperatorSubscriber(destination, onNext, onComplete, onError, onFinalize) {
         var _this = _super.call(this, destination) || this;
         _this.onFinalize = onFinalize;
         _this._next = onNext
@@ -860,9 +921,9 @@ function process(asyncIterable, subscriber) {
             hasValue = true;
             lastValue = value;
             if (!durationSubscriber) {
-                innerFrom(durationSelector(value)).subscribe((durationSubscriber = new OperatorSubscriber(subscriber, endDuration, undefined, cleanupDuration)));
+                innerFrom(durationSelector(value)).subscribe((durationSubscriber = new OperatorSubscriber(subscriber, endDuration, cleanupDuration)));
             }
-        }, undefined, function () {
+        }, function () {
             isComplete = true;
             (!hasValue || !durationSubscriber || durationSubscriber.closed) && subscriber.complete();
         }));
@@ -991,26 +1052,26 @@ function process(asyncIterable, subscriber) {
         if (now === void 0) { now = Scheduler.now; }
         var _this = _super.call(this, SchedulerAction, now) || this;
         _this.actions = [];
-        _this.active = false;
-        _this.scheduled = undefined;
+        _this._active = false;
+        _this._scheduled = undefined;
         return _this;
     }
     AsyncScheduler.prototype.flush = function (action) {
         var actions = this.actions;
-        if (this.active) {
+        if (this._active) {
             actions.push(action);
             return;
         }
         var error;
-        this.active = true;
+        this._active = true;
         do {
-            if (error = action.execute(action.state, action.delay)) {
+            if ((error = action.execute(action.state, action.delay))) {
                 break;
             }
-        } while (action = actions.shift());
-        this.active = false;
+        } while ((action = actions.shift()));
+        this._active = false;
         if (error) {
-            while (action = actions.shift()) {
+            while ((action = actions.shift())) {
                 action.unsubscribe();
             }
             throw error;
@@ -1058,7 +1119,7 @@ var async = asyncScheduler;function isScheduler(value) {
 }function buffer(closingNotifier) {
     return operate(function (source, subscriber) {
         var currentBuffer = [];
-        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return currentBuffer.push(value); }, undefined, function () {
+        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return currentBuffer.push(value); }, function () {
             subscriber.next(currentBuffer);
             subscriber.complete();
         }));
@@ -1066,7 +1127,7 @@ var async = asyncScheduler;function isScheduler(value) {
             var b = currentBuffer;
             currentBuffer = [];
             subscriber.next(b);
-        }, undefined, noop));
+        }, noop));
         return function () {
             currentBuffer = null;
         };
@@ -1116,7 +1177,7 @@ var async = asyncScheduler;function isScheduler(value) {
                     finally { if (e_2) throw e_2.error; }
                 }
             }
-        }, undefined, function () {
+        }, function () {
             var e_3, _a;
             try {
                 for (var buffers_2 = __values(buffers), buffers_2_1 = buffers_2.next(); !buffers_2_1.done; buffers_2_1 = buffers_2.next()) {
@@ -1132,7 +1193,7 @@ var async = asyncScheduler;function isScheduler(value) {
                 finally { if (e_3) throw e_3.error; }
             }
             subscriber.complete();
-        }, function () {
+        }, undefined, function () {
             buffers = null;
         }));
     });
@@ -1205,14 +1266,14 @@ function popNumber(args, defaultValue) {
                 }
                 finally { if (e_1) throw e_1.error; }
             }
-        }, undefined, function () {
+        }, function () {
             while (bufferRecords === null || bufferRecords === void 0 ? void 0 : bufferRecords.length) {
                 subscriber.next(bufferRecords.shift().buffer);
             }
             bufferTimeSubscriber === null || bufferTimeSubscriber === void 0 ? void 0 : bufferTimeSubscriber.unsubscribe();
             subscriber.complete();
             subscriber.unsubscribe();
-        }, function () { return (bufferRecords = null); });
+        }, undefined, function () { return (bufferRecords = null); });
         source.subscribe(bufferTimeSubscriber);
     });
 }function bufferToggle(openings, closingSelector) {
@@ -1227,8 +1288,8 @@ function popNumber(args, defaultValue) {
                 subscriber.next(buffer);
                 closingSubscription.unsubscribe();
             };
-            closingSubscription.add(innerFrom(closingSelector(openValue)).subscribe(new OperatorSubscriber(subscriber, emitBuffer, undefined, noop)));
-        }, undefined, noop));
+            closingSubscription.add(innerFrom(closingSelector(openValue)).subscribe(new OperatorSubscriber(subscriber, emitBuffer, noop)));
+        }, noop));
         source.subscribe(new OperatorSubscriber(subscriber, function (value) {
             var e_1, _a;
             try {
@@ -1244,7 +1305,7 @@ function popNumber(args, defaultValue) {
                 }
                 finally { if (e_1) throw e_1.error; }
             }
-        }, undefined, function () {
+        }, function () {
             while (buffers.length > 0) {
                 subscriber.next(buffers.shift());
             }
@@ -1260,20 +1321,20 @@ function popNumber(args, defaultValue) {
             var b = buffer;
             buffer = [];
             b && subscriber.next(b);
-            innerFrom(closingSelector()).subscribe((closingSubscriber = new OperatorSubscriber(subscriber, openBuffer, undefined, noop)));
+            innerFrom(closingSelector()).subscribe((closingSubscriber = new OperatorSubscriber(subscriber, openBuffer, noop)));
         };
         openBuffer();
-        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return buffer === null || buffer === void 0 ? void 0 : buffer.push(value); }, undefined, function () {
+        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return buffer === null || buffer === void 0 ? void 0 : buffer.push(value); }, function () {
             buffer && subscriber.next(buffer);
             subscriber.complete();
-        }, function () { return (buffer = closingSubscriber = null); }));
+        }, undefined, function () { return (buffer = closingSubscriber = null); }));
     });
 }function catchError(selector) {
     return operate(function (source, subscriber) {
         var innerSub = null;
         var syncUnsub = false;
         var handledResult;
-        innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, function (err) {
+        innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, undefined, function (err) {
             handledResult = innerFrom(selector(err, catchError(selector)(source)));
             if (innerSub) {
                 innerSub.unsubscribe();
@@ -1364,7 +1425,7 @@ function combineLatestInit(observables, scheduler, valueTransform) {
                         if (!remainingFirstValues) {
                             subscriber.next(valueTransform(values.slice()));
                         }
-                    }, undefined, function () {
+                    }, function () {
                         if (!--active) {
                             subscriber.complete();
                         }
@@ -1407,9 +1468,9 @@ function maybeSchedule(scheduler, execute, subscription) {
             else {
                 subscriber.next(innerValue);
             }
-        }, undefined, function () {
-            innerComplete = true;
         }, function () {
+            innerComplete = true;
+        }, undefined, function () {
             if (innerComplete) {
                 try {
                     active--;
@@ -1428,7 +1489,7 @@ function maybeSchedule(scheduler, execute, subscription) {
             }
         }));
     };
-    source.subscribe(new OperatorSubscriber(subscriber, outerNext, undefined, function () {
+    source.subscribe(new OperatorSubscriber(subscriber, outerNext, function () {
         isComplete = true;
         checkComplete();
     }));
@@ -1457,7 +1518,7 @@ function maybeSchedule(scheduler, execute, subscription) {
                 :
                     ((hasState = true), value);
             emitOnNext && subscriber.next(state);
-        }, undefined, emitBeforeComplete &&
+        }, emitBeforeComplete &&
             (function () {
                 hasState && subscriber.next(state);
                 subscriber.complete();
@@ -1530,8 +1591,8 @@ function argsOrArgArray(args) {
     __extends(Subject, _super);
     function Subject() {
         var _this = _super.call(this) || this;
-        _this.observers = [];
         _this.closed = false;
+        _this.observers = [];
         _this.isStopped = false;
         _this.hasError = false;
         _this.thrownError = null;
@@ -1602,11 +1663,10 @@ function argsOrArgArray(args) {
         return this._innerSubscribe(subscriber);
     };
     Subject.prototype._innerSubscribe = function (subscriber) {
-        var _this = this;
         var _a = this, hasError = _a.hasError, isStopped = _a.isStopped, observers = _a.observers;
         return hasError || isStopped
             ? EMPTY_SUBSCRIPTION
-            : (observers.push(subscriber), new Subscription(function () { return arrRemove(_this.observers, subscriber); }));
+            : (observers.push(subscriber), new Subscription(function () { return arrRemove(observers, subscriber); }));
     };
     Subject.prototype._checkFinalizedStatuses = function (subscriber) {
         var _a = this, hasError = _a.hasError, thrownError = _a.thrownError, isStopped = _a.isStopped;
@@ -1686,12 +1746,12 @@ function connect(selector, config) {
             durationSubscriber === null || durationSubscriber === void 0 ? void 0 : durationSubscriber.unsubscribe();
             hasValue = true;
             lastValue = value;
-            durationSubscriber = new OperatorSubscriber(subscriber, emit, undefined, noop);
+            durationSubscriber = new OperatorSubscriber(subscriber, emit, noop);
             innerFrom(durationSelector(value)).subscribe(durationSubscriber);
-        }, undefined, function () {
+        }, function () {
             emit();
             subscriber.complete();
-        }, function () {
+        }, undefined, function () {
             lastValue = durationSubscriber = null;
         }));
     });
@@ -1725,10 +1785,10 @@ function connect(selector, config) {
             if (!activeTask) {
                 activeTask = scheduler.schedule(emitWhenIdle, dueTime);
             }
-        }, undefined, function () {
+        }, function () {
             emit();
             subscriber.complete();
-        }, function () {
+        }, undefined, function () {
             lastValue = activeTask = null;
         }));
     });
@@ -1738,7 +1798,7 @@ function connect(selector, config) {
         source.subscribe(new OperatorSubscriber(subscriber, function (value) {
             hasValue = true;
             subscriber.next(value);
-        }, undefined, function () {
+        }, function () {
             if (!hasValue) {
                 subscriber.next(defaultValue);
             }
@@ -1875,7 +1935,7 @@ function observeNotification(notification, observer) {
                 subscriber.next(value);
             }
         }));
-        flushes === null || flushes === void 0 ? void 0 : flushes.subscribe(new OperatorSubscriber(subscriber, function () { return distinctKeys.clear(); }, undefined, noop));
+        flushes === null || flushes === void 0 ? void 0 : flushes.subscribe(new OperatorSubscriber(subscriber, function () { return distinctKeys.clear(); }, noop));
     });
 }function distinctUntilChanged(comparator, keySelector) {
     if (keySelector === void 0) { keySelector = identity; }
@@ -1919,7 +1979,7 @@ function defaultCompare(a, b) {
         source.subscribe(new OperatorSubscriber(subscriber, function (value) {
             hasValue = true;
             subscriber.next(value);
-        }, undefined, function () { return (hasValue ? subscriber.complete() : subscriber.error(errorFactory())); }));
+        }, function () { return (hasValue ? subscriber.complete() : subscriber.error(errorFactory())); }));
     });
 }
 function defaultErrorFactory() {
@@ -1946,7 +2006,7 @@ function defaultErrorFactory() {
                 subscriber.next(false);
                 subscriber.complete();
             }
-        }, undefined, function () {
+        }, function () {
             subscriber.next(true);
             subscriber.complete();
         }));
@@ -1957,12 +2017,12 @@ function defaultErrorFactory() {
         var innerSub = null;
         source.subscribe(new OperatorSubscriber(subscriber, function (inner) {
             if (!innerSub) {
-                innerSub = innerFrom(inner).subscribe(new OperatorSubscriber(subscriber, undefined, undefined, function () {
+                innerSub = innerFrom(inner).subscribe(new OperatorSubscriber(subscriber, undefined, function () {
                     innerSub = null;
                     isComplete && subscriber.complete();
                 }));
             }
-        }, undefined, function () {
+        }, function () {
             isComplete = true;
             !innerSub && subscriber.complete();
         }));
@@ -1979,13 +2039,13 @@ function defaultErrorFactory() {
         var isComplete = false;
         source.subscribe(new OperatorSubscriber(subscriber, function (outerValue) {
             if (!innerSub) {
-                innerSub = new OperatorSubscriber(subscriber, undefined, undefined, function () {
+                innerSub = new OperatorSubscriber(subscriber, undefined, function () {
                     innerSub = null;
                     isComplete && subscriber.complete();
                 });
                 innerFrom(project(outerValue, index++)).subscribe(innerSub);
             }
-        }, undefined, function () {
+        }, function () {
             isComplete = true;
             !innerSub && subscriber.complete();
         }));
@@ -2014,7 +2074,7 @@ function createFind(predicate, thisArg, emit) {
                 subscriber.next(findIndex ? i : value);
                 subscriber.complete();
             }
-        }, undefined, function () {
+        }, function () {
             subscriber.next(findIndex ? -1 : undefined);
             subscriber.complete();
         }));
@@ -2055,7 +2115,7 @@ function createFind(predicate, thisArg, emit) {
             catch (err) {
                 handleError(err);
             }
-        }, handleError, function () { return notify(function (consumer) { return consumer.complete(); }); }, function () { return groups.clear(); });
+        }, function () { return notify(function (consumer) { return consumer.complete(); }); }, handleError, function () { return groups.clear(); });
         source.subscribe(groupBySourceSubscriber);
         function createGroupedObservable(key, groupSubject) {
             var result = new Observable(function (groupSubscriber) {
@@ -2091,7 +2151,7 @@ var GroupBySubscriber = (function (_super) {
         source.subscribe(new OperatorSubscriber(subscriber, function () {
             subscriber.next(false);
             subscriber.complete();
-        }, undefined, function () {
+        }, function () {
             subscriber.next(true);
             subscriber.complete();
         }));
@@ -2104,7 +2164,7 @@ var GroupBySubscriber = (function (_super) {
             source.subscribe(new OperatorSubscriber(subscriber, function (value) {
                 buffer.push(value);
                 count < buffer.length && buffer.shift();
-            }, undefined, function () {
+            }, function () {
                 var e_1, _a;
                 try {
                     for (var buffer_1 = __values(buffer), buffer_1_1 = buffer_1.next(); !buffer_1_1.done; buffer_1_1 = buffer_1.next()) {
@@ -2120,7 +2180,7 @@ var GroupBySubscriber = (function (_super) {
                     finally { if (e_1) throw e_1.error; }
                 }
                 subscriber.complete();
-            }, function () {
+            }, undefined, function () {
                 buffer = null;
             }));
         });
@@ -2133,11 +2193,11 @@ var GroupBySubscriber = (function (_super) {
     return operate(function (source, subscriber) {
         source.subscribe(new OperatorSubscriber(subscriber, function (value) {
             subscriber.next(Notification.createNext(value));
-        }, function (err) {
-            subscriber.next(Notification.createError(err));
-            subscriber.complete();
         }, function () {
             subscriber.next(Notification.createComplete());
+            subscriber.complete();
+        }, function (err) {
+            subscriber.next(Notification.createError(err));
             subscriber.complete();
         }));
     });
@@ -2237,12 +2297,12 @@ var GroupBySubscriber = (function (_super) {
         if (!connection) {
             connection = this._connection = new Subscription();
             var subject_1 = this.getSubject();
-            connection.add(this.source.subscribe(new OperatorSubscriber(subject_1, undefined, function (err) {
-                _this._teardown();
-                subject_1.error(err);
-            }, function () {
+            connection.add(this.source.subscribe(new OperatorSubscriber(subject_1, undefined, function () {
                 _this._teardown();
                 subject_1.complete();
+            }, function (err) {
+                _this._teardown();
+                subject_1.error(err);
             }, function () { return _this._teardown(); })));
             if (connection.closed) {
                 this._connection = null;
@@ -2266,7 +2326,7 @@ var GroupBySubscriber = (function (_super) {
 }function observeOn(scheduler, delay) {
     if (delay === void 0) { delay = 0; }
     return operate(function (source, subscriber) {
-        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return subscriber.add(scheduler.schedule(function () { return subscriber.next(value); }, delay)); }, function (err) { return subscriber.add(scheduler.schedule(function () { return subscriber.error(err); }, delay)); }, function () { return subscriber.add(scheduler.schedule(function () { return subscriber.complete(); }, delay)); }));
+        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return subscriber.add(scheduler.schedule(function () { return subscriber.next(value); }, delay)); }, function () { return subscriber.add(scheduler.schedule(function () { return subscriber.complete(); }, delay)); }, function (err) { return subscriber.add(scheduler.schedule(function () { return subscriber.error(err); }, delay)); }));
     });
 }function onErrorResumeNext() {
     var sources = [];
@@ -2378,32 +2438,32 @@ var GroupBySubscriber = (function (_super) {
     __extends(AsyncSubject, _super);
     function AsyncSubject() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.value = null;
-        _this.hasValue = false;
-        _this.isComplete = false;
+        _this._value = null;
+        _this._hasValue = false;
+        _this._isComplete = false;
         return _this;
     }
     AsyncSubject.prototype._checkFinalizedStatuses = function (subscriber) {
-        var _a = this, hasError = _a.hasError, hasValue = _a.hasValue, value = _a.value, thrownError = _a.thrownError, isStopped = _a.isStopped;
+        var _a = this, hasError = _a.hasError, _hasValue = _a._hasValue, _value = _a._value, thrownError = _a.thrownError, isStopped = _a.isStopped;
         if (hasError) {
             subscriber.error(thrownError);
         }
         else if (isStopped) {
-            hasValue && subscriber.next(value);
+            _hasValue && subscriber.next(_value);
             subscriber.complete();
         }
     };
     AsyncSubject.prototype.next = function (value) {
         if (!this.isStopped) {
-            this.value = value;
-            this.hasValue = true;
+            this._value = value;
+            this._hasValue = true;
         }
     };
     AsyncSubject.prototype.complete = function () {
-        var _a = this, hasValue = _a.hasValue, value = _a.value, isComplete = _a.isComplete;
-        if (!isComplete) {
-            this.isComplete = true;
-            hasValue && _super.prototype.next.call(this, value);
+        var _a = this, _hasValue = _a._hasValue, _value = _a._value, _isComplete = _a._isComplete;
+        if (!_isComplete) {
+            this._isComplete = true;
+            _hasValue && _super.prototype.next.call(this, _value);
             _super.prototype.complete.call(this);
         }
     };
@@ -2413,53 +2473,53 @@ var GroupBySubscriber = (function (_super) {
     return function (source) { return new ConnectableObservable(source, function () { return subject; }); };
 }var ReplaySubject = (function (_super) {
     __extends(ReplaySubject, _super);
-    function ReplaySubject(bufferSize, windowTime, timestampProvider) {
-        if (bufferSize === void 0) { bufferSize = Infinity; }
-        if (windowTime === void 0) { windowTime = Infinity; }
-        if (timestampProvider === void 0) { timestampProvider = dateTimestampProvider; }
+    function ReplaySubject(_bufferSize, _windowTime, _timestampProvider) {
+        if (_bufferSize === void 0) { _bufferSize = Infinity; }
+        if (_windowTime === void 0) { _windowTime = Infinity; }
+        if (_timestampProvider === void 0) { _timestampProvider = dateTimestampProvider; }
         var _this = _super.call(this) || this;
-        _this.bufferSize = bufferSize;
-        _this.windowTime = windowTime;
-        _this.timestampProvider = timestampProvider;
-        _this.buffer = [];
-        _this.infiniteTimeWindow = true;
-        _this.infiniteTimeWindow = windowTime === Infinity;
-        _this.bufferSize = Math.max(1, bufferSize);
-        _this.windowTime = Math.max(1, windowTime);
+        _this._bufferSize = _bufferSize;
+        _this._windowTime = _windowTime;
+        _this._timestampProvider = _timestampProvider;
+        _this._buffer = [];
+        _this._infiniteTimeWindow = true;
+        _this._infiniteTimeWindow = _windowTime === Infinity;
+        _this._bufferSize = Math.max(1, _bufferSize);
+        _this._windowTime = Math.max(1, _windowTime);
         return _this;
     }
     ReplaySubject.prototype.next = function (value) {
-        var _a = this, isStopped = _a.isStopped, buffer = _a.buffer, infiniteTimeWindow = _a.infiniteTimeWindow, timestampProvider = _a.timestampProvider, windowTime = _a.windowTime;
+        var _a = this, isStopped = _a.isStopped, _buffer = _a._buffer, _infiniteTimeWindow = _a._infiniteTimeWindow, _timestampProvider = _a._timestampProvider, _windowTime = _a._windowTime;
         if (!isStopped) {
-            buffer.push(value);
-            !infiniteTimeWindow && buffer.push(timestampProvider.now() + windowTime);
+            _buffer.push(value);
+            !_infiniteTimeWindow && _buffer.push(_timestampProvider.now() + _windowTime);
         }
-        this.trimBuffer();
+        this._trimBuffer();
         _super.prototype.next.call(this, value);
     };
     ReplaySubject.prototype._subscribe = function (subscriber) {
         this._throwIfClosed();
-        this.trimBuffer();
+        this._trimBuffer();
         var subscription = this._innerSubscribe(subscriber);
-        var _a = this, infiniteTimeWindow = _a.infiniteTimeWindow, buffer = _a.buffer;
-        var copy = buffer.slice();
-        for (var i = 0; i < copy.length && !subscriber.closed; i += infiniteTimeWindow ? 1 : 2) {
+        var _a = this, _infiniteTimeWindow = _a._infiniteTimeWindow, _buffer = _a._buffer;
+        var copy = _buffer.slice();
+        for (var i = 0; i < copy.length && !subscriber.closed; i += _infiniteTimeWindow ? 1 : 2) {
             subscriber.next(copy[i]);
         }
         this._checkFinalizedStatuses(subscriber);
         return subscription;
     };
-    ReplaySubject.prototype.trimBuffer = function () {
-        var _a = this, bufferSize = _a.bufferSize, timestampProvider = _a.timestampProvider, buffer = _a.buffer, infiniteTimeWindow = _a.infiniteTimeWindow;
-        var adjustedBufferSize = (infiniteTimeWindow ? 1 : 2) * bufferSize;
-        bufferSize < Infinity && adjustedBufferSize < buffer.length && buffer.splice(0, buffer.length - adjustedBufferSize);
-        if (!infiniteTimeWindow) {
-            var now = timestampProvider.now();
+    ReplaySubject.prototype._trimBuffer = function () {
+        var _a = this, _bufferSize = _a._bufferSize, _timestampProvider = _a._timestampProvider, _buffer = _a._buffer, _infiniteTimeWindow = _a._infiniteTimeWindow;
+        var adjustedBufferSize = (_infiniteTimeWindow ? 1 : 2) * _bufferSize;
+        _bufferSize < Infinity && adjustedBufferSize < _buffer.length && _buffer.splice(0, _buffer.length - adjustedBufferSize);
+        if (!_infiniteTimeWindow) {
+            var now = _timestampProvider.now();
             var last = 0;
-            for (var i = 1; i < buffer.length && buffer[i] <= now; i += 2) {
+            for (var i = 1; i < _buffer.length && _buffer[i] <= now; i += 2) {
                 last = i;
             }
-            last && buffer.splice(0, last + 1);
+            last && _buffer.splice(0, last + 1);
         }
     };
     return ReplaySubject;
@@ -2513,7 +2573,7 @@ var GroupBySubscriber = (function (_super) {
             var innerSub;
             var subscribeForRepeat = function () {
                 var syncUnsub = false;
-                innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, undefined, function () {
+                innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, function () {
                     if (++soFar < count) {
                         if (innerSub) {
                             innerSub.unsubscribe();
@@ -2554,7 +2614,7 @@ var GroupBySubscriber = (function (_super) {
                     else {
                         syncResub = true;
                     }
-                }, undefined, function () {
+                }, function () {
                     isNotifierComplete = true;
                     checkComplete();
                 }));
@@ -2563,7 +2623,7 @@ var GroupBySubscriber = (function (_super) {
         };
         var subscribeForRepeatWhen = function () {
             isMainComplete = false;
-            innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, undefined, function () {
+            innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, function () {
                 isMainComplete = true;
                 !checkComplete() && getCompletionSubject().next();
             }));
@@ -2600,7 +2660,7 @@ var GroupBySubscriber = (function (_super) {
                         soFar = 0;
                     }
                     subscriber.next(value);
-                }, function (err) {
+                }, undefined, function (err) {
                     if (soFar++ < count) {
                         if (innerSub) {
                             innerSub.unsubscribe();
@@ -2629,7 +2689,7 @@ var GroupBySubscriber = (function (_super) {
         var syncResub = false;
         var errors$;
         var subscribeForRetryWhen = function () {
-            innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, function (err) {
+            innerSub = source.subscribe(new OperatorSubscriber(subscriber, undefined, undefined, function (err) {
                 if (!errors$) {
                     errors$ = new Subject();
                     notifier(errors$).subscribe(new OperatorSubscriber(subscriber, function () {
@@ -2665,7 +2725,7 @@ var GroupBySubscriber = (function (_super) {
                 subscriber.next(value);
             }
         };
-        notifier.subscribe(new OperatorSubscriber(subscriber, emit, undefined, noop));
+        notifier.subscribe(new OperatorSubscriber(subscriber, emit, noop));
     });
 }function interval(period, scheduler) {
     if (period === void 0) { period = 0; }
@@ -2697,7 +2757,7 @@ var GroupBySubscriber = (function (_super) {
                 else {
                     !comparator(a, buffer.shift()) && emit(false);
                 }
-            }, undefined, function () {
+            }, function () {
                 selfState.complete = true;
                 var complete = otherState.complete, buffer = otherState.buffer;
                 complete && emit(buffer.length === 0);
@@ -2731,7 +2791,7 @@ function createState() {
         subject = subject !== null && subject !== void 0 ? subject : connector();
         subject.subscribe(subscriber);
         if (!connection) {
-            connection = from(source).subscribe({
+            connection = new SafeSubscriber({
                 next: function (value) { return subject.next(value); },
                 error: function (err) {
                     hasErrored = true;
@@ -2750,6 +2810,7 @@ function createState() {
                     dest.complete();
                 },
             });
+            from(source).subscribe(connection);
         }
         return function () {
             refCount--;
@@ -2804,7 +2865,7 @@ function createState() {
                 hasValue = true;
                 singleValue = value;
             }
-        }, undefined, function () {
+        }, function () {
             if (hasValue) {
                 subscriber.next(singleValue);
                 subscriber.complete();
@@ -2845,7 +2906,7 @@ function createState() {
         var skipSubscriber = new OperatorSubscriber(subscriber, function () {
             skipSubscriber === null || skipSubscriber === void 0 ? void 0 : skipSubscriber.unsubscribe();
             taking = true;
-        }, undefined, noop);
+        }, noop);
         innerFrom(notifier).subscribe(skipSubscriber);
         source.subscribe(new OperatorSubscriber(subscriber, function (value) { return taking && subscriber.next(value); }));
     });
@@ -2879,11 +2940,11 @@ function createState() {
             innerSubscriber === null || innerSubscriber === void 0 ? void 0 : innerSubscriber.unsubscribe();
             var innerIndex = 0;
             var outerIndex = index++;
-            innerFrom(project(value, outerIndex)).subscribe((innerSubscriber = new OperatorSubscriber(subscriber, function (innerValue) { return subscriber.next(resultSelector ? resultSelector(value, innerValue, outerIndex, innerIndex++) : innerValue); }, undefined, function () {
+            innerFrom(project(value, outerIndex)).subscribe((innerSubscriber = new OperatorSubscriber(subscriber, function (innerValue) { return subscriber.next(resultSelector ? resultSelector(value, innerValue, outerIndex, innerIndex++) : innerValue); }, function () {
                 innerSubscriber = null;
                 checkComplete();
             })));
-        }, undefined, function () {
+        }, function () {
             isComplete = true;
             checkComplete();
         }));
@@ -2902,7 +2963,7 @@ function createState() {
     });
 }function takeUntil(notifier) {
     return operate(function (source, subscriber) {
-        innerFrom(notifier).subscribe(new OperatorSubscriber(subscriber, function () { return subscriber.complete(); }, undefined, noop));
+        innerFrom(notifier).subscribe(new OperatorSubscriber(subscriber, function () { return subscriber.complete(); }, noop));
         !subscriber.closed && source.subscribe(subscriber);
     });
 }function takeWhile(predicate, inclusive) {
@@ -2923,14 +2984,14 @@ function createState() {
                 var _a;
                 (_a = tapObserver.next) === null || _a === void 0 ? void 0 : _a.call(tapObserver, value);
                 subscriber.next(value);
-            }, function (err) {
-                var _a;
-                (_a = tapObserver.error) === null || _a === void 0 ? void 0 : _a.call(tapObserver, err);
-                subscriber.error(err);
             }, function () {
                 var _a;
                 (_a = tapObserver.complete) === null || _a === void 0 ? void 0 : _a.call(tapObserver);
                 subscriber.complete();
+            }, function (err) {
+                var _a;
+                (_a = tapObserver.error) === null || _a === void 0 ? void 0 : _a.call(tapObserver, err);
+                subscriber.error(err);
             }));
         })
         :
@@ -2959,7 +3020,7 @@ function throttle(durationSelector, _a) {
             isComplete && subscriber.complete();
         };
         var startThrottle = function (value) {
-            return (throttled = innerFrom(durationSelector(value)).subscribe(new OperatorSubscriber(subscriber, endThrottling, undefined, cleanupThrottling)));
+            return (throttled = innerFrom(durationSelector(value)).subscribe(new OperatorSubscriber(subscriber, endThrottling, cleanupThrottling)));
         };
         var send = function () {
             if (hasValue) {
@@ -2974,7 +3035,7 @@ function throttle(durationSelector, _a) {
             hasValue = true;
             sendValue = value;
             !(throttled && !throttled.closed) && (leading ? send() : startThrottle(value));
-        }, undefined, function () {
+        }, function () {
             isComplete = true;
             !(trailing && hasValue && throttled && !throttled.closed) && subscriber.complete();
         }));
@@ -2990,15 +3051,21 @@ function throttle(durationSelector, _a) {
     });
 }function timeInterval(scheduler) {
     if (scheduler === void 0) { scheduler = async; }
-    return function (source) { return defer(function () {
-        return source.pipe(scan(function (_a, value) {
-            var current = _a.current;
-            return ({ value: value, current: scheduler.now(), last: current });
-        }, { current: scheduler.now(), value: undefined, last: undefined }), map(function (_a) {
-            var current = _a.current, last = _a.last, value = _a.value;
-            return new TimeInterval(value, current - last);
-        }));
-    }); };
+    return function (source) {
+        return defer(function () {
+            return source.pipe(scan(function (_a, value) {
+                var current = _a.current;
+                return ({ value: value, current: scheduler.now(), last: current });
+            }, {
+                current: scheduler.now(),
+                value: undefined,
+                last: undefined,
+            }), map(function (_a) {
+                var current = _a.current, last = _a.last, value = _a.value;
+                return new TimeInterval(value, current - last);
+            }));
+        });
+    };
 }
 var TimeInterval = (function () {
     function TimeInterval(value, interval) {
@@ -3092,14 +3159,14 @@ function timeoutErrorFactory(info) {
             windowSubject.error(err);
             subscriber.error(err);
         };
-        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return windowSubject === null || windowSubject === void 0 ? void 0 : windowSubject.next(value); }, errorHandler, function () {
+        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return windowSubject === null || windowSubject === void 0 ? void 0 : windowSubject.next(value); }, function () {
             windowSubject.complete();
             subscriber.complete();
-        }));
+        }, errorHandler));
         windowBoundaries.subscribe(new OperatorSubscriber(subscriber, function () {
             windowSubject.complete();
             subscriber.next((windowSubject = new Subject()));
-        }, errorHandler, noop));
+        }, noop, errorHandler));
         return function () {
             windowSubject === null || windowSubject === void 0 ? void 0 : windowSubject.unsubscribe();
             windowSubject = null;
@@ -3137,16 +3204,16 @@ function timeoutErrorFactory(info) {
                 windows.push(window_2);
                 subscriber.next(window_2.asObservable());
             }
-        }, function (err) {
-            while (windows.length > 0) {
-                windows.shift().error(err);
-            }
-            subscriber.error(err);
         }, function () {
             while (windows.length > 0) {
                 windows.shift().complete();
             }
             subscriber.complete();
+        }, function (err) {
+            while (windows.length > 0) {
+                windows.shift().error(err);
+            }
+            subscriber.error(err);
         }, function () {
             starts = null;
             windows = null;
@@ -3208,7 +3275,7 @@ function timeoutErrorFactory(info) {
                 record.window.next(value);
                 maxWindowSize <= ++record.seen && closeWindow(record);
             });
-        }, function (err) { return terminate(function (consumer) { return consumer.error(err); }); }, function () { return terminate(function (consumer) { return consumer.complete(); }); }));
+        }, function () { return terminate(function (consumer) { return consumer.complete(); }); }, function (err) { return terminate(function (consumer) { return consumer.error(err); }); }));
         return function () {
             windowRecords = null;
         };
@@ -3240,8 +3307,8 @@ function timeoutErrorFactory(info) {
                 return;
             }
             subscriber.next(window.asObservable());
-            closingSubscription.add(closingNotifier.subscribe(new OperatorSubscriber(subscriber, closeWindow, handleError, noop)));
-        }, undefined, noop));
+            closingSubscription.add(closingNotifier.subscribe(new OperatorSubscriber(subscriber, closeWindow, noop, handleError)));
+        }, noop));
         source.subscribe(new OperatorSubscriber(subscriber, function (value) {
             var e_1, _a;
             var windowsCopy = windows.slice();
@@ -3258,12 +3325,12 @@ function timeoutErrorFactory(info) {
                 }
                 finally { if (e_1) throw e_1.error; }
             }
-        }, handleError, function () {
+        }, function () {
             while (0 < windows.length) {
                 windows.shift().complete();
             }
             subscriber.complete();
-        }, function () {
+        }, handleError, function () {
             while (0 < windows.length) {
                 windows.shift().unsubscribe();
             }
@@ -3290,13 +3357,13 @@ function timeoutErrorFactory(info) {
                 handleError(err);
                 return;
             }
-            closingNotifier.subscribe((closingSubscriber = new OperatorSubscriber(subscriber, openWindow, handleError, openWindow)));
+            closingNotifier.subscribe((closingSubscriber = new OperatorSubscriber(subscriber, openWindow, openWindow, handleError)));
         };
         openWindow();
-        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return window.next(value); }, handleError, function () {
+        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return window.next(value); }, function () {
             window.complete();
             subscriber.complete();
-        }, function () {
+        }, handleError, function () {
             closingSubscriber === null || closingSubscriber === void 0 ? void 0 : closingSubscriber.unsubscribe();
             window = null;
         }));
@@ -3319,7 +3386,7 @@ function timeoutErrorFactory(info) {
                     hasValue[i] = true;
                     (ready = hasValue.every(identity)) && (hasValue = null);
                 }
-            }, undefined, noop));
+            }, noop));
         };
         for (var i = 0; i < len; i++) {
             _loop_1(i);
@@ -3355,7 +3422,7 @@ function timeoutErrorFactory(info) {
                             subscriber.complete();
                         }
                     }
-                }, undefined, function () {
+                }, function () {
                     completed[sourceIndex] = true;
                     !buffers[sourceIndex].length && subscriber.complete();
                 }));

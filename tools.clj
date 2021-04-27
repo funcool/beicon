@@ -45,7 +45,7 @@
    :output-dir "out/tests"
    :source-map "out/tests.js.map"
    :language-in  :ecmascript6
-   :language-out :ecmascript6
+   :language-out :no-transpile
    :target :nodejs
    :optimizations :advanced
    :pretty-print true

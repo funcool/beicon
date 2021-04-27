@@ -266,36 +266,6 @@
 ;; Alias
 (def error throw)
 
-(defn timer
-  "Returns an observable sequence that produces a value after
-  `ms` has elapsed and then after each period."
-  ([delay] (.timer rx delay))
-  ([delay period] (.timer rx delay period)))
-
-(defn timeout
-  "Returns the source observable sequence or the other
-  observable sequence if dueTime elapses."
-  ([ms ob] (pipe ob (.timeout rxop ms)))
-  ([ms other ob] (pipe ob (.timeoutWith rxop ms other))))
-
-(defn delay
-  "Time shifts the observable sequence by dueTime. The relative
-  time intervals between the values are preserved."
-  [ms ob]
-  (pipe ob (.delay rxop ms)))
-
-(defn delay-when
-  "Time shifts the observable sequence based on a subscription
-  delay and a delay selector function for each element."
-  ([sf ob] (pipe ob (.delayWhen rxop sf)))
-  ([sd sf ob] (pipe ob (.delayWhen rxop sf sd))))
-
-(defn interval
-  "Returns an observable sequence that produces a
-  value after each period."
-  [ms]
-  (.interval rx ms))
-
 (defn fjoin
   "Runs all observable sequences in parallel and collect their last
   elements."
@@ -506,10 +476,10 @@
   "Combines multiple Observables to create an Observable whose values
   are calculated from the latest values of each of its input
   Observables."
+  ([obs]
+   (.combineLatest rx (into-array obs)))
   ([other ob]
-   (combine-latest vector other ob))
-  ([f other ob]
-   (pipe ob (.combineLatest rxop other f))))
+   (pipe ob (.combineLatestWith rxop other))))
 
 (defn catch
   "Continues an observable sequence that is terminated
@@ -651,6 +621,46 @@
                                      (end! subs)))
                 (fn []
                   (dispose! disposable)))))))
+
+
+(defn timer
+  "Returns an observable sequence that produces a value after
+  `ms` has elapsed and then after each period."
+  ([delay] (.timer rx delay))
+  ([delay period] (.timer rx delay period)))
+
+(defn timeout
+  "Returns the source observable sequence or the other
+  observable sequence if dueTime elapses."
+  ([ms ob] (pipe ob (.timeout rxop ms)))
+  ([ms other ob] (pipe ob (.timeoutWith rxop ms other))))
+
+(defn delay
+  "Time shifts the observable sequence by dueTime. The relative
+  time intervals between the values are preserved."
+  [ms ob]
+  (pipe ob (.delay rxop ms)))
+
+(defn delay-when
+  "Time shifts the observable sequence based on a subscription
+  delay and a delay selector function for each element."
+  ([sf ob] (pipe ob (.delayWhen rxop sf)))
+  ([sd sf ob] (pipe ob (.delayWhen rxop sf sd))))
+
+(defn delay-at-least
+  "Time shifts at least `ms` milisseconds."
+  [ms ob]
+  (pipe ob (fn [source]
+             (->> source
+                  (combine-latest (timer ms))
+                  (tap #(prn "KAKA" %))
+                  (map c/first)))))
+
+(defn interval
+  "Returns an observable sequence that produces a
+  value after each period."
+  [ms]
+  (.interval rx ms))
 
 ;; --- Schedulers
 

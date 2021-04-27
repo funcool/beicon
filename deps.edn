@@ -1,16 +1,22 @@
 {:paths ["src" "assets"]
  :aliases
  {:dev
-  {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.773"}
-                org.clojure/clojure {:mvn/version "1.10.3"}
-                com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
-                com.bhauman/rebel-readline {:mvn/version "0.1.4"}
-                funcool/promesa {:mvn/version "6.0.0"}}
+  {:extra-deps
+   {org.clojure/clojurescript {:mvn/version "1.10.844"}
+    org.clojure/clojure {:mvn/version "1.10.3"}
+    com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
+    com.bhauman/rebel-readline {:mvn/version "0.1.4"}
+    funcool/promesa {:mvn/version "6.0.0"}}
    :extra-paths ["test" "dev-resources"]}
 
   :ancient
   {:main-opts ["-m" "deps-ancient.deps-ancient"],
    :extra-deps {deps-ancient/deps-ancient {:mvn/version "RELEASE"}}}
+
+  :codox
+  {:extra-deps {codox/codox {:mvn/version "RELEASE"}
+                org.clojure/tools.reader {:mvn/version "RELEASE"}
+                codox-theme-rdash/codox-theme-rdash {:mvn/version "RELEASE"}}}
 
   :jar
   {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.206"}}

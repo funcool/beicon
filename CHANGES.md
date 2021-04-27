@@ -1,5 +1,13 @@
 # Changelog #
 
+## Version 2021.04.27-0 ##
+
+- Add the ability to pass a vector of observables to `combine-latest` operator.
+- Remove the arity 3 from `combine-latest` operator (**breaking change**).
+- Add the `delay-at-least` operator.
+- Update documentation
+
+
 ## Version 2021.04.12-1 ##
 
 - Fix `from-atom` factory.

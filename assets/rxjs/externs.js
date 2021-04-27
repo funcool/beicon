@@ -155,6 +155,8 @@ rxjsMain.Observable.prototype.pipe = function() {};
  */
 rxjsMain.Observable.prototype.toPromise = function() {};
 
+rxjsMain.combineLatest = function() {};
+
 rxjsOperators.race = function() {};
 rxjsOperators.zip = function() {};
 rxjsOperators.zipAll = function() {};
@@ -201,6 +203,7 @@ rxjsOperators.retry = function() {};
 rxjsOperators.retryWhen = function() {};
 rxjsOperators.withLatestFrom = function() {};
 rxjsOperators.combineLatest = function() {};
+rxjsOperators.combineLatestWith = function() {};
 rxjsOperators.catchError = function() {};
 rxjsOperators.partition = function() {};
 rxjsOperators.repeat = function() {};

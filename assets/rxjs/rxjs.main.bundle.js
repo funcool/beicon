@@ -102,6 +102,22 @@ function __spreadArray(to, from) {
     return to;
 }
 
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+    function fulfill(value) { resume("next", value); }
+    function reject(value) { resume("throw", value); }
+    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+}
+
 function __asyncValues(o) {
     if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
     var m = o[Symbol.asyncIterator], i;
@@ -580,7 +596,7 @@ function operate(init) {
     };
 }var OperatorSubscriber = (function (_super) {
     __extends(OperatorSubscriber, _super);
-    function OperatorSubscriber(destination, onNext, onError, onComplete, onFinalize) {
+    function OperatorSubscriber(destination, onNext, onComplete, onError, onFinalize) {
         var _this = _super.call(this, destination) || this;
         _this.onFinalize = onFinalize;
         _this._next = onNext
@@ -686,12 +702,12 @@ function operate(init) {
         if (!connection) {
             connection = this._connection = new Subscription();
             var subject_1 = this.getSubject();
-            connection.add(this.source.subscribe(new OperatorSubscriber(subject_1, undefined, function (err) {
-                _this._teardown();
-                subject_1.error(err);
-            }, function () {
+            connection.add(this.source.subscribe(new OperatorSubscriber(subject_1, undefined, function () {
                 _this._teardown();
                 subject_1.complete();
+            }, function (err) {
+                _this._teardown();
+                subject_1.error(err);
             }, function () { return _this._teardown(); })));
             if (connection.closed) {
                 this._connection = null;
@@ -767,8 +783,8 @@ var DEFAULT_ANIMATION_FRAMES = animationFramesFactory();var ObjectUnsubscribedEr
     __extends(Subject, _super);
     function Subject() {
         var _this = _super.call(this) || this;
-        _this.observers = [];
         _this.closed = false;
+        _this.observers = [];
         _this.isStopped = false;
         _this.hasError = false;
         _this.thrownError = null;
@@ -839,11 +855,10 @@ var DEFAULT_ANIMATION_FRAMES = animationFramesFactory();var ObjectUnsubscribedEr
         return this._innerSubscribe(subscriber);
     };
     Subject.prototype._innerSubscribe = function (subscriber) {
-        var _this = this;
         var _a = this, hasError = _a.hasError, isStopped = _a.isStopped, observers = _a.observers;
         return hasError || isStopped
             ? EMPTY_SUBSCRIPTION
-            : (observers.push(subscriber), new Subscription(function () { return arrRemove(_this.observers, subscriber); }));
+            : (observers.push(subscriber), new Subscription(function () { return arrRemove(observers, subscriber); }));
     };
     Subject.prototype._checkFinalizedStatuses = function (subscriber) {
         var _a = this, hasError = _a.hasError, thrownError = _a.thrownError, isStopped = _a.isStopped;
@@ -927,53 +942,53 @@ var AnonymousSubject = (function (_super) {
     delegate: undefined,
 };var ReplaySubject = (function (_super) {
     __extends(ReplaySubject, _super);
-    function ReplaySubject(bufferSize, windowTime, timestampProvider) {
-        if (bufferSize === void 0) { bufferSize = Infinity; }
-        if (windowTime === void 0) { windowTime = Infinity; }
-        if (timestampProvider === void 0) { timestampProvider = dateTimestampProvider; }
+    function ReplaySubject(_bufferSize, _windowTime, _timestampProvider) {
+        if (_bufferSize === void 0) { _bufferSize = Infinity; }
+        if (_windowTime === void 0) { _windowTime = Infinity; }
+        if (_timestampProvider === void 0) { _timestampProvider = dateTimestampProvider; }
         var _this = _super.call(this) || this;
-        _this.bufferSize = bufferSize;
-        _this.windowTime = windowTime;
-        _this.timestampProvider = timestampProvider;
-        _this.buffer = [];
-        _this.infiniteTimeWindow = true;
-        _this.infiniteTimeWindow = windowTime === Infinity;
-        _this.bufferSize = Math.max(1, bufferSize);
-        _this.windowTime = Math.max(1, windowTime);
+        _this._bufferSize = _bufferSize;
+        _this._windowTime = _windowTime;
+        _this._timestampProvider = _timestampProvider;
+        _this._buffer = [];
+        _this._infiniteTimeWindow = true;
+        _this._infiniteTimeWindow = _windowTime === Infinity;
+        _this._bufferSize = Math.max(1, _bufferSize);
+        _this._windowTime = Math.max(1, _windowTime);
         return _this;
     }
     ReplaySubject.prototype.next = function (value) {
-        var _a = this, isStopped = _a.isStopped, buffer = _a.buffer, infiniteTimeWindow = _a.infiniteTimeWindow, timestampProvider = _a.timestampProvider, windowTime = _a.windowTime;
+        var _a = this, isStopped = _a.isStopped, _buffer = _a._buffer, _infiniteTimeWindow = _a._infiniteTimeWindow, _timestampProvider = _a._timestampProvider, _windowTime = _a._windowTime;
         if (!isStopped) {
-            buffer.push(value);
-            !infiniteTimeWindow && buffer.push(timestampProvider.now() + windowTime);
+            _buffer.push(value);
+            !_infiniteTimeWindow && _buffer.push(_timestampProvider.now() + _windowTime);
         }
-        this.trimBuffer();
+        this._trimBuffer();
         _super.prototype.next.call(this, value);
     };
     ReplaySubject.prototype._subscribe = function (subscriber) {
         this._throwIfClosed();
-        this.trimBuffer();
+        this._trimBuffer();
         var subscription = this._innerSubscribe(subscriber);
-        var _a = this, infiniteTimeWindow = _a.infiniteTimeWindow, buffer = _a.buffer;
-        var copy = buffer.slice();
-        for (var i = 0; i < copy.length && !subscriber.closed; i += infiniteTimeWindow ? 1 : 2) {
+        var _a = this, _infiniteTimeWindow = _a._infiniteTimeWindow, _buffer = _a._buffer;
+        var copy = _buffer.slice();
+        for (var i = 0; i < copy.length && !subscriber.closed; i += _infiniteTimeWindow ? 1 : 2) {
             subscriber.next(copy[i]);
         }
         this._checkFinalizedStatuses(subscriber);
         return subscription;
     };
-    ReplaySubject.prototype.trimBuffer = function () {
-        var _a = this, bufferSize = _a.bufferSize, timestampProvider = _a.timestampProvider, buffer = _a.buffer, infiniteTimeWindow = _a.infiniteTimeWindow;
-        var adjustedBufferSize = (infiniteTimeWindow ? 1 : 2) * bufferSize;
-        bufferSize < Infinity && adjustedBufferSize < buffer.length && buffer.splice(0, buffer.length - adjustedBufferSize);
-        if (!infiniteTimeWindow) {
-            var now = timestampProvider.now();
+    ReplaySubject.prototype._trimBuffer = function () {
+        var _a = this, _bufferSize = _a._bufferSize, _timestampProvider = _a._timestampProvider, _buffer = _a._buffer, _infiniteTimeWindow = _a._infiniteTimeWindow;
+        var adjustedBufferSize = (_infiniteTimeWindow ? 1 : 2) * _bufferSize;
+        _bufferSize < Infinity && adjustedBufferSize < _buffer.length && _buffer.splice(0, _buffer.length - adjustedBufferSize);
+        if (!_infiniteTimeWindow) {
+            var now = _timestampProvider.now();
             var last = 0;
-            for (var i = 1; i < buffer.length && buffer[i] <= now; i += 2) {
+            for (var i = 1; i < _buffer.length && _buffer[i] <= now; i += 2) {
                 last = i;
             }
-            last && buffer.splice(0, last + 1);
+            last && _buffer.splice(0, last + 1);
         }
     };
     return ReplaySubject;
@@ -981,32 +996,32 @@ var AnonymousSubject = (function (_super) {
     __extends(AsyncSubject, _super);
     function AsyncSubject() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.value = null;
-        _this.hasValue = false;
-        _this.isComplete = false;
+        _this._value = null;
+        _this._hasValue = false;
+        _this._isComplete = false;
         return _this;
     }
     AsyncSubject.prototype._checkFinalizedStatuses = function (subscriber) {
-        var _a = this, hasError = _a.hasError, hasValue = _a.hasValue, value = _a.value, thrownError = _a.thrownError, isStopped = _a.isStopped;
+        var _a = this, hasError = _a.hasError, _hasValue = _a._hasValue, _value = _a._value, thrownError = _a.thrownError, isStopped = _a.isStopped;
         if (hasError) {
             subscriber.error(thrownError);
         }
         else if (isStopped) {
-            hasValue && subscriber.next(value);
+            _hasValue && subscriber.next(_value);
             subscriber.complete();
         }
     };
     AsyncSubject.prototype.next = function (value) {
         if (!this.isStopped) {
-            this.value = value;
-            this.hasValue = true;
+            this._value = value;
+            this._hasValue = true;
         }
     };
     AsyncSubject.prototype.complete = function () {
-        var _a = this, hasValue = _a.hasValue, value = _a.value, isComplete = _a.isComplete;
-        if (!isComplete) {
-            this.isComplete = true;
-            hasValue && _super.prototype.next.call(this, value);
+        var _a = this, _hasValue = _a._hasValue, _value = _a._value, _isComplete = _a._isComplete;
+        if (!_isComplete) {
+            this._isComplete = true;
+            _hasValue && _super.prototype.next.call(this, _value);
             _super.prototype.complete.call(this);
         }
     };
@@ -1162,7 +1177,7 @@ var immediateProvider = {
             return _super.prototype.requestAsyncId.call(this, scheduler, id, delay);
         }
         scheduler.actions.push(this);
-        return scheduler.scheduled || (scheduler.scheduled = immediateProvider.setImmediate(scheduler.flush.bind(scheduler, undefined)));
+        return scheduler._scheduled || (scheduler._scheduled = immediateProvider.setImmediate(scheduler.flush.bind(scheduler, undefined)));
     };
     AsapAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
         if (delay === void 0) { delay = 0; }
@@ -1171,7 +1186,7 @@ var immediateProvider = {
         }
         if (scheduler.actions.length === 0) {
             immediateProvider.clearImmediate(id);
-            scheduler.scheduled = undefined;
+            scheduler._scheduled = undefined;
         }
         return undefined;
     };
@@ -1194,26 +1209,26 @@ var immediateProvider = {
         if (now === void 0) { now = Scheduler.now; }
         var _this = _super.call(this, SchedulerAction, now) || this;
         _this.actions = [];
-        _this.active = false;
-        _this.scheduled = undefined;
+        _this._active = false;
+        _this._scheduled = undefined;
         return _this;
     }
     AsyncScheduler.prototype.flush = function (action) {
         var actions = this.actions;
-        if (this.active) {
+        if (this._active) {
             actions.push(action);
             return;
         }
         var error;
-        this.active = true;
+        this._active = true;
         do {
-            if (error = action.execute(action.state, action.delay)) {
+            if ((error = action.execute(action.state, action.delay))) {
                 break;
             }
-        } while (action = actions.shift());
-        this.active = false;
+        } while ((action = actions.shift()));
+        this._active = false;
         if (error) {
-            while (action = actions.shift()) {
+            while ((action = actions.shift())) {
                 action.unsubscribe();
             }
             throw error;
@@ -1226,19 +1241,19 @@ var immediateProvider = {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     AsapScheduler.prototype.flush = function (action) {
-        this.active = true;
-        this.scheduled = undefined;
+        this._active = true;
+        this._scheduled = undefined;
         var actions = this.actions;
         var error;
         var index = -1;
         action = action || actions.shift();
         var count = actions.length;
         do {
-            if (error = action.execute(action.state, action.delay)) {
+            if ((error = action.execute(action.state, action.delay))) {
                 break;
             }
         } while (++index < count && (action = actions.shift()));
-        this.active = false;
+        this._active = false;
         if (error) {
             while (++index < count && (action = actions.shift())) {
                 action.unsubscribe();
@@ -1301,7 +1316,7 @@ var queue = queueScheduler;var AnimationFrameAction = (function (_super) {
             return _super.prototype.requestAsyncId.call(this, scheduler, id, delay);
         }
         scheduler.actions.push(this);
-        return scheduler.scheduled || (scheduler.scheduled = animationFrameProvider.requestAnimationFrame(function () { return scheduler.flush(undefined); }));
+        return scheduler._scheduled || (scheduler._scheduled = animationFrameProvider.requestAnimationFrame(function () { return scheduler.flush(undefined); }));
     };
     AnimationFrameAction.prototype.recycleAsyncId = function (scheduler, id, delay) {
         if (delay === void 0) { delay = 0; }
@@ -1310,7 +1325,7 @@ var queue = queueScheduler;var AnimationFrameAction = (function (_super) {
         }
         if (scheduler.actions.length === 0) {
             animationFrameProvider.cancelAnimationFrame(id);
-            scheduler.scheduled = undefined;
+            scheduler._scheduled = undefined;
         }
         return undefined;
     };
@@ -1321,19 +1336,19 @@ var queue = queueScheduler;var AnimationFrameAction = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     AnimationFrameScheduler.prototype.flush = function (action) {
-        this.active = true;
-        this.scheduled = undefined;
+        this._active = true;
+        this._scheduled = undefined;
         var actions = this.actions;
         var error;
         var index = -1;
         action = action || actions.shift();
         var count = actions.length;
         do {
-            if (error = action.execute(action.state, action.delay)) {
+            if ((error = action.execute(action.state, action.delay))) {
                 break;
             }
         } while (++index < count && (action = actions.shift()));
-        this.active = false;
+        this._active = false;
         if (error) {
             while (++index < count && (action = actions.shift())) {
                 action.unsubscribe();
@@ -1523,10 +1538,6 @@ var iterator = getSymbolIterator();function caughtSchedule(subscriber, scheduler
         }));
         return function () { return isFunction(iterator$1 === null || iterator$1 === void 0 ? void 0 : iterator$1.return) && iterator$1.return(); };
     });
-}function isInteropObservable(input) {
-    return isFunction(input[observable]);
-}function isIterable(input) {
-    return isFunction(input === null || input === void 0 ? void 0 : input[iterator]);
 }function scheduleAsyncIterable(input, scheduler) {
     if (!input) {
         throw new Error('Iterable cannot be null');
@@ -1550,10 +1561,50 @@ var iterator = getSymbolIterator();function caughtSchedule(subscriber, scheduler
         }));
         return sub;
     });
+}function isInteropObservable(input) {
+    return isFunction(input[observable]);
+}function isIterable(input) {
+    return isFunction(input === null || input === void 0 ? void 0 : input[iterator]);
 }function isAsyncIterable(obj) {
     return Symbol.asyncIterator && isFunction(obj === null || obj === void 0 ? void 0 : obj[Symbol.asyncIterator]);
 }function createInvalidObservableTypeError(input) {
-    return new TypeError("You provided " + (input !== null && typeof input === 'object' ? 'an invalid object' : "'" + input + "'") + " where a stream was expected. You can provide an Observable, Promise, Array, AsyncIterable, or Iterable.");
+    return new TypeError("You provided " + (input !== null && typeof input === 'object' ? 'an invalid object' : "'" + input + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
+}function readableStreamLikeToAsyncGenerator(readableStream) {
+    return __asyncGenerator(this, arguments, function readableStreamLikeToAsyncGenerator_1() {
+        var reader, _a, value, done;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    reader = readableStream.getReader();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, , 9, 10]);
+                    _b.label = 2;
+                case 2:
+                    return [4, __await(reader.read())];
+                case 3:
+                    _a = _b.sent(), value = _a.value, done = _a.done;
+                    if (!done) return [3, 5];
+                    return [4, __await(void 0)];
+                case 4: return [2, _b.sent()];
+                case 5: return [4, __await(value)];
+                case 6: return [4, _b.sent()];
+                case 7:
+                    _b.sent();
+                    return [3, 2];
+                case 8: return [3, 10];
+                case 9:
+                    reader.releaseLock();
+                    return [7];
+                case 10: return [2];
+            }
+        });
+    });
+}
+function isReadableStreamLike(obj) {
+    return isFunction(obj === null || obj === void 0 ? void 0 : obj.getReader);
+}function scheduleReadableStreamLike(input, scheduler) {
+    return scheduleAsyncIterable(readableStreamLikeToAsyncGenerator(input), scheduler);
 }function scheduled(input, scheduler) {
     if (input != null) {
         if (isInteropObservable(input)) {
@@ -1570,6 +1621,9 @@ var iterator = getSymbolIterator();function caughtSchedule(subscriber, scheduler
         }
         if (isIterable(input)) {
             return scheduleIterable(input, scheduler);
+        }
+        if (isReadableStreamLike(input)) {
+            return scheduleReadableStreamLike(input, scheduler);
         }
     }
     throw createInvalidObservableTypeError(input);
@@ -1595,6 +1649,9 @@ function innerFrom(input) {
         }
         if (isIterable(input)) {
             return fromIterable(input);
+        }
+        if (isReadableStreamLike(input)) {
+            return fromReadableStreamLike(input);
         }
     }
     throw createInvalidObservableTypeError(input);
@@ -1654,6 +1711,9 @@ function fromAsyncIterable(asyncIterable) {
     return new Observable(function (subscriber) {
         process(asyncIterable, subscriber).catch(function (err) { return subscriber.error(err); });
     });
+}
+function fromReadableStreamLike(readableStream) {
+    return fromAsyncIterable(readableStreamLikeToAsyncGenerator(readableStream));
 }
 function process(asyncIterable, subscriber) {
     var asyncIterable_1, asyncIterable_1_1;
@@ -1796,7 +1856,8 @@ function observeNotification(notification, observer) {
     _super(this);
     this.name = 'EmptyError';
     this.message = 'no elements in sequence';
-}; });function lastValueFrom(source) {
+}; });function lastValueFrom(source, config) {
+    var hasConfig = typeof config === 'object';
     return new Promise(function (resolve, reject) {
         var _hasValue = false;
         var _value;
@@ -1810,13 +1871,17 @@ function observeNotification(notification, observer) {
                 if (_hasValue) {
                     resolve(_value);
                 }
+                else if (hasConfig) {
+                    resolve(config.defaultValue);
+                }
                 else {
                     reject(new EmptyError());
                 }
             },
         });
     });
-}function firstValueFrom(source) {
+}function firstValueFrom(source, config) {
+    var hasConfig = typeof config === 'object';
     return new Promise(function (resolve, reject) {
         var subscriber = new SafeSubscriber({
             next: function (value) {
@@ -1825,7 +1890,12 @@ function observeNotification(notification, observer) {
             },
             error: reject,
             complete: function () {
-                reject(new EmptyError());
+                if (hasConfig) {
+                    resolve(config.defaultValue);
+                }
+                else {
+                    reject(new EmptyError());
+                }
             },
         });
         source.subscribe(subscriber);
@@ -1879,7 +1949,7 @@ function mapOneOrManyArgs(fn) {
 }function observeOn(scheduler, delay) {
     if (delay === void 0) { delay = 0; }
     return operate(function (source, subscriber) {
-        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return subscriber.add(scheduler.schedule(function () { return subscriber.next(value); }, delay)); }, function (err) { return subscriber.add(scheduler.schedule(function () { return subscriber.error(err); }, delay)); }, function () { return subscriber.add(scheduler.schedule(function () { return subscriber.complete(); }, delay)); }));
+        source.subscribe(new OperatorSubscriber(subscriber, function (value) { return subscriber.add(scheduler.schedule(function () { return subscriber.next(value); }, delay)); }, function () { return subscriber.add(scheduler.schedule(function () { return subscriber.complete(); }, delay)); }, function (err) { return subscriber.add(scheduler.schedule(function () { return subscriber.error(err); }, delay)); }));
     });
 }function bindCallbackInternals(isNodeStyle, callbackFunc, resultSelector, scheduler) {
     if (resultSelector) {
@@ -2016,7 +2086,7 @@ function combineLatestInit(observables, scheduler, valueTransform) {
                         if (!remainingFirstValues) {
                             subscriber.next(valueTransform(values.slice()));
                         }
-                    }, undefined, function () {
+                    }, function () {
                         if (!--active) {
                             subscriber.complete();
                         }
@@ -2059,9 +2129,9 @@ function maybeSchedule(scheduler, execute, subscription) {
             else {
                 subscriber.next(innerValue);
             }
-        }, undefined, function () {
-            innerComplete = true;
         }, function () {
+            innerComplete = true;
+        }, undefined, function () {
             if (innerComplete) {
                 try {
                     active--;
@@ -2080,7 +2150,7 @@ function maybeSchedule(scheduler, execute, subscription) {
             }
         }));
     };
-    source.subscribe(new OperatorSubscriber(subscriber, outerNext, undefined, function () {
+    source.subscribe(new OperatorSubscriber(subscriber, outerNext, function () {
         isComplete = true;
         checkComplete();
     }));
@@ -2148,7 +2218,7 @@ function maybeSchedule(scheduler, execute, subscription) {
                     remainingEmissions--;
                 }
                 values[sourceIndex] = value;
-            }, undefined, function () {
+            }, function () {
                 if (!--remainingCompletions || !hasValue) {
                     if (!remainingEmissions) {
                         subscriber.next(keys ? createObject(keys, values) : values);
@@ -2308,9 +2378,6 @@ function isEventTarget(target) {
         period = 0;
     }
     return timer(period, period, scheduler);
-}var isArray = Array.isArray;
-function argsOrArgArray(args) {
-    return args.length === 1 && isArray(args[0]) ? args[0] : args;
 }function merge() {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -2318,7 +2385,7 @@ function argsOrArgArray(args) {
     }
     var scheduler = popScheduler(args);
     var concurrent = popNumber(args, Infinity);
-    var sources = argsOrArgArray(args);
+    var sources = args;
     return !sources.length
         ?
             EMPTY
@@ -2330,6 +2397,9 @@ function argsOrArgArray(args) {
 }var NEVER = new Observable(noop);
 function never() {
     return NEVER;
+}var isArray = Array.isArray;
+function argsOrArgArray(args) {
+    return args.length === 1 && isArray(args[0]) ? args[0] : args;
 }function onErrorResumeNext$1() {
     var sources = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -2470,7 +2540,7 @@ function raceInit(sources) {
                             subscriber.complete();
                         }
                     }
-                }, undefined, function () {
+                }, function () {
                     completed[sourceIndex] = true;
                     !buffers[sourceIndex].length && subscriber.complete();
                 }));
