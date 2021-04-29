@@ -275,7 +275,7 @@
       (drain! rs #(t/is (= % [2 3])))
       (s/on-end rs done))))
 
-(t/deftest observable-with-latest-from
+(t/deftest observable-with-latest
   (t/async done
     (let [s1 (s/from [0])
           s2 (s/from [1 2 3])
@@ -284,16 +284,40 @@
       (drain! s3 #(t/is (= % [[1 0] [2 0] [3 0]])))
       (s/on-end s3 done))))
 
-(t/deftest observable-combine-latest
+(t/deftest observable-with-latest-from-1
   (t/async done
-    (let [s1 (s/delay 10 (s/from [9]))
-          s2 (s/delay 10 (s/from [2]))
-          s3 (->> s1
-                  (s/combine-latest-with s2)
-                  (s/map vec)
-                  #_(s/tap #(prn "TMP" %)))]
+    (let [s1 (s/from [1 2 3])
+          s2 (s/from [0])
+          s3 (s/from [4 5 6])
+          s4 (->> s1
+                  (s/with-latest-from s2 s3)
+                  (s/map vec))]
       (t/is (s/observable? s3))
-      (drain! s3 #(t/is (= % [[9 2]])))
+      (drain! s4 #(t/is (= % [[1 0 6] [2 0 6] [3 0 6]])))
+      (s/on-end s3 done))))
+
+(t/deftest observable-with-latest-from-2
+  (t/async done
+    (let [s1 (s/from [1 2 3])
+          s2 (s/from [0])
+          s3 (s/from [4 5 6])
+          s4 (->> s1
+                  (s/with-latest-from [s2 s3])
+                  (s/map vec))]
+      (t/is (s/observable? s3))
+      (drain! s4 #(t/is (= % [[1 0 6] [2 0 6] [3 0 6]])))
+      (s/on-end s3 done))))
+
+(t/deftest observable-with-latest-from-3
+  (t/async done
+    (let [s1 (s/from [1 2 3])
+          s2 (s/from [0])
+          s3 (s/from [4 5 6])
+          s4 (->> s1
+                  (s/with-latest-from #js [s2 s3])
+                  (s/map vec))]
+      (t/is (s/observable? s3))
+      (drain! s4 #(t/is (= % [[1 0 6] [2 0 6] [3 0 6]])))
       (s/on-end s3 done))))
 
 (t/deftest observable-combine-latest-2

@@ -469,8 +469,32 @@
   "Merges the specified observable sequences into one observable
   sequence by using the selector function only when the source
   observable sequence (the instance) produces an element."
+  {:deprecated true}
   [f other source]
   (pipe source (.withLatestFrom rxop other f)))
+
+(defn with-latest-from
+  "Merges the specified observable sequences into one observable
+  sequence by using the selector function only when the source
+  observable sequence (the instance) produces an element."
+  ([other source]
+   (let [wlf (.-withLatestFrom rxop)
+         cmb (cond
+               (observable? other) (wlf other)
+               (array? other)      (.apply wlf nil other)
+               (sequential? other) (apply wlf other)
+               :else               (throw (ex-info "Invalid argument" {:type ::invalid-argument})))]
+     (pipe source cmb)))
+  ([o1 o2 source]
+   (pipe source (.withLatestFrom rxop o1 o2)))
+  ([o1 o2 o3 source]
+   (pipe source (.withLatestFrom rxop o1 o2 o3)))
+  ([o1 o2 o3 o4 source]
+   (pipe source (.withLatestFrom rxop o1 o2 o3 o4)))
+  ([o1 o2 o3 o4 o5 source]
+   (pipe source (.withLatestFrom rxop o1 o2 o3 o4 o5)))
+  ([o1 o2 o3 o4 o5 o6 source]
+   (pipe source (.withLatestFrom rxop o1 o2 o3 o4 o5 o6))))
 
 (defn combine-latest
   "Combines multiple Observables to create an Observable whose values
@@ -546,11 +570,15 @@
    (tap #(println prefix (pr-str %)) ob)))
 
 (defn throttle
-  "Returns an observable sequence that emits only the
-  first item emitted by the source Observable during
-  sequential time windows of a specified duration."
-  [ms ob]
-  (pipe ob (.throttleTime rxop ms)))
+  "Returns an observable sequence that emits only the first item emitted
+  by the source Observable during sequential time windows of a
+  specified duration."
+  ([ms ob]
+   (pipe ob (.throttleTime rxop ms)))
+  ([ms config ob]
+   (let [{:keys [leading trailing]
+          :or {leading true trailing false}} config]
+     (pipe ob (.throttleTime rxop ms #js {:leading leading :trailing trailing})))))
 
 (defn debounce
   "Emits an item from the source Observable after a
@@ -612,7 +640,8 @@
 
 (defn buffer-until
   "Buffers the source Observable values until notifier emits."
-  [notifier ob] (pipe ob (.buffer rxop notifier)))
+  [notifier ob]
+  (pipe ob (.buffer rxop notifier)))
 
 (defn retry
   "Given an optional number of retries and an observable,

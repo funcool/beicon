@@ -1,5 +1,12 @@
 # Changelog #
 
+## Version 2021.04.29-0 ##
+
+- Add the ability to pass config to `throttle`.
+- Add `with-latest-from` as replacement to `with-latest` (more arities).
+- Deprecate `with-latest`.
+
+
 ## Version 2021.04.27-2 ##
 
 - Replace `combine-latest` operator with `combine-latest-with` (now it
