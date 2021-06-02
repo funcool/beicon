@@ -2,11 +2,11 @@
  :aliases
  {:dev
   {:extra-deps
-   {org.clojure/clojurescript {:mvn/version "1.10.844"}
+   {org.clojure/clojurescript {:mvn/version "1.10.866"}
     org.clojure/clojure {:mvn/version "1.10.3"}
-    com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
-    com.bhauman/rebel-readline {:mvn/version "0.1.4"}
-    funcool/promesa {:mvn/version "6.0.0"}}
+    com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
+    com.bhauman/rebel-readline {:mvn/version "RELEASE"}
+    funcool/promesa {:mvn/version "RELEASE"}}
    :extra-paths ["test" "dev-resources"]}
 
   :ancient
@@ -14,12 +14,13 @@
    :extra-deps {deps-ancient/deps-ancient {:mvn/version "RELEASE"}}}
 
   :codox
-  {:extra-deps {codox/codox {:mvn/version "RELEASE"}
-                org.clojure/tools.reader {:mvn/version "RELEASE"}
-                codox-theme-rdash/codox-theme-rdash {:mvn/version "RELEASE"}}}
+  {:extra-deps
+   {codox/codox {:mvn/version "RELEASE"}
+    org.clojure/tools.reader {:mvn/version "RELEASE"}
+    codox-theme-rdash/codox-theme-rdash {:mvn/version "RELEASE"}}}
 
   :jar
-  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.206"}}
+  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "RELEASE"}}
    :exec-fn hf.depstar/jar
    :exec-args {:jar "target/beicon.jar"}}}}
 

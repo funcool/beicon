@@ -10,13 +10,13 @@
 (def rx js/rxjsMain)
 (def rxop js/rxjsOperators)
 
-(def ^:const Observable (.-Observable rx))
-(def ^:const Subject (.-Subject rx))
-(def ^:const BehaviorSubject (.-BehaviorSubject rx))
-(def ^:const Subscriber (.-Subscriber rx))
-(def ^:const Observer (.-Subscriber rx))
-(def ^:const Disposable (.-Subscription rx))
-(def ^:const Scheduler (.-Scheduler rx))
+(def ^:const Observable (.-Observable ^js rx))
+(def ^:const Subject (.-Subject ^js rx))
+(def ^:const BehaviorSubject (.-BehaviorSubject ^js rx))
+(def ^:const Subscriber (.-Subscriber ^js rx))
+(def ^:const Observer (.-Subscriber ^js rx))
+(def ^:const Disposable (.-Subscription ^js rx))
+(def ^:const Scheduler (.-Scheduler ^js rx))
 
 ;; --- Interop Helpers
 
@@ -26,7 +26,7 @@
   "Coerce a object to an observable instance."
   [ob]
   (assert (subject? ob) "`ob` should be a Subject instance")
-  (.asObservable ^Subject ob))
+  (.asObservable ^js ob))
 
 (def ^:private noop
   (constantly nil))
@@ -49,7 +49,7 @@
 (extend-type BehaviorSubject
   IDeref
   (-deref [self]
-    (.getValue ^BehaviorSubject self)))
+    (.getValue ^js self)))
 
 (defn observable?
   "Return true if `ob` is a instance
@@ -215,7 +215,7 @@
   "Returns an observable sequence that shares a single
   subscription to the underlying sequence."
   [ob]
-  (pipe ob (.share rxop)))
+  (pipe ob (.share ^js rxop)))
 
 (defn connect!
   "Connect the connectable observable."
@@ -254,7 +254,7 @@
   "Emits a given value if the source Observable completes without
   emitting any next value, otherwise mirrors the source Observable."
   [default ob]
-  (pipe ob (.defaultIfEmpty rxop default)))
+  (pipe ob (.defaultIfEmpty ^js rxop default)))
 
 ;; Alias
 (def default-if-empty if-empty)
@@ -347,25 +347,25 @@
 (defn merge-all
   "Merges an observable sequence of observable sequences into an
   observable sequence."
-  ([ob] (pipe ob (.mergeAll rxop)))
+  ([ob] (pipe ob (.mergeAll ^js rxop)))
   ([^number concurrency ob]
-   (pipe ob (.mergeAll rxop concurrency))))
+   (pipe ob (.mergeAll ^js rxop concurrency))))
 
 (defn filter
   "Filters the elements of an observable sequence
   based on a predicate."
   [f ob]
-  (pipe ob (.filter rxop #(boolean (f %)))))
+  (pipe ob (.filter ^js rxop #(boolean (f %)))))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
   [f ob]
-  (pipe ob (.map rxop #(f %))))
+  (pipe ob (.map ^js rxop #(f %))))
 
 (defn map-indexed
   [f ob]
-  (pipe ob (.map rxop #(f %2 %1))))
+  (pipe ob (.map ^js rxop #(f %2 %1))))
 
 (defn merge-map
   "Projects each element of an observable sequence to an observable
@@ -374,11 +374,11 @@
 
   In other languages is called: flatMap or mergeMap."
   [f ob]
-  (pipe ob (.flatMap rxop #(f %))))
+  (pipe ob (.flatMap ^js rxop #(f %))))
 
 (defn switch-map
   [f obj]
-  (pipe obj (.switchMap rxop #(f %))))
+  (pipe obj (.switchMap ^js rxop #(f %))))
 
 ;; Aliases
 (def fmap merge-map)
@@ -389,81 +389,81 @@
   sequence and concatenates the resulting observable sequences or
   Promises or array/iterable into one observable sequence."
   [f ob]
-  (pipe ob (.concatMap rxop #(f %))))
+  (pipe ob (.concatMap ^js rxop #(f %))))
 
 (defn mapcat-indexed
   [f ob]
-  (pipe ob (.concatMap rxop #(f %2 %1))))
+  (pipe ob (.concatMap ^js rxop #(f %2 %1))))
 
 (defn concat-all
   [ob]
-  (pipe ob (.concatAll rxop)))
+  (pipe ob (.concatAll ^js rxop)))
 
 (defn skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
   [n ob]
-  (pipe ob (.skip rxop (int n))))
+  (pipe ob (.skip ^js rxop (int n))))
 
 (defn skip-while
   "Bypasses elements in an observable sequence as long
   as a specified condition is true and then returns the
   remaining elements."
   [f ob]
-  (pipe ob (.skipWhile rxop #(boolean (f %)))))
+  (pipe ob (.skipWhile ^js rxop #(boolean (f %)))))
 
 (defn skip-until
   "Returns the values from the source observable sequence only after the
   other observable sequence produces a value."
   [pob ob]
-  (pipe ob (.skipUntil rxop pob)))
+  (pipe ob (.skipUntil ^js rxop pob)))
 
 (defn take
   "Bypasses a specified number of elements in an observable sequence and
   then returns the remaining elements."
   [n ob]
-  (pipe ob (.take rxop n)))
+  (pipe ob (.take ^js rxop n)))
 
 (defn first
   "Return an observable that only has the first value of the provided
   observable. You can optionally pass a predicate and default value."
-  ([ob] (pipe ob (.first rxop)))
-  ([f ob] (pipe ob (.first rxop #(boolean (f %)))))
-  ([f default ob] (pipe ob (.first rxop #(boolean (f %)) default))))
+  ([ob] (pipe ob (.first ^js rxop)))
+  ([f ob] (pipe ob (.first ^js rxop #(boolean (f %)))))
+  ([f default ob] (pipe ob (.first ^js rxop #(boolean (f %)) default))))
 
 (defn last
   "Return an observable that only has the last value of the provided
   observable. You can optionally pass a predicate and default value."
-  ([ob] (pipe ob (.last rxop)))
-  ([f ob] (pipe ob (.last rxop #(boolean (f %)))))
-  ([f default ob] (pipe ob (.last rxop #(boolean (f %)) default))))
+  ([ob] (pipe ob (.last ^js rxop)))
+  ([f ob] (pipe ob (.last ^js rxop #(boolean (f %)))))
+  ([f default ob] (pipe ob (.last ^js rxop #(boolean (f %)) default))))
 
 (defn take-while
   "Returns elements from an observable sequence as long as a specified
   predicate returns true."
   [f ob]
-  (pipe ob (.takeWhile rxop #(boolean (f %)))))
+  (pipe ob (.takeWhile ^js rxop #(boolean (f %)))))
 
 (defn take-until
   "Returns the values from the source observable sequence until the
   other observable sequence or Promise produces a value."
   [other ob]
-  (pipe ob (.takeUntil rxop other)))
+  (pipe ob (.takeUntil ^js rxop other)))
 
 (defn reduce
   "Applies an accumulator function over an observable sequence,
   returning the result of the aggregation as a single element in the
   result sequence."
-  ([f ob] (pipe ob (.reduce rxop #(f %1 %2))))
-  ([f seed ob] (pipe ob (.reduce rxop #(f %1 %2) seed))))
+  ([f ob] (pipe ob (.reduce ^js rxop #(f %1 %2))))
+  ([f seed ob] (pipe ob (.reduce ^js rxop #(f %1 %2) seed))))
 
 (defn scan
   "Applies an accumulator function over an observable sequence and
   returns each intermediate result.  Same as reduce but with
   intermediate results"
-  ([f ob] (pipe ob (.scan rxop #(f %1 %2))))
-  ([f seed ob] (pipe ob (.scan rxop #(f %1 %2) seed))))
+  ([f ob] (pipe ob (.scan ^js rxop #(f %1 %2))))
+  ([f seed ob] (pipe ob (.scan ^js rxop #(f %1 %2) seed))))
 
 (defn with-latest
   "Merges the specified observable sequences into one observable
@@ -471,14 +471,14 @@
   observable sequence (the instance) produces an element."
   {:deprecated true}
   [f other source]
-  (pipe source (.withLatestFrom rxop other f)))
+  (pipe source (.withLatestFrom ^js rxop other f)))
 
 (defn with-latest-from
   "Merges the specified observable sequences into one observable
   sequence by using the selector function only when the source
   observable sequence (the instance) produces an element."
   ([other source]
-   (let [wlf (.-withLatestFrom rxop)
+   (let [wlf (.-withLatestFrom ^js rxop)
          cmb (cond
                (observable? other) (wlf other)
                (array? other)      (.apply wlf nil other)
@@ -486,15 +486,15 @@
                :else               (throw (ex-info "Invalid argument" {:type ::invalid-argument})))]
      (pipe source cmb)))
   ([o1 o2 source]
-   (pipe source (.withLatestFrom rxop o1 o2)))
+   (pipe source (.withLatestFrom ^js rxop o1 o2)))
   ([o1 o2 o3 source]
-   (pipe source (.withLatestFrom rxop o1 o2 o3)))
+   (pipe source (.withLatestFrom ^js rxop o1 o2 o3)))
   ([o1 o2 o3 o4 source]
-   (pipe source (.withLatestFrom rxop o1 o2 o3 o4)))
+   (pipe source (.withLatestFrom ^js rxop o1 o2 o3 o4)))
   ([o1 o2 o3 o4 o5 source]
-   (pipe source (.withLatestFrom rxop o1 o2 o3 o4 o5)))
+   (pipe source (.withLatestFrom ^js rxop o1 o2 o3 o4 o5)))
   ([o1 o2 o3 o4 o5 o6 source]
-   (pipe source (.withLatestFrom rxop o1 o2 o3 o4 o5 o6))))
+   (pipe source (.withLatestFrom ^js rxop o1 o2 o3 o4 o5 o6))))
 
 (defn combine-latest
   "Combines multiple Observables to create an Observable whose values
@@ -524,13 +524,13 @@
   are calculated from the latest values of each of its input
   Observables (operator)."
   [other ob]
-  (pipe ob (.combineLatestWith rxop other)))
+  (pipe ob (.combineLatestWith ^js rxop other)))
 
 (defn catch
   "Continues an observable sequence that is terminated
   by an exception with the next observable sequence."
   ([handler ob]
-   (pipe ob (.catchError rxop
+   (pipe ob (.catchError ^js rxop
                          (fn [error source]
                            (let [value (handler error source)]
                              (if (observable? value)
@@ -546,9 +546,9 @@
 (defn tap
   "Invokes an action for each element in the
   observable sequence."
-  ([f ob] (pipe ob (.tap rxop f)))
-  ([f g ob] (pipe ob (.tap rxop f g)))
-  ([f g e ob] (pipe ob (.tap rxop f g e))))
+  ([f ob] (pipe ob (.tap ^js rxop f)))
+  ([f g ob] (pipe ob (.tap ^js rxop f g)))
+  ([f g e ob] (pipe ob (.tap ^js rxop f g e))))
 
 ;; Aliases
 (def do tap)
@@ -574,47 +574,47 @@
   by the source Observable during sequential time windows of a
   specified duration."
   ([ms ob]
-   (pipe ob (.throttleTime rxop ms)))
+   (pipe ob (.throttleTime ^js rxop ms)))
   ([ms config ob]
    (let [{:keys [leading trailing]
           :or {leading true trailing false}} config]
-     (pipe ob (.throttleTime rxop ms #js {:leading leading :trailing trailing})))))
+     (pipe ob (.throttleTime ^js rxop ms #js {:leading leading :trailing trailing})))))
 
 (defn debounce
   "Emits an item from the source Observable after a
   particular timespan has passed without the Observable
   omitting any other items."
   [ms ob]
-  (pipe ob (.debounceTime rxop ms)))
+  (pipe ob (.debounceTime ^js rxop ms)))
 
 (defn sample
   "Samples the observable sequence at each interval."
   [ms ob]
-  (pipe ob (.sampleTime rxop ms)))
+  (pipe ob (.sampleTime ^js rxop ms)))
 
 (defn sample-when
   "Samples the observable sequence at each interval."
   [other ob]
-  (pipe ob (.sample rxop other)))
+  (pipe ob (.sample ^js rxop other)))
 
 (defn ignore
   "Ignores all elements in an observable sequence leaving only the
   termination messages."
   [ob]
-  (pipe ob (.ignoreElements rxop)))
+  (pipe ob (.ignoreElements ^js rxop)))
 
 (defn finalize
   "Returns an Observable that mirrors the source Observable, but will
   call a specified function when the source terminates on complete or
   error."
   [f ob]
-  (pipe ob (.finalize rxop #(f))))
+  (pipe ob (.finalize ^js rxop #(f))))
 
 (defn dedupe
   "Returns an observable sequence that contains only
   distinct contiguous elements."
   ([ob] (dedupe identity ob))
-  ([f ob] (pipe ob (.distinctUntilChanged rxop identical? f))))
+  ([f ob] (pipe ob (.distinctUntilChanged ^js rxop identical? f))))
 
 (defn dedupe'
   "Returns an observable sequence that contains only d istinct
@@ -622,34 +622,34 @@
 
   Usage of this operator should be considered carefully due to the
   maintenance of an internal lookup structure which can grow large."
-  ([ob] (pipe ob (.distinct rxop identical?)))
-  ([f ob] (pipe ob (.distinct rxop identical? f))))
+  ([ob] (pipe ob (.distinct ^js rxop identical?)))
+  ([f ob] (pipe ob (.distinct ^js rxop identical? f))))
 
 (defn buffer
   "Projects each element of an observable sequence into zero
   or more buffers which are produced based on element count
   information."
-  ([n ob] (pipe ob (.bufferCount rxop n)))
-  ([n skip ob] (pipe ob (.bufferCount rxop n skip))))
+  ([n ob] (pipe ob (.bufferCount ^js rxop n)))
+  ([n skip ob] (pipe ob (.bufferCount ^js rxop n skip))))
 
 (defn buffer-time
   "Buffers the source Observable values for a specific time period."
-  ([ms ob] (pipe ob (.bufferTime rxop ms)))
-  ([ms start ob] (pipe ob (.bufferTime rxop ms start)))
-  ([ms start max ob] (pipe ob (.bufferTime rxop ms start max))))
+  ([ms ob] (pipe ob (.bufferTime ^js rxop ms)))
+  ([ms start ob] (pipe ob (.bufferTime ^js rxop ms start)))
+  ([ms start max ob] (pipe ob (.bufferTime ^js rxop ms start max))))
 
 (defn buffer-until
   "Buffers the source Observable values until notifier emits."
   [notifier ob]
-  (pipe ob (.buffer rxop notifier)))
+  (pipe ob (.buffer ^js rxop notifier)))
 
 (defn retry
   "Given an optional number of retries and an observable,
   repeats the source observable the specified number of
   times or until it terminates. If no number of retries
   is given, it will be retried indefinitely."
-  ([ob] (pipe ob (.retry rxop)))
-  ([n ob] (pipe ob (.retry rxop ^long n))))
+  ([ob] (pipe ob (.retry ^js rxop)))
+  ([n ob] (pipe ob (.retry ^js rxop ^long n))))
 
 (defn transform
   "Transform the observable sequence using transducers."
@@ -682,20 +682,20 @@
 (defn timeout
   "Returns the source observable sequence or the other
   observable sequence if dueTime elapses."
-  ([ms ob] (pipe ob (.timeout rxop ms)))
-  ([ms other ob] (pipe ob (.timeoutWith rxop ms other))))
+  ([ms ob] (pipe ob (.timeout ^js rxop ms)))
+  ([ms other ob] (pipe ob (.timeoutWith ^js rxop ms other))))
 
 (defn delay
   "Time shifts the observable sequence by dueTime. The relative
   time intervals between the values are preserved."
   [ms ob]
-  (pipe ob (.delay rxop ms)))
+  (pipe ob (.delay ^js rxop ms)))
 
 (defn delay-when
   "Time shifts the observable sequence based on a subscription
   delay and a delay selector function for each element."
-  ([sf ob] (pipe ob (.delayWhen rxop sf)))
-  ([sd sf ob] (pipe ob (.delayWhen rxop sf sd))))
+  ([sf ob] (pipe ob (.delayWhen ^js rxop sf)))
+  ([sd sf ob] (pipe ob (.delayWhen ^js rxop sf sd))))
 
 (defn delay-at-least
   "Time shifts at least `ms` milisseconds."
@@ -729,10 +729,10 @@
   [schd ob]
   (cond
     (scheduler? schd)
-    (pipe ob (.observeOn rxop schd))
+    (pipe ob (.observeOn ^js rxop schd))
 
     (keyword? schd)
-    (pipe ob (.observeOn rxop (scheduler schd)))
+    (pipe ob (.observeOn ^js rxop (scheduler schd)))
 
     :else
     (throw (ex-info "Invalid argument" {:type ::invalid-argument}))))
@@ -741,10 +741,10 @@
   [schd ob]
   (cond
     (scheduler? schd)
-    (pipe ob (.subscribeOn rxop schd))
+    (pipe ob (.subscribeOn ^js rxop schd))
 
     (keyword? schd)
-    (pipe ob (.subscribeOn rxop (scheduler schd)))
+    (pipe ob (.subscribeOn ^js rxop (scheduler schd)))
 
     :else
     (throw (ex-info "Invalid argument" {:type ::invalid-argument}))))

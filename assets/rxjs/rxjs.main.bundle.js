@@ -162,23 +162,26 @@ function __asyncValues(o) {
         if (!this.closed) {
             this.closed = true;
             var _parentage = this._parentage;
-            if (Array.isArray(_parentage)) {
-                try {
-                    for (var _parentage_1 = __values(_parentage), _parentage_1_1 = _parentage_1.next(); !_parentage_1_1.done; _parentage_1_1 = _parentage_1.next()) {
-                        var parent_1 = _parentage_1_1.value;
-                        parent_1.remove(this);
-                    }
-                }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                finally {
+            if (_parentage) {
+                this._parentage = null;
+                if (Array.isArray(_parentage)) {
                     try {
-                        if (_parentage_1_1 && !_parentage_1_1.done && (_a = _parentage_1.return)) _a.call(_parentage_1);
+                        for (var _parentage_1 = __values(_parentage), _parentage_1_1 = _parentage_1.next(); !_parentage_1_1.done; _parentage_1_1 = _parentage_1.next()) {
+                            var parent_1 = _parentage_1_1.value;
+                            parent_1.remove(this);
+                        }
                     }
-                    finally { if (e_1) throw e_1.error; }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (_parentage_1_1 && !_parentage_1_1.done && (_a = _parentage_1.return)) _a.call(_parentage_1);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                    }
                 }
-            }
-            else {
-                _parentage === null || _parentage === void 0 ? void 0 : _parentage.remove(this);
+                else {
+                    _parentage.remove(this);
+                }
             }
             var initialTeardown = this.initialTeardown;
             if (isFunction(initialTeardown)) {
@@ -496,26 +499,50 @@ function pipeFromArray(fns) {
     };
     Observable.prototype.subscribe = function (observerOrNext, error, complete) {
         var subscriber = isSubscriber(observerOrNext) ? observerOrNext : new SafeSubscriber(observerOrNext, error, complete);
-        var _a = this, operator = _a.operator, source = _a.source;
-        var dest = subscriber;
         if (config.useDeprecatedSynchronousErrorHandling) {
-            dest._syncErrorHack_isSubscribing = true;
+            this._deprecatedSyncErrorSubscribe(subscriber);
         }
-        subscriber.add(operator
-            ? operator.call(subscriber, source)
-            : source || config.useDeprecatedSynchronousErrorHandling
-                ? this._subscribe(subscriber)
-                : this._trySubscribe(subscriber));
-        if (config.useDeprecatedSynchronousErrorHandling) {
-            dest._syncErrorHack_isSubscribing = false;
-            while (dest) {
-                if (dest.__syncError) {
-                    throw dest.__syncError;
-                }
-                dest = dest.destination;
-            }
+        else {
+            var _a = this, operator = _a.operator, source = _a.source;
+            subscriber.add(operator
+                ?
+                    operator.call(subscriber, source)
+                : source
+                    ?
+                        this._subscribe(subscriber)
+                    :
+                        this._trySubscribe(subscriber));
         }
         return subscriber;
+    };
+    Observable.prototype._deprecatedSyncErrorSubscribe = function (subscriber) {
+        var localSubscriber = subscriber;
+        localSubscriber._syncErrorHack_isSubscribing = true;
+        var operator = this.operator;
+        if (operator) {
+            subscriber.add(operator.call(subscriber, this.source));
+        }
+        else {
+            try {
+                subscriber.add(this._subscribe(subscriber));
+            }
+            catch (err) {
+                localSubscriber.__syncError = err;
+            }
+        }
+        var dest = localSubscriber;
+        while (dest) {
+            if ('__syncError' in dest) {
+                try {
+                    throw dest.__syncError;
+                }
+                finally {
+                    subscriber.unsubscribe();
+                }
+            }
+            dest = dest.destination;
+        }
+        localSubscriber._syncErrorHack_isSubscribing = false;
     };
     Observable.prototype._trySubscribe = function (sink) {
         try {
@@ -845,6 +872,14 @@ var DEFAULT_ANIMATION_FRAMES = animationFramesFactory();var ObjectUnsubscribedEr
         this.isStopped = this.closed = true;
         this.observers = null;
     };
+    Object.defineProperty(Subject.prototype, "observed", {
+        get: function () {
+            var _a;
+            return ((_a = this.observers) === null || _a === void 0 ? void 0 : _a.length) > 0;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Subject.prototype._trySubscribe = function (subscriber) {
         this._throwIfClosed();
         return _super.prototype._trySubscribe.call(this, subscriber);
@@ -1376,12 +1411,12 @@ var animationFrame = animationFrameScheduler;var VirtualTimeScheduler = (functio
         while ((action = actions[0]) && action.delay <= maxFrames) {
             actions.shift();
             this.frame = action.delay;
-            if (error = action.execute(action.state, action.delay)) {
+            if ((error = action.execute(action.state, action.delay))) {
                 break;
             }
         }
         if (error) {
-            while (action = actions.shift()) {
+            while ((action = actions.shift())) {
                 action.unsubscribe();
             }
             throw error;
@@ -1393,7 +1428,7 @@ var animationFrame = animationFrameScheduler;var VirtualTimeScheduler = (functio
 var VirtualAction = (function (_super) {
     __extends(VirtualAction, _super);
     function VirtualAction(scheduler, work, index) {
-        if (index === void 0) { index = scheduler.index += 1; }
+        if (index === void 0) { index = (scheduler.index += 1); }
         var _this = _super.call(this, scheduler, work) || this;
         _this.scheduler = scheduler;
         _this.work = work;
@@ -1819,7 +1854,7 @@ var Notification = (function () {
             :
                 kind === 'E'
                     ?
-                        throwError(error)
+                        throwError(function () { return error; })
                     :
                         kind === 'C'
                             ?
@@ -1979,13 +2014,13 @@ function mapOneOrManyArgs(fn) {
                 .pipe(subscribeOn(scheduler), observeOn(scheduler));
         };
     }
-    var subject = new AsyncSubject();
     return function () {
         var _this = this;
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
+        var subject = new AsyncSubject();
         var uninitialized = true;
         return new Observable(function (subscriber) {
             var subs = subject.subscribe(subscriber);
@@ -2181,15 +2216,24 @@ function maybeSchedule(scheduler, execute, subscription) {
     return new Observable(function (subscriber) {
         innerFrom(observableFactory()).subscribe(subscriber);
     });
-}function connectable(source, connector) {
-    if (connector === void 0) { connector = new Subject(); }
+}var DEFAULT_CONFIG = {
+    connector: function () { return new Subject(); },
+    resetOnDisconnect: true,
+};
+function connectable(source, config) {
+    if (config === void 0) { config = DEFAULT_CONFIG; }
     var connection = null;
+    var connector = config.connector, _a = config.resetOnDisconnect, resetOnDisconnect = _a === void 0 ? true : _a;
+    var subject = connector();
     var result = new Observable(function (subscriber) {
-        return connector.subscribe(subscriber);
+        return subject.subscribe(subscriber);
     });
     result.connect = function () {
-        if (!connection) {
-            connection = defer(function () { return source; }).subscribe(connector);
+        if (!connection || connection.closed) {
+            connection = defer(function () { return source; }).subscribe(subject);
+            if (resetOnDisconnect) {
+                connection.add(function () { return (subject = connector()); });
+            }
         }
         return connection;
     };

@@ -1,5 +1,11 @@
 # Changelog #
 
+## Version 2021.06.02-0 ##
+
+- Update bundled rxjs to 7.1.0
+- Add missing ^js metadata.
+
+
 ## Version 2021.04.29-0 ##
 
 - Add the ability to pass config to `throttle`.
