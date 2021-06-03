@@ -1,5 +1,11 @@
 # Changelog #
 
+## Version 2021.06-03-0 ##
+
+- Add `merge-scan` operator.
+- Minor improvements on `concat` and `zip` constructors.
+
+
 ## Version 2021.06.02-0 ##
 
 - Update bundled rxjs to 7.1.0

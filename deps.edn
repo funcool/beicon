@@ -2,7 +2,7 @@
  :aliases
  {:dev
   {:extra-deps
-   {org.clojure/clojurescript {:mvn/version "1.10.866"}
+   {org.clojure/clojurescript {:mvn/version "1.10.844"}
     org.clojure/clojure {:mvn/version "1.10.3"}
     com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
     com.bhauman/rebel-readline {:mvn/version "RELEASE"}

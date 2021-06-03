@@ -323,26 +323,23 @@
   "Merges the specified observable sequences or Promises (cljs) into one
   observable sequence."
   [& items]
-  (let [[selector items] (if (ifn? (c/first items))
-                           [(c/first items) (rest items)]
-                           [vector items])
-        items (if (vector? items) items (vec items))]
-    (apply (.-zip rx) (conj items selector))))
+  (let [zip-fn (unchecked-get rx "zip")]
+    (apply zip-fn items)))
 
 (defn concat
   "Concatenates all of the specified observable
   sequences, as long as the previous observable
   sequence terminated successfully."
   [& more]
-  (let [more (cljs.core/filter identity more)]
-    (apply (.-concat rx) more)))
+  (let [concat-fn (unchecked-get rx "concat")]
+    (apply concat-fn (c/filter some? more))))
 
 (defn merge
   "Merges all the observable sequences and Promises
   into a single observable sequence."
   [& more]
-  (let [more (cljs.core/filter identity more)]
-    (apply (.-merge rx) more)))
+  (let [merge-fn (unchecked-get rx "merge")]
+    (apply merge-fn (c/filter some? more))))
 
 (defn merge-all
   "Merges an observable sequence of observable sequences into an
@@ -464,6 +461,15 @@
   intermediate results"
   ([f ob] (pipe ob (.scan ^js rxop #(f %1 %2))))
   ([f seed ob] (pipe ob (.scan ^js rxop #(f %1 %2) seed))))
+
+(defn merge-scan
+  "Applies an accumulator function over the source Observable where
+  the accumulator function itself returns an Observable, then each
+  intermediate Observable returned is merged into the output
+  Observable."
+  [f seed ob]
+  (let [merge-scan-fn (unchecked-get rxop "mergeScan")]
+    (pipe ob (merge-scan-fn #(f %1 %2) seed))))
 
 (defn with-latest
   "Merges the specified observable sequences into one observable

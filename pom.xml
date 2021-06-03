@@ -4,7 +4,7 @@
   <groupId>funcool</groupId>
   <artifactId>beicon</artifactId>
   <packaging>jar</packaging>
-  <version>2021.06.02-0</version>
+  <version>2021.06.03-0</version>
   <name>beicon</name>
   <description>Reactive Streams for Clojure(Script)</description>
   <url>https://github.com/funcool/beicon</url>

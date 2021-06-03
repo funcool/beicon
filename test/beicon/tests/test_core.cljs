@@ -169,7 +169,8 @@
     (let [s1 (s/from [1 2])
           s2 (s/from [4 5])
           s3 (s/from [7 8])
-          cs (s/zip s1 s2 s3)]
+          cs (->> (s/zip s1 s2 s3)
+                  (s/map vec))]
       (drain! cs #(t/is (= % [[1 4 7] [2 5 8]])))
       (s/on-end cs done))))
 
@@ -234,6 +235,22 @@
     (let [s (->> (s/from [4 5 6])
                  (s/reduce conj [1 2]))]
       (drain! s #(do (t/is (= % [[1 2 4 5 6]]))
+                     (done))))))
+
+
+(t/deftest observable-scan
+  (t/async done
+    (let [s (->> (s/from [4 5 6])
+                 (s/scan conj [1]))]
+      (drain! s #(do (t/is (= % [[1 4] [1 4 5] [1 4 5 6]]))
+                     (done))))))
+
+
+(t/deftest observable-merge-scan
+  (t/async done
+    (let [s (->> (s/from [4 5 6])
+                 (s/merge-scan (fn [acc i] (s/of (conj acc i))) [1]))]
+      (drain! s #(do (t/is (= % [[1 4] [1 4 5] [1 4 5 6]]))
                      (done))))))
 
 

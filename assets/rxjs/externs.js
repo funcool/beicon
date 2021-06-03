@@ -166,6 +166,7 @@ rxjsOperators.concatAll = function() {};
 rxjsOperators.concatMap = function() {};
 rxjsOperators.concatMapTo = function() {};
 rxjsOperators.scan = function() {};
+rxjsOperators.mergeScan = function() {};
 rxjsOperators.merge = function() {};
 rxjsOperators.mergeAll = function() {};
 rxjsOperators.mergeMap = function() {};
