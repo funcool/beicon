@@ -2,8 +2,11 @@
 
 ## Version 2021.06-03-0 ##
 
+BREAKING CHANGES: `zip` no longer accepts acoomulator function.
+
 - Add `merge-scan` operator.
 - Minor improvements on `concat` and `zip` constructors.
+
 
 
 ## Version 2021.06.02-0 ##
