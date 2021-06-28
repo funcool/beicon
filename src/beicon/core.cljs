@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [true? map filter reduce merge repeat first
                             last mapcat repeatedly zip dedupe drop
                             take take-while map-indexed concat empty
-                            delay range throw do trampoline subs])
+                            delay range throw do trampoline subs flatten])
   (:require [beicon.impl.rxjs]
             [beicon.impl.rxjs-operators]
             [cljs.core :as c]))
@@ -416,6 +416,11 @@
   [pob ob]
   (pipe ob (.skipUntil ^js rxop pob)))
 
+(defn skip-last
+  "Skip a specified number of values before the completion of an observable."
+  [n ob]
+  (.pipe ob (.skipLast ^js rxop (int n))))
+
 (defn take
   "Bypasses a specified number of elements in an observable sequence and
   then returns the remaining elements."
@@ -716,6 +721,25 @@
   value after each period."
   [ms]
   (.interval rx ms))
+
+(defn flatten
+  "Just like clojure collections flatten but for rx streams. Given a stream
+  off collections will emit every value separately"
+  [ob]
+  (pipe ob (.concatMap ^js rxop identity)))
+
+(defn concat-reduce
+  "Like reduce but accepts a function that returns a stream. Will use as
+  value for the next step in the reduce the last valued emited by the stream
+  in the function."
+  [f seed ob]
+  (let [current-acc (atom seed)]
+    (->> (concat
+          (of seed)
+          (->> ob
+               (mapcat #(f @current-acc %))
+               (tap #(reset! current-acc %))))
+         (last))))
 
 ;; --- Schedulers
 
