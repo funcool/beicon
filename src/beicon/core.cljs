@@ -476,6 +476,12 @@
   (let [merge-scan-fn (unchecked-get rxop "mergeScan")]
     (pipe ob (merge-scan-fn #(f %1 %2) seed))))
 
+(defn expand
+  "Recursively projects each source value to an Observable
+  which is merged in the output Observable."
+  [f ob]
+  (pipe ob (.expand ^js rxop f)))
+
 (defn with-latest
   "Merges the specified observable sequences into one observable
   sequence by using the selector function only when the source
