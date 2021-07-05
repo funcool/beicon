@@ -708,6 +708,11 @@
   [ms ob]
   (pipe ob (.delay ^js rxop ms)))
 
+(defn delay-emit
+  "Time shift the observable but also increase the relative time between emisions."
+  [ms ob]
+  (pipe ob (mapcat #(delay ms (of %)))))
+
 (defn delay-when
   "Time shifts the observable sequence based on a subscription
   delay and a delay selector function for each element."
