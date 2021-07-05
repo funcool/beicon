@@ -711,7 +711,7 @@
 (defn delay-emit
   "Time shift the observable but also increase the relative time between emisions."
   [ms ob]
-  (pipe ob (mapcat #(delay ms (of %)))))
+  (mapcat #(delay ms (of %)) ob))
 
 (defn delay-when
   "Time shifts the observable sequence based on a subscription
@@ -744,12 +744,12 @@
   value for the next step in the reduce the last valued emited by the stream
   in the function."
   [f seed ob]
-  (let [current-acc (atom seed)]
+  (let [current-acc (volatile! seed)]
     (->> (concat
           (of seed)
           (->> ob
                (mapcat #(f @current-acc %))
-               (tap #(reset! current-acc %))))
+               (tap #(vreset! current-acc %))))
          (last))))
 
 ;; --- Schedulers

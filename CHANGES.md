@@ -1,6 +1,19 @@
 # Changelog #
 
-## Version 2021.06-03-0 ##
+## Version 2021.07.05-1 ##
+
+- Fix bug on `delay-emit` operator.
+- Minor change on `concat-reduce` operator.
+
+## Version 2021.07.05-0 ##
+
+- Add `flatten` operator.
+- Add `delay-emit` operator.
+- Add `skip-last` operator.
+- Add `concat-reduce` operator.
+
+
+## Version 2021.06.03-0 ##
 
 BREAKING CHANGES: `zip` no longer accepts acoomulator function.
 
