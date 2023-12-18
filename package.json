@@ -1,32 +1,21 @@
 {
-  "name": "beicon-deps",
-  "version": "1.0.0",
+  "name": "beicon",
+  "version": "2.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "build": "NODE_ENV=production rollup -c",
-    "minify:main": "terser assets/rxjs/rxjs.main.bundle.js -c -m -o assets/rxjs/rxjs.main.bundle.min.js",
-    "minify:operators": "terser assets/rxjs/rxjs.operators.bundle.js -c -m -o assets/rxjs/rxjs.operators.bundle.min.js",
-    "dist": "yarn run build && yarn run minify:main && yarn run minify:operators"
+    "test:watch": "clojure -M:dev:shadow-cljs watch test",
+    "test:compile": "clojure -M:dev:shadow-cljs compile test --config-merge '{:autorun false}'",
+    "test:run": "node target/tests.js",
+    "test": "yarn run test:compile && yarn run test:run"
   },
   "author": "",
-  "license": "MPL2",
+  "license": "MPL-2.0",
   "devDependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-export-default-from": "^7.8.3",
-    "@babel/preset-env": "^7.14.4",
-    "@rollup/plugin-babel": "^5.2.2",
-    "@rollup/plugin-commonjs": "^19.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "@rollup/plugin-replace": "^2.3.4",
-    "rollup": "^2.50.5",
-    "terser": "^5.5.1"
+    "source-map-support": "^0.5.21"
   },
   "dependencies": {
-    "browserlist": "^1.0.1",
-    "rxjs": "^7.1.0",
-    "source-map-support": "^0.5.19"
-  }
+    "shadow-cljs": "^2.26.2",
+    "ws": "^8.12.1"
+  },
+  "packageManager": "yarn@4.0.2"
 }

@@ -1,5 +1,6 @@
 (ns beicon.tests.helpers
-  #?(:cljs (:require [beicon.core :as s])))
+  #?(:cljs
+     (:require [beicon.v2 :as rx])))
 
 (def noop (constantly nil))
 
@@ -20,7 +21,7 @@
       (drain! ob cb #(println "Error: " %)))
      ([ob cb errb]
       (let [values (volatile! [])]
-        (s/subscribe ob
-                     #(vswap! values conj %)
-                     #(errb %)
-                     #(cb @values))))))
+        (rx/subscribe ob
+                      #(vswap! values conj %)
+                      #(errb %)
+                      #(cb @values))))))
