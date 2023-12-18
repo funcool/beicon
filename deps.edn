@@ -1,17 +1,20 @@
-{:paths ["src" "assets"]
+{:paths ["src" "resources" "target/classes"],
  :aliases
  {:dev
   {:extra-deps
-   {org.clojure/clojurescript {:mvn/version "1.10.844"}
-    org.clojure/clojure {:mvn/version "1.10.3"}
-    com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"}
-    com.bhauman/rebel-readline {:mvn/version "RELEASE"}
-    funcool/promesa {:mvn/version "RELEASE"}}
-   :extra-paths ["test" "dev-resources"]}
+   {com.bhauman/rebel-readline-cljs {:mvn/version "RELEASE"},
+    com.bhauman/rebel-readline {:mvn/version "RELEASE"},
+    org.clojure/tools.namespace {:mvn/version "RELEASE"},
+    org.clojure/core.async {:mvn/version "1.6.673"}
+    criterium/criterium {:mvn/version "RELEASE"}
+    thheller/shadow-cljs {:mvn/version "RELEASE"}}
+   :extra-paths ["test" "dev" "src"]}
 
-  :ancient
-  {:main-opts ["-m" "deps-ancient.deps-ancient"],
-   :extra-deps {deps-ancient/deps-ancient {:mvn/version "RELEASE"}}}
+  :repl
+  {:main-opts  ["-m" "rebel-readline.main"]}
+
+  :shadow-cljs
+  {:main-opts ["-m" "shadow.cljs.devtools.cli"]}
 
   :codox
   {:extra-deps
@@ -19,9 +22,16 @@
     org.clojure/tools.reader {:mvn/version "RELEASE"}
     codox-theme-rdash/codox-theme-rdash {:mvn/version "RELEASE"}}}
 
-  :jar
-  {:replace-deps {com.github.seancorfield/depstar {:mvn/version "RELEASE"}}
-   :exec-fn hf.depstar/jar
-   :exec-args {:jar "target/beicon.jar"}}}}
 
+  :build
+  {:extra-deps
+   {io.github.clojure/tools.build {:git/tag "v0.9.3" :git/sha "e537cd1"}
+    org.clojure/clojurescript {:mvn/version "RELEASE"}
+    org.clojure/tools.deps.alpha {:mvn/version "RELEASE"}}
+   :ns-default build}
 
+  :outdated
+  {:extra-deps
+   {com.github.liquidz/antq {:mvn/version "RELEASE"}
+    org.slf4j/slf4j-nop {:mvn/version "RELEASE"}}
+   :main-opts ["-m" "antq.core"]}}}

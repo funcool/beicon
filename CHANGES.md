@@ -1,5 +1,54 @@
 # Changelog #
 
+## Version 2.2 ##
+
+- Fix recursion error on ignore operator
+
+## Version 2.1 ##
+
+- Make seed optional for `reduce`
+- Make seed optional for `scan`
+
+
+## Version 2.0 ##
+
+This version few numer of BREAKING CHANGES that should be considered
+before upgrade.  All of them are pretty easy to adapt.
+
+As this is a breaking change, we decide to rename the `beicon.core`
+namespace with `beicon.v2` namespace, so the people can continue using
+the old API and the old package if they want without a conflict with
+the new version.
+
+This is a major API cleanup and adapt it more to RX convention of
+using `rx/pipe` operator for compose transformations.
+
+Relevant changes:
+
+- The internal `rx/pipe` function inverts the arguments order for to
+  be easy to use with `->>`.
+- Make the `rx/pipe` as public API useful for use custom defined
+  operators.
+- Add `beicon.v2.ops` with operator only functions.
+- Remove the `flat-map` alias (use `merge-map`).
+- The `first` operator now becomes an alias for `(take 1)`.
+- The `last` operator becomes an alias for `(take-last 1)`.
+- Make the `seed` parameter to `reduce` as mandatory.
+- Make the `seed` parameter to `scan` as mandatory.
+- Replace multiarity `with-latest-from` with a specific operator
+  `with-latest-from*` that can be used through the `rx/pipe`
+  observable chain helper. Mainly for reduce code complexity.
+- Remove the `do` alias for `tap`
+- Remove the `log` and `pr-log` operator
+- Replace `dedupe` and `dedupe'` with operator only
+  `distinct-contiguous*` and `distinct*` for make it more similar to
+  rxjs API.
+- The `delay-when` operator arguments order changed to be the same as
+  rxjs
+- Remove `delay-emit`
+- Replace `subs` with `subs!`
+
+
 ## Version 2021.07.05-1 ##
 
 - Fix bug on `delay-emit` operator.
@@ -19,7 +68,6 @@ BREAKING CHANGES: `zip` no longer accepts acoomulator function.
 
 - Add `merge-scan` operator.
 - Minor improvements on `concat` and `zip` constructors.
-
 
 
 ## Version 2021.06.02-0 ##

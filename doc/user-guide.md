@@ -5,14 +5,16 @@
 _beicon_ is a small and concise library that provides reactive streams
 API for ClojureScript.
 
-
 ### Install
 
 The simplest way to use _beicon_ in a Clojure project, is by including
-it in the dependency vector on your *_project.clj_* file:
+it the following dependency:
 
 ```clojure
-funcool/beicon {:mvn/version "RELEASE"}
+funcool/beicon2
+{:git/tag "v2.1"
+ :git/sha "1d69162"
+ :git/url "https://github.com/funcool/beicon.git"}
 ```
 
 ## Creating Streams
@@ -26,7 +28,7 @@ The most basic way to create a stream is to just take a collection
 and convert it into an observable sequence:
 
 ```clojure
-(require '[beicon.core :as rx])
+(require '[beicon.v2 :as rx])
 
 (def stream (rx/from [1 2 3]))
 
@@ -159,46 +161,81 @@ The return value of the `subscribe` function is a subscription object,
 that identifies the current subscription. It can be cancelled by
 executing `(rx/dispose! sub)`.
 
+There is also the `subs!` function usefull for `->>` ready call
+convention (expects receive the `observable` on the last argument
+position instead of the first position).
+
 
 ## Transformations
 
-### Filter
+There are two call conventions here:
 
-The main advantage of using reactive streams is that you may treat them like
-normal sequences, and in this case filter them with a predicate:
+- The familiar fluent API, which just works like any clojure sequence
+  transformations functions (`map`, `filter`, ...)
+- The RxJS composition API, using `rx/pipe` and `rx/comp`.
+
+Let see the `filter` example to understand the differences.
+
+
+### Filter & Map
+
+The main advantage of using reactive streams is that you may treat
+them like normal sequences, and in this case apply a function and then
+filter them with a predicate. Let's use the fluent API:
 
 ```clojure
-(def stream (->> (rx/from [1 2 3 4 5])
-                 (rx/filter #(> % 3))))
+(def stream
+  (->> (rx/from [1 2 3 4 5])
+       (rx/map inc)
+       (rx/filter #(> % 3))))
 
 (rx/sub! stream
-         #(println "on-value:" %)
+         #(println "on-next:" %)
          #(println "on-error:" %)
          #(println "on-end"))
 
-;; ==> on-value: 4
-;; ==> on-value: 5
+;; ==> on-next: 4
+;; ==> on-next: 5
+;; ==> on-next: 6
 ;; ==> on-end
 ```
 
-
-### Map
-
-Also, you can apply a function over each value in the stream:
+The same can be expressed using the composition API and operators:
 
 ```clojure
-(def stream (->> (rx/from [1 2])
-                 (rx/map inc)))
+(require '[beicon.v2.ops :as rxo])
 
-(rx/sub! stream
-         #(println "on-value:" %)
-         #(println "on-error:" %)
-         #(println "on-end"))
-
-;; ==> on-value: 2
-;; ==> on-value: 3
-;; ==> on-end
+(def stream
+  (->> (rx/from [1 2 3 4 5])
+       (rx/pipe (rxo/map inc))
+       (rx/pipe (rxo/filter #(> % 3)))
+       (rx/subs! stream
+                 #(println "on-next:" %)
+                 #(println "on-error:" %)
+                 #(println "on-end"))))
 ```
+
+We also use the `subs!` helper for subscribe to the resulting
+observable in a single expression with `->>`.
+
+And finally, you can compose the transformation and later use it
+in the same way as transducers:
+
+```clojure
+(def rxform
+  (rx/comp (rxo/map inc)
+           (rxo/filter #(> % 3))))
+
+(def stream
+  (->> (rx/from [1 2 3 4 5])
+       (rx/pipe rxform)
+       (rx/subs! stream
+                 #(println "on-next:" %)
+                 #(println "on-error:" %)
+                 #(println "on-end"))))
+```
+
+NOTE: Functions in the `beicon.v2.ops` are operator only.
 
 
 ### Merge Map
@@ -305,27 +342,6 @@ Or a predicate evaluates to `true`:
 ```
 
 
-### Slice
-
-This is a combination of `skip` and `take`, and returns an observable
-sequence, that represents the portion between start and end of the
-source observable sequence.
-
-```clojure
-(def stream (->> (rx/from [1 2 3 4])
-                 (rx/slice 1 3)))
-
-(rx/sub! stream
-         #(println "on-value:" %)
-         #(println "on-error:" %)
-         #(println "on-end"))
-
-;; ==> on-value: 2
-;; ==> on-value: 3
-;; ==> on-end
-```
-
-
 ### Reduce
 
 Allows combining all results of an observable sequence using a
@@ -389,29 +405,6 @@ and then emits them as one value (similar to `partition` in Clojure)
 
 ## Combinators
 
-### Choice
-
-Performs an arbitrary choice between two or more observable sequences
-and returns the first value available from any provided observables.
-
-This kind of combinator works very well with operations that can
-timeout:
-
-```clojure
-(def stream (rx/choice
-              (rx/timeout 1000 :timeout)
-              (rx/timeout 900 :value)))
-
-(rx/sub! stream
-         #(println "on-value:" %)
-         #(println "on-error:" %)
-         #(println "on-end"))
-
-;; ==> on-value: :value
-;; ==> on-end
-```
-
-
 ### Zip
 
 This combinator combines two observable sequences in one.
@@ -431,7 +424,6 @@ This combinator combines two observable sequences in one.
 ;; ==> on-value: [3 4]
 ;; ==> on-end
 ```
-
 
 ### Concat
 
@@ -455,6 +447,8 @@ order*.
 ;; ==> on-end
 ```
 
+It ignores nil values from arguments
+
 
 ### Merge
 
@@ -477,6 +471,8 @@ This combinator merges two or more observable sequences *at random* (see
 ;; ==> on-value: 4
 ;; ==> on-end
 ```
+
+It ignores nil values from arguments
 
 
 ## Subject
@@ -535,26 +531,6 @@ You can end a subject at any moment just by executing the `end!` function:
 
 ## Developers Guide
 
-### Philosophy
-
-Five most important rules:
-
-- Beautiful is better than ugly.
-- Explicit is better than implicit.
-- Simple is better than complex.
-- Complex is better than complicated.
-- Readability counts.
-
-All contributions to _beicon_ should keep these important rules in mind.
-
-
-### Contributing
-
-Unlike Clojure and other Clojure contributed libraries _beicon_ does
-not have many restrictions for contributions. Just open an issue or
-pull request.
-
-
 ### Source Code
 
 _beicon_ is open source and can be found on
@@ -572,8 +548,7 @@ git clone https://github.com/funcool/beicon
 For running tests just execute this:
 
 ```bash
-clojure -M:dev tools build:tests
-node ./out/tests.js
+yarn run test:watch
 ```
 
 
@@ -583,7 +558,7 @@ node ./out/tests.js
 _beicon_ is licensed under BSD (2-Clause) license:
 
 ```
-Copyright (c) 2015-2019 Andrey Antukh <niwi@niwi.nz>
+Copyright (c) 2015-2024 Andrey Antukh <niwi@niwi.nz>
 
 All rights reserved.
 
