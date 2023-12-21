@@ -41,6 +41,6 @@
    {:command-args ["mvn"
                    "deploy:deploy-file"
                    (str "-Dfile=" jar-file)
-                   "-DpomFile=target/classes/META-INF/maven/funcool/beicon/pom.xml"
+                   "-DpomFile=target/classes/META-INF/maven/funcool/beicon2/pom.xml"
                    "-DrepositoryId=clojars"
                    "-Durl=https://clojars.org/repo/"]}))

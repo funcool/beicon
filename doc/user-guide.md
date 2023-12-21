@@ -17,12 +17,6 @@ funcool/beicon2
  :git/url "https://github.com/funcool/beicon.git"}
 ```
 
-or
-
-```clojure
-funcool/beicon2 {:mvn/version "2.0.0"}
-```
-
 ## Creating Streams
 
 This section will give you the available methods for create observable streams.
