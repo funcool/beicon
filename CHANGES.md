@@ -1,15 +1,5 @@
 # Changelog #
 
-## Version 2.2 ##
-
-- Fix recursion error on ignore operator
-
-## Version 2.1 ##
-
-- Make seed optional for `reduce`
-- Make seed optional for `scan`
-
-
 ## Version 2.0 ##
 
 This version few numer of BREAKING CHANGES that should be considered
@@ -33,8 +23,6 @@ Relevant changes:
 - Remove the `flat-map` alias (use `merge-map`).
 - The `first` operator now becomes an alias for `(take 1)`.
 - The `last` operator becomes an alias for `(take-last 1)`.
-- Make the `seed` parameter to `reduce` as mandatory.
-- Make the `seed` parameter to `scan` as mandatory.
 - Replace multiarity `with-latest-from` with a specific operator
   `with-latest-from*` that can be used through the `rx/pipe`
   observable chain helper. Mainly for reduce code complexity.

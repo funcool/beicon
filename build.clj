@@ -5,7 +5,7 @@
    [cljs.build.api :as api]))
 
 (def lib 'funcool/beicon2)
-(def version (format "2.0-%s" (b/git-count-revs nil)))
+(def version "2.0.0")
 (def class-dir "target/classes")
 (def basis (b/create-basis {:project "deps.edn"}))
 (def jar-file (format "target/%s-%s.jar" (name lib) version))

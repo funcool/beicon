@@ -12,9 +12,15 @@ it the following dependency:
 
 ```clojure
 funcool/beicon2
-{:git/tag "v2.1"
- :git/sha "1d69162"
+{:git/tag "v2.0"
+ :git/sha "e7135e0"
  :git/url "https://github.com/funcool/beicon.git"}
+```
+
+or
+
+```clojure
+funcool/beicon2 {:mvn/version "2.0.0"}
 ```
 
 ## Creating Streams
