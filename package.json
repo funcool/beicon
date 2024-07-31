@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "rxjs": "8.0.0-alpha.13",
-    "shadow-cljs": "^2.26.2"
+    "shadow-cljs": "^2.28.11"
   },
-  "packageManager": "yarn@4.0.2"
+  "packageManager": "yarn@4.3.1"
 }

@@ -7,7 +7,12 @@
 
   (:require
    ["rxjs" :as rx]
-   ["./impl/index.js" :as rxc]
+   ["./impl/concat.js" :as impl-concat]
+   ["./impl/forkJoin.js" :as impl-fj]
+   ["./impl/pipe.js" :as impl-pipe]
+   ["./impl/zip.js" :as impl-zip]
+   ["./impl/merge.js" :as impl-merge]
+   ["./impl/combineLatest.js" :as impl-combine]
    [beicon.v2.operators :as ops]
    [cljs.core :as c]))
 
@@ -27,8 +32,8 @@
 (declare subject?)
 
 (def ^function noop rx/noop)
-(def ^function pipe rxc/pipeWith)
-(def ^function comp rxc/pipeComp)
+(def ^function pipe impl-pipe/pipeWith)
+(def ^function comp impl-pipe/pipeComp)
 
 (defn push!
   "Pushes the given value to the bus stream."
@@ -166,7 +171,7 @@
 (def ^function fjoin
   "Runs all observable sequences in parallel and collect their last
   elements."
-  rxc/forkJoin)
+  impl-fj/forkJoin)
 
 (def ^function of
   "Converts arguments to an observable sequence"
@@ -180,24 +185,24 @@
 (def ^function zip
   "Merges the specified observable sequences or Promises (cljs) into one
   observable sequence."
-  rxc/zip)
+  impl-zip/zip)
 
 (def ^function concat
   "Concatenates all of the specified observable
   sequences, as long as the previous observable
   sequence terminated successfully."
-  rxc/concat)
+  impl-concat/concat)
 
 (def ^function merge
   "Merges all the observable sequences and Promises
   into a single observable sequence."
-  rxc/merge)
+  impl-merge/merge)
 
 (def ^function combine-latest
   "Combines multiple Observables to create an Observable whose values
   are calculated from the latest values of each of its input
   Observables (constructor)."
-  rxc/combineLatest)
+  impl-combine/combineLatest)
 
 (defn combine-latest-all
   "Combines multiple Observables to create an Observable whose values

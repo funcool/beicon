@@ -1,5 +1,10 @@
 # Changelog #
 
+## Version 2.1 ##
+
+- Fix compatibility issues with shadow-cljs :esm builds
+
+
 ## Version 2.0 ##
 
 This version few numer of BREAKING CHANGES that should be considered

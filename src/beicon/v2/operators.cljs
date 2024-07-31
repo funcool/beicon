@@ -4,7 +4,8 @@
                             map-indexed concat take-last delay distinct])
   (:require
    ["rxjs" :as rx]
-   ["./impl/index.js" :as rxc]
+   ["./impl/pipe.js" :as impl-pipe]
+   ["./impl/withLatestFrom.js" :as impl-with-latest]
    [cljs.core :as c]))
 
 (defn scheduler
@@ -160,7 +161,7 @@
   observable sequence (the instance) produces an element.
 
   (operator)"
-  rxc/withLatestFrom)
+  impl-with-latest/withLatestFrom)
 
 (def ^function combine-latest
   "Combines multiple Observables to create an Observable whose values
@@ -338,8 +339,8 @@
 (defn delay-at-least
   "Time shifts at least `ms` milisseconds."
   [ms]
-  (rxc/pipeComp (combine-latest (rx/timer ms))
-                (map c/first)))
+  (impl-pipe/pipeComp (combine-latest (rx/timer ms))
+                      (map c/first)))
 
 (defn observe-on
   ([sch]
