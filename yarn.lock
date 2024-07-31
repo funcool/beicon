@@ -48,12 +48,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.10.5":
-  version: 20.10.5
-  resolution: "@types/node@npm:20.10.5"
+"@types/node@npm:^22.0.0":
+  version: 22.0.0
+  resolution: "@types/node@npm:22.0.0"
   dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: 10c0/be30609aae0bfe492097815f166ccc07f465220cb604647fa4e5ec05a1d16c012a41b82b5f11ecfe2485cbb479d4d20384b95b809ca0bcff6d94d5bbafa645bb
+    undici-types: "npm:~6.11.1"
+  checksum: 10c0/af26a8ec7266c857b0ced75dc3a93c6b65280d1fa40d1b4488c814d30831c5c752489c99ecb5698daec1376145b1a9ddd08350882dc2e07769917a5f22a460bc
   languageName: node
   linkType: hard
 
@@ -153,12 +153,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "beicon@workspace:."
   dependencies:
-    "@types/node": "npm:^20.10.5"
-    rxjs: "npm:8.0.0-alpha.13"
+    "@types/node": "npm:^22.0.0"
+    rxjs: "npm:8.0.0-alpha.14"
     shadow-cljs: "npm:^2.28.11"
     source-map-support: "npm:^0.5.21"
-    typescript: "npm:^5.3.3"
-    ws: "npm:^8.12.1"
+    typescript: "npm:^5.5.4"
+    ws: "npm:^8.18.0"
   languageName: unknown
   linkType: soft
 
@@ -1363,13 +1363,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:8.0.0-alpha.13":
-  version: 8.0.0-alpha.13
-  resolution: "rxjs@npm:8.0.0-alpha.13"
-  peerDependencies:
-    "@types/node": ^20.6.3
-    typescript: ^5.2.2
-  checksum: 10c0/d3d8a395e7b92158d621d686b819aa5be480f5c17155f695506b9a70a32af886962d23d4040a1d1611d815abe0ba0fd4929b3687da75a62a03a1e90e5b616464
+"rxjs@npm:8.0.0-alpha.14":
+  version: 8.0.0-alpha.14
+  resolution: "rxjs@npm:8.0.0-alpha.14"
+  checksum: 10c0/14e4b487455c0940e3d87985cc3f2917ec88ce8cd3ede06071eb071a841d729549d43cab198757863838a4e22c1d7d3e9816f08d37357fa7e3506bdd6f8af56e
   languageName: node
   linkType: hard
 
@@ -1681,30 +1678,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.3.3":
-  version: 5.3.3
-  resolution: "typescript@npm:5.3.3"
+"typescript@npm:^5.5.4":
+  version: 5.5.4
+  resolution: "typescript@npm:5.5.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/e33cef99d82573624fc0f854a2980322714986bc35b9cb4d1ce736ed182aeab78e2cb32b385efa493b2a976ef52c53e20d6c6918312353a91850e2b76f1ea44f
+  checksum: 10c0/422be60f89e661eab29ac488c974b6cc0a660fb2228003b297c3d10c32c90f3bcffc1009b43876a082515a3c376b1eefcce823d6e78982e6878408b9a923199c
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.3.3#optional!builtin<compat/typescript>":
-  version: 5.3.3
-  resolution: "typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"
+"typescript@patch:typescript@npm%3A^5.5.4#optional!builtin<compat/typescript>":
+  version: 5.5.4
+  resolution: "typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=379a07"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/1d0a5f4ce496c42caa9a30e659c467c5686eae15d54b027ee7866744952547f1be1262f2d40de911618c242b510029d51d43ff605dba8fb740ec85ca2d3f9500
+  checksum: 10c0/73409d7b9196a5a1217b3aaad929bf76294d3ce7d6e9766dd880ece296ee91cf7d7db6b16c6c6c630ee5096eccde726c0ef17c7dfa52b01a243e57ae1f09ef07
   languageName: node
   linkType: hard
 
-"undici-types@npm:~5.26.4":
-  version: 5.26.5
-  resolution: "undici-types@npm:5.26.5"
-  checksum: 10c0/bb673d7876c2d411b6eb6c560e0c571eef4a01c1c19925175d16e3a30c4c428181fb8d7ae802a261f283e4166a0ac435e2f505743aa9e45d893f9a3df017b501
+"undici-types@npm:~6.11.1":
+  version: 6.11.1
+  resolution: "undici-types@npm:6.11.1"
+  checksum: 10c0/d8f5739a8e6c779d72336c82deb49c56d5ac9f9f6e0eb2e8dd4d3f6929ae9db7cde370d2e46516fe6cad04ea53e790c5e16c4c75eed7cd0f9bd31b0763bb2fa3
   languageName: node
   linkType: hard
 
@@ -1838,9 +1835,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.12.1":
-  version: 8.15.1
-  resolution: "ws@npm:8.15.1"
+"ws@npm:^8.18.0":
+  version: 8.18.0
+  resolution: "ws@npm:8.18.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -1849,7 +1846,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 10c0/9964360dd5ab35c7376bd7c4295a3c8bd44ea0838c9413742548a6fb3ec371fc6c18552d5b8e76bdc21536db1909765612815bae072674b5ec69971605395a96
+  checksum: 10c0/25eb33aff17edcb90721ed6b0eb250976328533ad3cd1a28a274bd263682e7296a6591ff1436d6cbc50fa67463158b062f9d1122013b361cec99a05f84680e06
   languageName: node
   linkType: hard
 

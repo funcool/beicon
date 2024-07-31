@@ -11,13 +11,13 @@
   "author": "",
   "license": "MPL-2.0",
   "devDependencies": {
-    "@types/node": "^20.10.5",
+    "@types/node": "^22.0.0",
     "source-map-support": "^0.5.21",
-    "typescript": "^5.3.3",
-    "ws": "^8.12.1"
+    "typescript": "^5.5.4",
+    "ws": "^8.18.0"
   },
   "dependencies": {
-    "rxjs": "8.0.0-alpha.13",
+    "rxjs": "8.0.0-alpha.14",
     "shadow-cljs": "^2.28.11"
   },
   "packageManager": "yarn@4.3.1"
