@@ -7,12 +7,6 @@
 
   (:require
    ["rxjs" :as rx]
-   ["./impl/concat.js" :as impl-concat]
-   ["./impl/forkJoin.js" :as impl-fj]
-   ["./impl/pipe.js" :as impl-pipe]
-   ["./impl/zip.js" :as impl-zip]
-   ["./impl/merge.js" :as impl-merge]
-   ["./impl/combineLatest.js" :as impl-combine]
    [beicon.v2.operators :as ops]
    [cljs.core :as c]))
 
@@ -32,8 +26,8 @@
 (declare subject?)
 
 (def ^function noop rx/noop)
-(def ^function pipe impl-pipe/pipeWith)
-(def ^function comp impl-pipe/pipeComp)
+(def ^function comp ops/comp)
+(def ^function pipe ops/pipe)
 
 (defn push!
   "Pushes the given value to the bus stream."
@@ -171,7 +165,14 @@
 (def ^function fjoin
   "Runs all observable sequences in parallel and collect their last
   elements."
-  impl-fj/forkJoin)
+  (js* "function forkJoin(...args) {
+  const resultSelector = (typeof args[0] === 'function') ? args.shift() : undefined;
+  if (resultSelector === undefined) {
+    return ~{}(...args);
+  } else {
+    return ~{}(...args, resultSelector);
+  }
+}" rx/forkJoin rx/forkJoin))
 
 (def ^function of
   "Converts arguments to an observable sequence"
@@ -185,27 +186,43 @@
 (def ^function zip
   "Merges the specified observable sequences or Promises (cljs) into one
   observable sequence."
-  impl-zip/zip)
+  (js* "function zip(...sources) {
+  const projectFunction = (typeof sources[0] === 'function') ? sources.shift() : undefined;
+
+  if (projectFunction === undefined) {
+    return ~{}(...sources);
+  } else {
+    return ~{}(...sources, projectFunction);
+  }
+}" rx/zip rx/zip))
+
 
 (def ^function concat
   "Concatenates all of the specified observable
   sequences, as long as the previous observable
   sequence terminated successfully."
-  impl-concat/concat)
+  (js* "function(...args) { args = args.filter(~{}); return ~{}(...args); }" some? rx/concat))
 
 (def ^function merge
   "Merges all the observable sequences and Promises
   into a single observable sequence."
-  impl-merge/merge)
+  (js* "function(...args) {
+  const sources = args.filter(~{});
+  return !sources.length ? ~{} : sources.length === 1 ? ~{}(sources[0]) : ~{}(Infinity)(~{}(sources))
+}" some? rx/EMPTY rx/from rx/mergeAll rx/from))
+
 
 (def ^function combine-latest
   "Combines multiple Observables to create an Observable whose values
   are calculated from the latest values of each of its input
   Observables (constructor)."
-  impl-combine/combineLatest)
+  (js* "function(...sources) {
+  const projectFunction = (typeof sources[0] === 'function') ? sources.shift() : undefined;
+  return ~{}(sources, projectFunction);
+}" rx/combineLatest))
 
 (defn combine-latest-all
-  "Combines multiple Observables to create an Observable whose values
+  "Comboines multiple Observables to create an Observable whose values
   are calculated from the latest values of each of its input
   Observables (constructor).
 
@@ -349,36 +366,36 @@
   "Returns an observable sequence that shares a single
   subscription to the underlying sequence."
   [ob]
-  (pipe (ops/share) ob))
+  (ops/pipe (ops/share) ob))
 
 (defn if-empty
   "Emits a given value if the source Observable completes without
   emitting any next value, otherwise mirrors the source Observable."
   [default ob]
-  (pipe (ops/if-empty default) ob))
+  (ops/pipe (ops/if-empty default) ob))
 
 (defn merge-all
   "Merges an observable sequence of observable sequences into an
   observable sequence."
-  ([ob] (pipe (ops/merge-all) ob))
-  ([concurrency ob] (pipe (ops/merge-all concurrency) ob)))
+  ([ob] (ops/pipe (ops/merge-all) ob))
+  ([concurrency ob] (ops/pipe (ops/merge-all concurrency) ob)))
 
 (defn filter
   "Filters the elements of an observable sequence
   based on a predicate."
   [f ob]
-  (pipe (ops/filter f) ob))
+  (ops/pipe (ops/filter f) ob))
 
 (defn map
   "Apply a function to each element of an observable
   sequence."
   [f ob]
-  (pipe (ops/map f) ob))
+  (ops/pipe (ops/map f) ob))
 
 (defn map-indexed
   "Same as `map` but also projects an index."
   [f ob]
-  (pipe (ops/map-indexed f) ob))
+  (ops/pipe (ops/map-indexed f) ob))
 
 (defn merge-map
   "Projects each element of an observable sequence to an observable
@@ -387,99 +404,99 @@
 
   In other languages is called: flatMap or mergeMap."
   [f ob]
-  (pipe (ops/merge-map f) ob))
+  (ops/pipe (ops/merge-map f) ob))
 
 (defn switch-map
   [f ob]
-  (pipe (ops/switch-map f) ob))
+  (ops/pipe (ops/switch-map f) ob))
 
 (defn mapcat
   "Projects each element of an observable sequence to an observable
   sequence and concatenates the resulting observable sequences or
   Promises or array/iterable into one observable sequence."
   [f ob]
-  (pipe (ops/mapcat f) ob))
+  (ops/pipe (ops/mapcat f) ob))
 
 (defn concat-all
   [ob]
-  (pipe (ops/merge-all 1) ob))
+  (ops/pipe (ops/merge-all 1) ob))
 
 (defn skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
   elements."
   [n ob]
-  (pipe (ops/skip n) ob))
+  (ops/pipe (ops/skip n) ob))
 
 (defn skip-while
   "Bypasses elements in an observable sequence as long
   as a specified condition is true and then returns the
   remaining elements."
   [f ob]
-  (pipe (ops/skip-while f) ob))
+  (ops/pipe (ops/skip-while f) ob))
 
 (defn skip-until
   "Returns the values from the source observable sequence only after the
   other observable sequence produces a value."
   [pob ob]
-  (pipe (ops/skip-until pob) ob))
+  (ops/pipe (ops/skip-until pob) ob))
 
 (defn skip-last
   "Skip a specified number of values before the completion of an observable."
   [n ob]
-  (pipe (ops/skip-last n) ob))
+  (ops/pipe (ops/skip-last n) ob))
 
 (defn take
   "Bypasses a specified number of elements in an observable sequence and
   then returns the remaining elements."
   [n ob]
-  (pipe (ops/take n) ob))
+  (ops/pipe (ops/take n) ob))
 
 (defn take-last
   [n ob]
-  (pipe (ops/take-last n) ob))
+  (ops/pipe (ops/take-last n) ob))
 
 (defn take-while
   "Returns elements from an observable sequence as long as a specified
   predicate returns true."
   [f ob]
-  (pipe (ops/take-while f) ob))
+  (ops/pipe (ops/take-while f) ob))
 
 (defn take-until
   "Returns the values from the source observable sequence until the
   other observable sequence or Promise produces a value."
   [other ob]
-  (pipe (ops/take-until other) ob))
+  (ops/pipe (ops/take-until other) ob))
 
 (defn first
   "Return an observable that only has the first value of the provided
   observable. You can optionally pass a predicate and default value."
   [ob]
-  (pipe (ops/take 1) ob))
+  (ops/pipe (ops/take 1) ob))
 
 (defn last
   "Return an observable that only has the last value of the provided
   observable. You can optionally pass a predicate and default value."
   [ob]
-  (pipe (ops/take-last 1) ob))
+  (ops/pipe (ops/take-last 1) ob))
 
 (defn reduce
   "Applies an accumulator function over an observable sequence,
   returning the result of the aggregation as a single element in the
   result sequence."
   ([f ob]
-   (pipe (ops/reduce f) ob))
+   (ops/pipe (ops/reduce f) ob))
   ([f seed ob]
-   (pipe (ops/reduce f seed) ob)))
+   (ops/pipe (ops/reduce f seed) ob)))
 
 (defn scan
   "Applies an accumulator function over an observable sequence and
   returns each intermediate result.  Same as reduce but with
   intermediate results"
   ([f ob]
-   (pipe (ops/scan f) ob))
+   (ops/pipe (ops/scan f) ob))
   ([f seed ob]
-   (pipe (ops/scan f seed) ob)))
+   (ops/pipe (ops/scan f seed) ob)))
 
 (defn merge-scan
   "Applies an accumulator function over the source Observable where
@@ -487,42 +504,42 @@
   intermediate Observable returned is merged into the output
   Observable."
   [f seed ob]
-  (pipe (ops/merge-scan f seed) ob))
+  (ops/pipe (ops/merge-scan f seed) ob))
 
 (defn expand
   "Recursively projects each source value to an Observable
   which is merged in the output Observable."
   [f ob]
-  (pipe (ops/expand f) ob))
+  (ops/pipe (ops/expand f) ob))
 
 (defn with-latest-from
   "Merges the specified observable sequences into one observable
   sequence by using the selector function only when the source
   observable sequence (the instance) produces an element."
-  ([o1 source] (pipe (ops/with-latest o1) source))
-  ([o1 o2 source] (pipe (ops/with-latest o1 o2) source))
-  ([o1 o2 o3 source] (pipe (ops/with-latest o1 o2 o3) source))
-  ([o1 o2 o3 o4 source] (pipe (ops/with-latest o1 o2 o3 o4) source))
-  ([o1 o2 o3 o4 o5 source] (pipe (ops/with-latest o1 o2 o3 o4 o5) source))
-  ([o1 o2 o3 o4 o5 o6 source] (pipe (ops/with-latest o1 o2 o3 o4 o5 o6) source)))
+  ([o1 source] (ops/pipe (ops/with-latest o1) source))
+  ([o1 o2 source] (ops/pipe (ops/with-latest o1 o2) source))
+  ([o1 o2 o3 source] (ops/pipe (ops/with-latest o1 o2 o3) source))
+  ([o1 o2 o3 o4 source] (ops/pipe (ops/with-latest o1 o2 o3 o4) source))
+  ([o1 o2 o3 o4 o5 source] (ops/pipe (ops/with-latest o1 o2 o3 o4 o5) source))
+  ([o1 o2 o3 o4 o5 o6 source] (ops/pipe (ops/with-latest o1 o2 o3 o4 o5 o6) source)))
 
 (defn combine-latest-with
   "Combines multiple Observables to create an Observable whose values
   are calculated from the latest values of each of its input
   Observables (operator)."
-  ([o1 ob] (pipe (ops/combine-latest o1) ob))
-  ([o1 o2 ob] (pipe (ops/combine-latest o1 o2) ob))
-  ([o1 o2 o3 ob] (pipe (ops/combine-latest o1 o2 o3) ob))
-  ([o1 o2 o3 o4 ob] (pipe (ops/combine-latest o1 o2 o3 o4) ob))
-  ([o1 o2 o3 o4 o5 ob] (pipe (ops/combine-latest o1 o2 o3 o4 o5) ob))
-  ([o1 o2 o3 o4 o5 o6 ob] (pipe (ops/combine-latest o1 o2 o3 o4 o5 o6) ob)))
+  ([o1 ob] (ops/pipe (ops/combine-latest o1) ob))
+  ([o1 o2 ob] (ops/pipe (ops/combine-latest o1 o2) ob))
+  ([o1 o2 o3 ob] (ops/pipe (ops/combine-latest o1 o2 o3) ob))
+  ([o1 o2 o3 o4 ob] (ops/pipe (ops/combine-latest o1 o2 o3 o4) ob))
+  ([o1 o2 o3 o4 o5 ob] (ops/pipe (ops/combine-latest o1 o2 o3 o4 o5) ob))
+  ([o1 o2 o3 o4 o5 o6 ob] (ops/pipe (ops/combine-latest o1 o2 o3 o4 o5 o6) ob)))
 
 (defn catch
   "Continues an observable sequence that is terminated
   by an exception with the next observable sequence."
-  ([handler ob] (pipe (ops/catch handler) ob))
+  ([handler ob] (ops/pipe (ops/catch handler) ob))
   ([pred handler ob]
-   (pipe (ops/catch (fn [value]
+   (ops/pipe (ops/catch (fn [value]
                       (if (pred value)
                         (handler value)
                         (throw value))))
@@ -531,106 +548,106 @@
 (defn tap
   "Invokes an action for each element in the
   observable sequence."
-  ([f ob] (pipe (ops/tap f) ob))
-  ([f e ob] (pipe (ops/tap f e) ob))
-  ([f e c ob] (pipe (ops/tap f e c) ob)))
+  ([f ob] (ops/pipe (ops/tap f) ob))
+  ([f e ob] (ops/pipe (ops/tap f e) ob))
+  ([f e c ob] (ops/pipe (ops/tap f e c) ob)))
 
 (defn throttle
   "Returns an observable sequence that emits only the first item emitted
   by the source Observable during sequential time windows of a
   specified duration."
-  ([ms ob] (pipe (ops/throttle ms) ob))
-  ([ms config ob] (pipe (ops/throttle ms config) ob)))
+  ([ms ob] (ops/pipe (ops/throttle ms) ob))
+  ([ms config ob] (ops/pipe (ops/throttle ms config) ob)))
 
 (defn debounce
   "Emits an item from the source Observable after a
   particular timespan has passed without the Observable
   omitting any other items."
   [ms ob]
-  (pipe (ops/debounce ms) ob))
+  (ops/pipe (ops/debounce ms) ob))
 
 (defn sample
   "Samples the observable sequence at each interval."
   [ms ob]
-  (pipe (ops/sample ms) ob))
+  (ops/pipe (ops/sample ms) ob))
 
 (defn sample-when
   "Samples the observable sequence at each interval."
   [other ob]
-  (pipe (ops/sample-when other) ob))
+  (ops/pipe (ops/sample-when other) ob))
 
 (defn ignore
   "Ignores all elements in an observable sequence leaving only the
   termination messages."
   [ob]
-  (pipe (ops/ignore) ob))
+  (ops/pipe (ops/ignore) ob))
 
 (defn finalize
   "Returns an Observable that mirrors the source Observable, but will
   call a specified function when the source terminates on complete or
   error."
   [f ob]
-  (pipe (ops/finalize f) ob))
+  (ops/pipe (ops/finalize f) ob))
 
 (defn buffer
   "Projects each element of an observable sequence into zero
   or more buffers which are produced based on element count
   information."
-  ([n ob] (pipe (ops/buffer n) ob))
-  ([n o ob] (pipe (ops/buffer n o) ob)))
+  ([n ob] (ops/pipe (ops/buffer n) ob))
+  ([n o ob] (ops/pipe (ops/buffer n o) ob)))
 
 (defn buffer-time
   "Buffers the source Observable values for a specific time period."
-  ([ms ob] (pipe (ops/buffer-time ms) ob))
-  ([ms start ob] (pipe (ops/buffer-time ms start) ob))
-  ([ms start max ob] (pipe (ops/buffer-time ms start max) ob)))
+  ([ms ob] (ops/pipe (ops/buffer-time ms) ob))
+  ([ms start ob] (ops/pipe (ops/buffer-time ms start) ob))
+  ([ms start max ob] (ops/pipe (ops/buffer-time ms start max) ob)))
 
 (defn buffer-until
   "Buffers the source Observable values until notifier emits."
   [notifier ob]
-  (pipe (ops/buffer-until notifier) ob))
+  (ops/pipe (ops/buffer-until notifier) ob))
 
 (defn retry
   "Given an optional number of retries and an observable,
   repeats the source observable the specified number of
   times or until it terminates. If no number of retries
   is given, it will be retried indefinitely."
-  ([ob] (pipe (ops/retry) ob))
-  ([n ob] (pipe (ops/retry n) ob)))
+  ([ob] (ops/pipe (ops/retry) ob))
+  ([n ob] (ops/pipe (ops/retry n) ob)))
 
 (defn transform
   "Transform the observable sequence using transducers."
   [xform ob]
-  (pipe (ops/transform xform) ob))
+  (ops/pipe (ops/transform xform) ob))
 
 (defn timeout
   "Returns the source observable sequence or the other
   observable sequence if dueTime elapses."
-  ([ms ob] (pipe (ops/timeout ms) ob))
-  ([ms with ob] (pipe (ops/timeout ms with) ob)))
+  ([ms ob] (ops/pipe (ops/timeout ms) ob))
+  ([ms with ob] (ops/pipe (ops/timeout ms with) ob)))
 
 (defn delay
   "Time shifts the observable sequence by dueTime. The relative
   time intervals between the values are preserved."
   [ms ob]
-  (pipe (ops/delay ms) ob))
+  (ops/pipe (ops/delay ms) ob))
 
 (defn delay-at-least
   "Time shifts at least `ms` milisseconds."
   [ms ob]
-  (pipe (ops/delay-at-least ms) ob))
+  (ops/pipe (ops/delay-at-least ms) ob))
 
 (defn delay-when
   "Time shifts the observable sequence based on a subscription
   delay and a delay selector function for each element."
-  ([sf ob] (pipe (ops/delay-when sf) ob))
-  ([sf sd ob] (pipe (ops/delay-when sf sd) ob)))
+  ([sf ob] (ops/pipe (ops/delay-when sf) ob))
+  ([sf sd ob] (ops/pipe (ops/delay-when sf sd) ob)))
 
 (defn flatten
   "Just like clojure collections flatten but for rx streams. Given a stream
   off collections will emit every value separately"
   [ob]
-  (pipe (rx/concatMap #(-> %1)) ob))
+  (ops/pipe (rx/concatMap #(-> %1)) ob))
 
 (defn concat-reduce
   "Like reduce but accepts a function that returns a stream. Will use as
@@ -647,8 +664,8 @@
 
 (defn observe-on
   [sch ob]
-  (pipe (ops/observe-on sch) ob))
+  (ops/pipe (ops/observe-on sch) ob))
 
 (defn subscribe-on
   [sch ob]
-  (pipe (ops/subscribe-on sch) ob))
+  (ops/pipe (ops/subscribe-on sch) ob))

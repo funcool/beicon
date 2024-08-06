@@ -1,11 +1,9 @@
 (ns beicon.v2.operators
   "RxJS operators only"
-  (:refer-clojure :exclude [map filter reduce last mapcat take take-while
+  (:refer-clojure :exclude [map filter reduce last mapcat take take-while comp
                             map-indexed concat take-last delay distinct])
   (:require
    ["rxjs" :as rx]
-   ["./impl/pipe.js" :as impl-pipe]
-   ["./impl/withLatestFrom.js" :as impl-with-latest]
    [cljs.core :as c]))
 
 (defn scheduler
@@ -161,7 +159,14 @@
   observable sequence (the instance) produces an element.
 
   (operator)"
-  impl-with-latest/withLatestFrom)
+  (js* "function withLatestFrom(...args) {
+  const resultSelector = (typeof args[0] === 'function') ? args.shift() : undefined;
+  if (resultSelector === undefined) {
+    return ~{}(...args);
+  } else {
+    return ~{}(...args, resultSelector);
+  }
+}" rx/withLatestFrom rx/withLatestFrom))
 
 (def ^function combine-latest
   "Combines multiple Observables to create an Observable whose values
@@ -336,11 +341,17 @@
   delay and a delay selector function for each element."
   rx/delayWhen)
 
+(def ^function pipe
+  (js* "function pipeWith(...fns) { const input = fns.pop(); return fns.reduce((prev, fn) => fn(prev), input); }"))
+
+(def ^function comp
+  (js* "function pipeComp(...fns) { return (source) => fns.reduce((prev, fn) => fn(prev), source); }"))
+
 (defn delay-at-least
   "Time shifts at least `ms` milisseconds."
   [ms]
-  (impl-pipe/pipeComp (combine-latest (rx/timer ms))
-                      (map c/first)))
+  (comp (combine-latest (rx/timer ms))
+        (map c/first)))
 
 (defn observe-on
   ([sch]
