@@ -254,6 +254,13 @@
       (drain! s #(do (t/is (= % [[1 2 4 5 6]]))
                      (done))))))
 
+(t/deftest observable-pairwise
+  (t/async done
+           (let [s (rx/from [1 2 3 4 5])
+                 ps (rx/pairwise s)]
+             (t/is (rx/observable? ps))
+             (drain! ps #(t/is (= (map vec %) [[1 2] [2 3] [3 4] [4 5]])))
+             (rx/on-end ps done))))
 
 (t/deftest observable-scan
   (t/async done

@@ -130,6 +130,11 @@
   ([f seed]
    (rx/reduce #(f %1 %2) seed)))
 
+(def ^function pairwise
+  "Groups pairs of consecutive emssions together and emits them as
+   a javascript array."
+  rx/pairwise)
+
 (defn scan
   "Applies an accumulator function over an observable sequence and
   returns each intermediate result.  Same as reduce but with
