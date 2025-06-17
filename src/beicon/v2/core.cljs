@@ -129,9 +129,13 @@
                (fn [] (remove-watch atm key)))))))
 
 (defn from-event
-  "Creates an Observable by attaching an event listener to an event target"
-  [et ev]
-  (rx/fromEvent et ev))
+  "Creates an Observable by attaching an event listener to an event target
+   Args:
+      et:   the event target (e.g., a DOM element or window)
+      ev:   the event type (e.g., 'click', 'mousemove')
+      opts: optional options for the event listener (e.g., {passive: true})"
+  ([et ev & [opts]]
+   (rx/fromEvent et ev (clj->js (or opts {})))))
 
 (def ^function timer
   "Returns an observable sequence that produces a value after
