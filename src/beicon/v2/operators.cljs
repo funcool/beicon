@@ -78,6 +78,18 @@
   [f]
   (rx/concatMap #(f %2 %1)))
 
+(def ^function start-with
+  "Returns an observable sequence that upon subscription emits the
+   specified values before it begins to emit the elements of the
+   source observable sequence."
+  rx/startWith)
+
+(def ^function end-with
+  "Returns an observable sequence that emits the elements of the
+   source observable and then emits the specified values after the
+   source completes."
+  rx/endWith)
+
 (def ^function skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
