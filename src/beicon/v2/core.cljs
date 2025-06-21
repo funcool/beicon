@@ -493,7 +493,7 @@
   "Groups pairs of consecutive emssions together and emits them as
   a javascript array."
   [ob]
-  (ops/pipe (ops/pairwise ob) ob))
+  (ops/pipe (ops/pairwise) ob))
 
 (defn scan
   "Applies an accumulator function over an observable sequence and
