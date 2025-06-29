@@ -299,6 +299,47 @@
       (drain! fs #(t/is (= % [[0 :a] [1 :b] [2 :c]])))
       (rx/on-end fs done))))
 
+(t/deftest observable-exhaust-map-basic
+  (t/async done
+    (let [s (rx/from [1 2 3])
+          ms (rx/exhaust-map #(rx/of (* % 10)) s)]
+      (t/is (rx/observable? ms))
+      (drain! ms #(t/is (= % [10 20 30])))
+      (rx/on-end ms done))))
+
+(t/deftest observable-exhaust-map-ignoring
+  ;; Create inner observables with different timing.
+  ;; First one takes longer, subsequent ones should be ignored
+  ;; until the first one completes
+  (t/async done
+    (let [s (rx/from [1 2 3])
+          
+          ms (rx/exhaust-map
+              (fn [x]
+                (if (= x 1)
+                  (rx/delay 50 (rx/of (* x 100)))
+                  (rx/of (* x 100))))
+              s)]
+      (drain! ms #(t/is (= % [100])))
+      (rx/on-end ms done))))
+
+(t/deftest observable-exhaust-map-with-timer-sequence
+  ;; Only values 0 and 3 should be emitted
+  ;; 0: starts immediately, takes 30ms
+  ;; 1, 2: ignored (arrive at 10ms, 20ms - while 0 is still running)
+  ;; 3: starts at 30ms (after 0 completes), takes 30ms
+  (t/async done
+    (let [s (->> (rx/timer 0 10)
+                 (rx/take 4))
+          ms (rx/exhaust-map
+              (fn [x]
+                (->> (rx/timer 30)
+                     (rx/map (constantly (* x 100)))))
+              s)]
+      (drain! ms #(t/is (= % [0 300])))
+      (rx/on-end ms done))))
+
+
 (t/deftest observable-retry
   (t/async done
     (let [errored? (volatile! false)
