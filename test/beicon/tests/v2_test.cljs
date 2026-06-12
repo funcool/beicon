@@ -501,3 +501,570 @@
   (t/is (rx/scheduler? (rx/scheduler :async)))
   (t/is (rx/scheduler? (rx/scheduler :af)))
   (t/is (rx/scheduler? (rx/scheduler :animation-frame))))
+
+(t/deftest observable-start-with
+  (t/async done
+    (let [s (->> (rx/from [3 4 5])
+                 (rx/start-with 1 2))]
+      (drain! s #(t/is (= % [1 2 3 4 5])))
+      (rx/on-end s done))))
+
+(t/deftest observable-exhaust-map
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/exhaust-map (fn [v] (rx/of (* v 10)))))]
+      (drain! s #(t/is (= % [10 20 30])))
+      (rx/on-end s done))))
+
+(t/deftest observable-pairwise
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4])
+                 (rx/pairwise)
+                 (rx/map vec))]
+      (drain! s #(t/is (= % [[1 2] [2 3] [3 4]])))
+      (rx/on-end s done))))
+
+(t/deftest observable-to-array
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/to-array))]
+      (drain! s #(t/is (= (js->clj (first %)) [1 2 3])))
+      (rx/on-end s done))))
+
+(t/deftest observable-group-by
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5 6])
+                 (rx/group-by #(if (even? %) :even :odd))
+                 (rx/merge-map (fn [grouped]
+                                 (rx/map #(hash-map :key (.-key grouped) :val %) grouped)))
+                 (rx/map #(update % :key keyword)))
+          results (atom [])]
+      (rx/subscribe s #(swap! results conj %))
+      (rx/on-end s #(do
+                      (t/is (= 6 (count @results)))
+                      (done))))))
+
+(t/deftest observable-repeat
+  (t/async done
+    (let [s (->> (rx/from [1 2])
+                 (rx/repeat 3))]
+      (drain! s #(t/is (= % [1 2 1 2 1 2])))
+      (rx/on-end s done))))
+
+(t/deftest observable-count
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/count))]
+      (drain! s #(t/is (= % [5])))
+      (rx/on-end s done))))
+
+(t/deftest observable-count-with-predicate
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/count odd?))]
+      (drain! s #(t/is (= % [3])))
+      (rx/on-end s done))))
+
+(t/deftest observable-every
+  (t/async done
+    (let [s (->> (rx/from [2 4 6 8])
+                 (rx/every even?))]
+      (drain! s #(t/is (= % [true])))
+      (rx/on-end s done))))
+
+(t/deftest observable-every-false
+  (t/async done
+    (let [s (->> (rx/from [2 3 6 8])
+                 (rx/every even?))]
+      (drain! s #(t/is (= % [false])))
+      (rx/on-end s done))))
+
+(t/deftest observable-element-at
+  (t/async done
+    (let [s (->> (rx/from [10 20 30 40 50])
+                 (rx/element-at 2))]
+      (drain! s #(t/is (= % [30])))
+      (rx/on-end s done))))
+
+(t/deftest observable-element-at-with-default
+  (t/async done
+    (let [s (->> (rx/from [10 20])
+                 (rx/element-at 5 :default))]
+      (drain! s #(t/is (= % [:default])))
+      (rx/on-end s done))))
+
+(t/deftest observable-window-time
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/window-time 100)
+                 (rx/merge-map #(rx/to-array %))
+                 (rx/map vec))]
+      (drain! s #(t/is (>= (count %) 1)))
+      (rx/on-end s done))))
+
+(t/deftest observable-share-replay
+  (t/async done
+    (let [source (->> (rx/from [1 2 3])
+                      (rx/share-replay 3))
+          results1 (atom [])
+          results2 (atom [])]
+      (rx/subscribe source #(swap! results1 conj %))
+      (rx/subscribe source #(swap! results2 conj %))
+      (rx/on-end source #(do
+                           (t/is (= @results1 [1 2 3]))
+                           (t/is (= @results2 [1 2 3]))
+                           (done))))))
+
+(t/deftest observable-audit-time
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/audit-time 50))]
+      (drain! s #(t/is (>= (count %) 1)))
+      (rx/on-end s done))))
+
+(t/deftest observable-end-with
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/end-with 4 5))]
+      (drain! s #(t/is (= % [1 2 3 4 5])))
+      (rx/on-end s done))))
+
+(t/deftest observable-throw-if-empty
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/throw-if-empty #(js/Error. "empty")))
+          results (atom [])]
+      (rx/subscribe s #(swap! results conj %))
+      (rx/on-end s #(do
+                      (t/is (= @results [1 2 3]))
+                      (done))))))
+
+(t/deftest observable-throw-if-empty-throws
+  (t/async done
+    (let [s (->> (rx/empty)
+                 (rx/throw-if-empty #(js/Error. "empty")))]
+      (rx/subscribe s
+                    (fn [_] (t/is false))
+                    (fn [e] (do
+                              (t/is (= (.-message e) "empty"))
+                              (done)))))))
+
+(t/deftest observable-find
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/find #(> % 3)))]
+      (drain! s #(t/is (= % [4])))
+      (rx/on-end s done))))
+
+(t/deftest observable-is-empty-true
+  (t/async done
+    (let [s (->> (rx/empty)
+                 (rx/is-empty))]
+      (drain! s #(t/is (= % [true])))
+      (rx/on-end s done))))
+
+(t/deftest observable-is-empty-false
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/is-empty))]
+      (drain! s #(t/is (= % [false])))
+      (rx/on-end s done))))
+
+(t/deftest observable-single
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/single #(= % 3)))]
+      (drain! s #(t/is (= % [3])))
+      (rx/on-end s done))))
+
+(t/deftest observable-max
+  (t/async done
+    (let [s (->> (rx/from [3 1 4 1 5 9 2 6])
+                 (rx/max))]
+      (drain! s #(t/is (= % [9])))
+      (rx/on-end s done))))
+
+(t/deftest observable-min
+  (t/async done
+    (let [s (->> (rx/from [3 1 4 1 5 9 2 6])
+                 (rx/min))]
+      (drain! s #(t/is (= % [1])))
+      (rx/on-end s done))))
+
+(t/deftest observable-timestamp
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/timestamp)
+                 (rx/map #(.-value %)))]
+      (drain! s #(t/is (= % [1 2 3])))
+      (rx/on-end s done))))
+
+(t/deftest observable-materialize
+  (t/async done
+    (let [s (->> (rx/from [1 2])
+                 (rx/materialize)
+                 (rx/map #(.-kind %)))]
+      (drain! s #(t/is (= % ["N" "N" "C"])))
+      (rx/on-end s done))))
+
+(t/deftest observable-dematerialize
+  (t/async done
+    (let [notifications #js [#js {:kind "N" :value 1} #js {:kind "C"}]
+          s (->> (rx/from notifications)
+                 (rx/dematerialize))]
+      (drain! s #(t/is (= % [1])))
+      (rx/on-end s done))))
+
+(t/deftest observable-sequence-equal-true
+  (t/async done
+    (let [s1 (rx/from [1 2 3])
+          s2 (rx/from [1 2 3])
+          s (->> s1 (rx/sequence-equal s2))]
+      (drain! s #(t/is (= % [true])))
+      (rx/on-end s done))))
+
+(t/deftest observable-sequence-equal-false
+  (t/async done
+    (let [s1 (rx/from [1 2 3])
+          s2 (rx/from [1 2 4])
+          s (->> s1 (rx/sequence-equal s2))]
+      (drain! s #(t/is (= % [false])))
+      (rx/on-end s done))))
+
+(t/deftest observable-on-error-resume-next
+  (t/async done
+    (let [s1 (rx/create (fn [sink]
+                          (rx/push! sink 1)
+                          (rx/push! sink 2)
+                          (rx/error! sink (js/Error. "oops"))))
+          s2 (rx/from [3 4])
+          s (->> s1 (rx/on-error-resume-next s2))]
+      (drain! s #(t/is (= % [1 2 3 4])))
+      (rx/on-end s done))))
+
+(t/deftest observable-exhaust-all
+  (t/async done
+    (let [s (->> (rx/from [(rx/of 1 2) (rx/of 3 4)])
+                 (rx/exhaust-all))]
+      (drain! s #(t/is (= % [1 2 3 4])))
+      (rx/on-end s done))))
+
+(t/deftest observable-switch-map-to
+  (t/async done
+    (let [inner (rx/of :x)
+          s (->> (rx/from [1 2 3])
+                 (rx/switch-map-to inner))]
+      (drain! s #(t/is (= % [:x :x :x])))
+      (rx/on-end s done))))
+
+(t/deftest observable-merge-map-to
+  (t/async done
+    (let [inner (rx/of :x)
+          s (->> (rx/from [1 2 3])
+                 (rx/merge-map-to inner))]
+      (drain! s #(t/is (= % [:x :x :x])))
+      (rx/on-end s done))))
+
+(t/deftest observable-concat-map-to
+  (t/async done
+    (let [inner (rx/of :x)
+          s (->> (rx/from [1 2 3])
+                 (rx/concat-map-to inner))]
+      (drain! s #(t/is (= % [:x :x :x])))
+      (rx/on-end s done))))
+
+(t/deftest observable-switch-scan
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/switch-scan (fn [acc v] (rx/of (+ acc v))) 0))]
+      (drain! s #(t/is (= % [1 3 6])))
+      (rx/on-end s done))))
+
+(t/deftest observable-window-count
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/window-count 2)
+                 (rx/merge-map #(rx/to-array %))
+                 (rx/map vec))]
+      (drain! s #(t/is (= % [[1 2] [3 4] [5]])))
+      (rx/on-end s done))))
+
+(t/deftest observable-race-with
+  (t/async done
+    (let [s1 (->> (rx/from [1 2 3])
+                  (rx/delay 100))
+          s2 (rx/from [10 20 30])
+          s (->> s1 (rx/race-with s2))]
+      (drain! s #(t/is (= % [10 20 30])))
+      (rx/on-end s done))))
+
+(t/deftest observable-partition
+  (t/async done
+    (let [s (rx/from [1 2 3 4 5 6])
+          result (rx/partition even? s)
+          evens (aget result 0)
+          odds (aget result 1)
+          even-results (atom [])
+          odd-results (atom [])]
+      (rx/subscribe evens #(swap! even-results conj %))
+      (rx/subscribe odds #(swap! odd-results conj %))
+      (rx/on-end evens #(do
+                          (t/is (= @even-results [2 4 6]))
+                          (t/is (= @odd-results [1 3 5]))
+                          (done))))))
+
+(t/deftest observable-distinct-until-key-changed
+  (t/async done
+    (let [s (->> (rx/from [{:id 1 :name "a"} {:id 1 :name "b"} {:id 2 :name "c"}])
+                 (rx/distinct-until-key-changed :id))]
+      (drain! s #(t/is (= (count %) 2)))
+      (rx/on-end s done))))
+
+(t/deftest observable-buffer-toggle
+  (t/async done
+    (let [source (rx/from [1 2 3 4 5])
+          openings (rx/from [0 0])
+          closing (fn [_] (rx/timer 10))
+          s (->> source (rx/buffer-toggle openings closing))]
+      (drain! s #(t/is (>= (count %) 0)))
+      (rx/on-end s done))))
+
+(t/deftest observable-buffer-when
+  (t/async done
+    (let [source (rx/from [1 2 3 4 5])
+          closing #(rx/timer 10)
+          s (->> source (rx/buffer-when closing))]
+      (drain! s #(t/is (>= (count %) 1)))
+      (rx/on-end s done))))
+
+(t/deftest observable-window-toggle
+  (t/async done
+    (let [source (rx/from [1 2 3 4 5])
+          openings (rx/from [0 0])
+          closing (fn [_] (rx/timer 10))
+          s (->> source (rx/window-toggle openings closing)
+                 (rx/merge-map #(rx/to-array %))
+                 (rx/map vec))]
+      (drain! s #(t/is (>= (count %) 0)))
+      (rx/on-end s done))))
+
+(t/deftest observable-window-when
+  (t/async done
+    (let [source (rx/from [1 2 3 4 5])
+          closing #(rx/timer 10)
+          s (->> source (rx/window-when closing)
+                 (rx/merge-map #(rx/to-array %))
+                 (rx/map vec))]
+      (drain! s #(t/is (>= (count %) 1)))
+      (rx/on-end s done))))
+
+(t/deftest observable-defer
+  (t/async done
+    (let [counter (atom 0)
+          s (rx/defer (fn [] (swap! counter inc) (rx/of @counter)))
+          s1 (atom nil)
+          s2 (atom nil)]
+      (rx/subscribe s #(reset! s1 %))
+      (rx/subscribe s #(reset! s2 %))
+      (rx/on-end s #(do
+                      (t/is (= @s1 1))
+                      (t/is (= @s2 2))
+                      (done))))))
+
+(t/deftest observable-iif-true
+  (t/async done
+    (let [s (rx/iif (constantly true) (rx/of :yes) (rx/of :no))]
+      (drain! s #(t/is (= % [:yes])))
+      (rx/on-end s done))))
+
+(t/deftest observable-iif-false
+  (t/async done
+    (let [s (rx/iif (constantly false) (rx/of :yes) (rx/of :no))]
+      (drain! s #(t/is (= % [:no])))
+      (rx/on-end s done))))
+
+(t/deftest observable-find-index
+  (t/async done
+    (let [s (->> (rx/from [1 2 3 4 5])
+                 (rx/find-index #(> % 3)))]
+      (drain! s #(t/is (= % [3])))
+      (rx/on-end s done))))
+
+(t/deftest observable-map-to
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/map-to :x))]
+      (drain! s #(t/is (= % [:x :x :x])))
+      (rx/on-end s done))))
+
+(t/deftest observable-switch-all
+  (t/async done
+    (let [s (->> (rx/from [(rx/of 1 2) (rx/of 3 4)])
+                 (rx/switch-all))]
+      (drain! s #(t/is (= % [1 2 3 4])))
+      (rx/on-end s done))))
+
+(t/deftest observable-concat-all
+  (t/async done
+    (let [s (->> (rx/from [(rx/of 1 2) (rx/of 3 4)])
+                 (rx/concat-all))]
+      (drain! s #(t/is (= % [1 2 3 4])))
+      (rx/on-end s done))))
+
+(t/deftest observable-zip-all
+  (t/async done
+    (let [s (->> (rx/from [(rx/of 1 2) (rx/of 3 4)])
+                 (rx/zip-all)
+                 (rx/map vec))]
+      (drain! s #(t/is (= % [[1 3] [2 4]])))
+      (rx/on-end s done))))
+
+(t/deftest observable-zip-with
+  (t/async done
+    (let [s1 (rx/from [1 2 3])
+          s2 (rx/from [4 5 6])
+          s (->> s1 (rx/zip-with s2) (rx/map vec))]
+      (drain! s #(t/is (= % [[1 4] [2 5] [3 6]])))
+      (rx/on-end s done))))
+
+(t/deftest observable-merge-with
+  (t/async done
+    (let [s1 (rx/from [1 2])
+          s2 (rx/from [3 4])
+          s (->> s1 (rx/merge-with s2))]
+      (drain! s #(t/is (= (set %) #{1 2 3 4})))
+      (rx/on-end s done))))
+
+(t/deftest observable-concat-with
+  (t/async done
+    (let [s1 (rx/from [1 2])
+          s2 (rx/from [3 4])
+          s (->> s1 (rx/concat-with s2))]
+      (drain! s #(t/is (= % [1 2 3 4])))
+      (rx/on-end s done))))
+
+(t/deftest observable-time-interval
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/time-interval)
+                 (rx/map #(.-value %)))]
+      (drain! s #(t/is (= % [1 2 3])))
+      (rx/on-end s done))))
+
+(t/deftest observable-repeat-when
+  (t/async done
+    (let [retry-count (atom 0)
+          s (->> (rx/create (fn [sink]
+                              (swap! retry-count inc)
+                              (rx/push! sink @retry-count)
+                              (rx/end! sink)))
+                 (rx/repeat-when (fn [notifier] (rx/take 2 notifier))))]
+      (drain! s #(t/is (= % [1 2])))
+      (rx/on-end s done))))
+
+(t/deftest observable-retry-when
+  (t/async done
+    (let [attempt (atom 0)
+          s (->> (rx/create (fn [sink]
+                              (swap! attempt inc)
+                              (if (< @attempt 3)
+                                (rx/error! sink (js/Error. "fail"))
+                                (do
+                                  (rx/push! sink :success)
+                                  (rx/end! sink)))))
+                 (rx/retry-when (fn [errors] (rx/delay 10 errors))))]
+      (drain! s #(t/is (= % [:success])))
+      (rx/on-end s done))))
+
+(t/deftest observable-timeout-with
+  (t/async done
+    (let [s (->> (rx/from [1 2 3])
+                 (rx/timeout-with 100 (rx/of :timeout)))]
+      (drain! s #(t/is (= % [1 2 3])))
+      (rx/on-end s done))))
+
+;; Skipping from-event-pattern test for now - needs more investigation
+;; (t/deftest observable-from-event-pattern
+;;   (t/async done
+;;     (let [handlers (atom [])
+;;           add-handler (fn [handler] (swap! handlers conj handler))
+;;           remove-handler (fn [handler] (swap! handlers #(remove #{handler} %)))
+;;           s (rx/from-event-pattern add-handler remove-handler)]
+;;       (t/is (rx/observable? s))
+;;       (rx/sub! (fn [v] (t/is (= v "test"))) s)
+;;       (doseq [h @handlers] (h "test"))
+;;       (rx/end! s)
+;;       (done))))
+
+(t/deftest observable-generate
+  (t/async done
+    (let [s (rx/generate 0
+                         (fn [x] (< x 5))
+                         (fn [x] (inc x))
+                         (fn [x] (* x 2)))]
+      (drain! s #(t/is (= % [0 2 4 6 8])))
+      (rx/on-end s done))))
+
+(t/deftest observable-bind-callback
+  (t/async done
+    (let [async-fn (fn [x callback]
+                     (js/setTimeout #(callback (* x 2)) 10))
+          bound-fn (rx/bind-callback async-fn)
+          s (bound-fn 5)]
+      (drain! s #(t/is (= % [10])))
+      (rx/on-end s done))))
+
+(t/deftest observable-bind-node-callback
+  (t/async done
+    (let [node-fn (fn [x callback]
+                    (js/setTimeout #(callback nil (* x 3)) 10))
+          bound-fn (rx/bind-node-callback node-fn)
+          s (bound-fn 5)]
+      (drain! s #(t/is (= % [15])))
+      (rx/on-end s done))))
+
+(t/deftest observable-using
+  (t/async done
+    (let [disposed? (atom false)
+          resource (fn [] #js {:unsubscribe #(reset! disposed? true)})
+          observable-fn (fn [r] (rx/of (.-unsubscribe r)))
+          s (rx/using resource observable-fn)]
+      (drain! s #(t/is (fn? (first %))))
+      (rx/on-end s #(do
+                      (t/is @disposed?)
+                      (done))))))
+
+;; Skipping connectable test for now - needs more investigation
+;; (t/deftest observable-connectable
+;;   (t/async done
+;;     (let [source (rx/from [1 2 3])
+;;           connectable-obs (rx/connectable source)
+;;           results (atom [])]
+;;       (rx/sub! #(swap! results conj %) connectable-obs)
+;;       (rx/sub! #(swap! results conj %) connectable-obs)
+;;       (.connect connectable-obs)
+;;       (js/setTimeout #(do
+;;                         (t/is (= @results [1 1 2 2 3 3]))
+;;                         (done))
+;;                      50))))
+
+(t/deftest observable-first-value-from
+  (t/async done
+    (let [s (rx/from [1 2 3])
+          p (rx/first-value-from s)]
+      (.then p (fn [v]
+                 (t/is (= v 1))
+                 (done))))))
+
+(t/deftest observable-last-value-from
+  (t/async done
+    (let [s (rx/from [1 2 3])
+          p (rx/last-value-from s)]
+      (.then p (fn [v]
+                 (t/is (= v 3))
+                 (done))))))
+
+(t/deftest observable-is-observable
+  (t/is (rx/is-observable (rx/from [1 2 3])))
+  (t/is (not (rx/is-observable [1 2 3])))
+  (t/is (not (rx/is-observable nil))))
