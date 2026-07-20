@@ -216,6 +216,24 @@
       (drain! sample #(t/is (= % [2 3 4 5])))
       (rx/on-end sample done))))
 
+(t/deftest observable-start-with
+  (t/async done
+    (let [nums (rx/from [1 2 3])
+          s (rx/start-with 0 nums)
+          u (rx/start-with -2 -1 s)]
+      (t/is (rx/observable? u))
+      (drain! u #(t/is (= % [-2 -1 0 1 2 3])))
+      (rx/on-end u done))))
+
+(t/deftest observable-end-with
+  (t/async done
+    (let [nums (rx/from [1 2 3])
+          s (rx/end-with 4 (rx/from nums))
+          u (rx/end-with 5 6 (rx/from s))]
+      (t/is (rx/observable? u))
+      (drain! u #(t/is (= % [1 2 3 4 5 6])))
+      (rx/on-end u done))))
+
 (t/deftest subject-as-ideref
   (t/async done
     (let [nums (rx/from [1 1 1 2 3 4 5])

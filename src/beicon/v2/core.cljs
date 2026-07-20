@@ -440,6 +440,22 @@
   [ob]
   (ops/pipe (ops/merge-all 1) ob))
 
+(defn start-with
+  "Emits the provided value(s) before any other emissions
+   from the source Observable."
+  [& args]
+  (let [values (butlast args)
+        ob     (c/last args)]
+    (ops/pipe (apply ops/start-with values) ob)))
+
+(defn end-with
+  "Emits the provided value(s) after all other emissions
+   from the source Observable."
+  [& args]
+  (let [values (butlast args)
+        ob     (c/last args)]
+    (ops/pipe (apply ops/end-with values) ob)))
+
 (defn skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
