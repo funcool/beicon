@@ -436,6 +436,16 @@
   [f ob]
   (ops/pipe (ops/mapcat f) ob))
 
+(defn exhaust-map
+  "Maps each value from the source Observable to an Observable, but
+   ignores subsequent values until the inner Observable completes.
+   Args:
+     f: a function that takes a value from the source observable and
+        returns an Observable
+     ob: the source Observable"
+  [f ob]
+  (ops/pipe (ops/exhaust-map f) ob))
+
 (defn concat-all
   [ob]
   (ops/pipe (ops/merge-all 1) ob))

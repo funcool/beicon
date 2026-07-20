@@ -94,6 +94,11 @@
   [f]
   (rx/concatMap (safe-project-indexed f)))
 
+(def ^function exhaust-map
+  "Maps each value from the source Observable to an Observable, but ignores
+  subsequent values until the inner Observable completes."
+  rx/exhaustMap)
+
 (def ^function skip
   "Bypasses a specified number of elements in an
   observable sequence and then returns the remaining
