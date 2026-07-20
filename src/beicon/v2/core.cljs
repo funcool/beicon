@@ -229,7 +229,7 @@
 }" rx/combineLatest))
 
 (defn combine-latest-all
-  "Comboines multiple Observables to create an Observable whose values
+  "Combines multiple Observables to create an Observable whose values
   are calculated from the latest values of each of its input
   Observables (constructor).
 
@@ -507,6 +507,12 @@
    (ops/pipe (ops/reduce f) ob))
   ([f seed ob]
    (ops/pipe (ops/reduce f seed) ob)))
+
+(defn pairwise
+  "Groups pairs of consecutive emssions together and emits them as
+  a javascript array."
+  [ob]
+  (ops/pipe (ops/pairwise) ob))
 
 (defn scan
   "Applies an accumulator function over an observable sequence and

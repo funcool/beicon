@@ -11,3 +11,13 @@ statement:
     the public at large and to the detriment of our heirs and successors. We
     intend this dedication to be an overt act of relinquishment in perpetuity of
     all present and future rights to this code under copyright law.
+
+## Running tests
+
+To run the tests, install yarn and execute:
+
+```
+yarn run test
+```
+
+This will compile the cljs code and run the tests.

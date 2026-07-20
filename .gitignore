@@ -9,8 +9,11 @@
 .shadow-cljs
 .yarn/*
 /*-init.clj
+/.calva
+/.clj-kondo
 /.cpcache
 /.lein-*
+/.lsp
 /.nrepl-port
 /.rebel*
 /checkouts
