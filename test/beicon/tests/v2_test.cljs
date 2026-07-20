@@ -89,6 +89,18 @@
                            (t/is (= % ["once"]))
                            (done)))))))
 
+(t/deftest observable-from-event-args
+  (t/async done
+    (let [target #js {:addEventListener (fn [type listener opts]
+                                           (t/is (= type "poked"))
+                                           (listener (.-passive opts)))
+                      :removeEventListener #()}
+          s (rx/from-event target "poked" {:passive false})]
+      (t/is (rx/observable? s))
+      (rx/end! (drain! s #(do
+                           (t/is (= % [false]))
+                           (done)))))))
+
 (t/deftest observable-with-timeout
   (t/async done
     (let [s (->> (rx/timer 200)
